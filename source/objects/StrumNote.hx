@@ -5,6 +5,8 @@ import backend.animation.PsychAnimationController;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
+using StringTools;
+
 class StrumNote extends FlxSprite
 {
 	public var rgbShader:RGBShaderReference;
@@ -13,6 +15,7 @@ class StrumNote extends FlxSprite
 	public var direction:Float = 90;//plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
+	
 	private var player:Int;
 	
 	public var texture(default, set):String = null;
@@ -155,16 +158,19 @@ class StrumNote extends FlxSprite
 				resetAnim = 0;
 			}
 		}
+		//if(animation.curAnim != null){ //my bad i was upset
+		if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
+			centerOrigin();
+		//}
+		}
+
 		super.update(elapsed);
 	}
 
 	public function playAnim(anim:String, ?force:Bool = false) {
 		animation.play(anim, force);
-		if(animation.curAnim != null)
-		{
-			centerOffsets();
-			centerOrigin();
-		}
+		centerOffsets();
+		centerOrigin();
 		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
 	}
 }
