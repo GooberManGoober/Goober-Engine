@@ -40,6 +40,9 @@ class Note extends FlxSprite
 {
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
 
+	public var mesh:modcharting.SustainStrip = null;
+  	public var z:Float = 0;
+
 	public var strumTime:Float = 0;
 	public var noteData:Int = 0;
 

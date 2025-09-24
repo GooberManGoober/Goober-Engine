@@ -37,6 +37,10 @@ import flixel.addons.display.FlxRuntimeShader;
 import openfl.filters.ShaderFilter;
 #end
 
+import modcharting.ModchartFuncs;
+import modcharting.NoteMovement;
+import modcharting.PlayfieldRenderer;
+
 #if VIDEOS_ALLOWED
 #if (hxCodec >= "3.0.0") import hxcodec.flixel.FlxVideo as VideoHandler;
 #elseif (hxCodec >= "2.6.1") import hxcodec.VideoHandler as VideoHandler;
@@ -264,6 +268,8 @@ class PlayState extends MusicBeatState
 	public var endCallback:Void->Void = null;
 
 	public static var pauseCountEnabled:Bool = false;
+
+	var backupGpu:Bool;
 
 	override public function create()
 	{
@@ -508,8 +514,13 @@ class PlayState extends MusicBeatState
 		opponentStrums = new FlxTypedGroup<StrumNote>();
 		playerStrums = new FlxTypedGroup<StrumNote>();
 
+		backupGpu = ClientPrefs.data.cacheOnGPU;
+		ClientPrefs.data.cacheOnGPU = false;
+
 		generateSong(SONG.song);
 
+		playfieldRenderer = new PlayfieldRenderer(strumLineNotes, notes, this);
+		noteGroup.add(playfieldRenderer);
 		noteGroup.add(grpNoteSplashes);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
@@ -954,6 +965,8 @@ class PlayState extends MusicBeatState
 
 			generateStaticArrows(0);
 			generateStaticArrows(1);
+
+			NoteMovement.getDefaultStrumPos(this);
 			for (i in 0...playerStrums.length) {
 				setOnScripts('defaultPlayerStrumX' + i, playerStrums.members[i].x);
 				setOnScripts('defaultPlayerStrumY' + i, playerStrums.members[i].y);
@@ -1667,6 +1680,8 @@ class PlayState extends MusicBeatState
 				openChartEditor();
 			else if (controls.justPressed('debug_2'))
 				openCharacterEditor();
+			else if (controls.justPressed('debug_3'))
+				openModchartEditor(); 
 		}
 
 		if (healthBar.bounds.max != null && health > healthBar.bounds.max)
@@ -1905,6 +1920,17 @@ class PlayState extends MusicBeatState
 			FlxG.sound.music.stop();
 		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 		MusicBeatState.switchState(new CharacterEditorState(SONG.player2));
+	}
+
+	function openModchartEditor()
+	{
+		FlxG.camera.followLerp = 0;
+		persistentUpdate = false;
+		paused = true;
+		if(FlxG.sound.music != null)
+			FlxG.sound.music.stop();
+		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
+		MusicBeatState.switchState(new modcharting.ModchartEditorState());
 	}
 
 	public var isDead:Bool = false; //Don't mess with this on Lua!!!
@@ -3046,6 +3072,7 @@ class PlayState extends MusicBeatState
 		FlxG.animationTimeScale = 1;
 		#if FLX_PITCH FlxG.sound.music.pitch = 1; #end
 		Note.globalRgbShaders = [];
+		ClientPrefs.data.cacheOnGPU = backupGpu;
 		backend.NoteTypesConfig.clearNoteTypesData();
 		instance = null;
 		super.destroy();

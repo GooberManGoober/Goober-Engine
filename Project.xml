@@ -30,6 +30,9 @@
 	<define name="TITLE_SCREEN_EASTER_EGG"/>
 	<define name="VIDEOS_ALLOWED" if="windows || linux || android" unless="32bits"/>
 
+	<define name="PSYCH" />
+	<define name="PSYCHVERSION" value="0.7.3"/>
+
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
