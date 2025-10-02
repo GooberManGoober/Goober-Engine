@@ -4,6 +4,11 @@ import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 
+#if !mobile
+import debug.*;
+import debug.FunkinDebugDisplay.DebugDisplayMode;
+#end
+
 import states.TitleState;
 
 // Add a variable here and it will get automatically saved
@@ -11,7 +16,6 @@ import states.TitleState;
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
-	public var showFPS:Bool = true;
 	public var flashing:Bool = true;
 	public var autoPause:Bool = true;
 	public var antialiasing:Bool = true;
@@ -75,8 +79,11 @@ import states.TitleState;
 	public var safeFrames:Float = 10;
 	public var guitarHeroSustains:Bool = true;
 	public var discordRPC:Bool = true;
-
-	public var pauseCountdown = false;
+	
+	//Put new vars here
+	public var fpsStyle:String = 'Simple';
+	public var fpsBgOpacity:Float = 0.5;
+	public var marvelousRank:Bool = false;
 }
 
 class ClientPrefs {
@@ -171,6 +178,9 @@ class ClientPrefs {
 		FlxG.log.add("Settings saved!");
 	}
 
+	#if !mobile
+	static var mode:DebugDisplayMode;
+	#end
 	public static function loadPrefs() {
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 
@@ -178,8 +188,24 @@ class ClientPrefs {
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
 		
-		if(Main.fpsVar != null)
-			Main.fpsVar.visible = data.showFPS;
+		#if !mobile
+		if(Main.debugDisplay != null)
+		{
+			switch (data.fpsStyle)
+			{
+				case "Simple":
+					mode = DebugDisplayMode.SIMPLE;
+				case "Advanced":
+					mode = DebugDisplayMode.ADVANCED;
+				case "Off":
+					mode = DebugDisplayMode.OFF;
+			}
+
+			setDebugDisplayMode(mode);
+
+			setDebugDisplayBGOpacity(data.fpsBgOpacity);
+		}
+		#end
 
 		#if (!html5 && !switch)
 		FlxG.autoPause = ClientPrefs.data.autoPause;
@@ -238,6 +264,29 @@ class ClientPrefs {
 			reloadVolumeKeys();
 		}
 	}
+
+	#if !mobile
+	static function setDebugDisplayMode(mode:DebugDisplayMode):Void
+	{
+		if (FlxG.game.parent.contains(Main.debugDisplay))
+		{
+		FlxG.game.parent.removeChild(Main.debugDisplay);
+		}
+
+		if (mode == DebugDisplayMode.OFF) return;
+
+		Main.debugDisplay.isAdvanced = (mode == DebugDisplayMode.ADVANCED);
+
+		FlxG.game.parent.addChild(Main.debugDisplay);
+	}
+
+	static function setDebugDisplayBGOpacity(value:Float):Void
+	{
+		if (Main.debugDisplay == null) return;
+
+		Main.debugDisplay.backgroundOpacity = value;
+	}
+	#end
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic
 	{

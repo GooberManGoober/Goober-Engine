@@ -39,12 +39,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = onChangeAutoPause;
 
-		var option:Option = new Option('Enable Pause Countdown',
-			"If checked, unpausing will trigger a countdown before resuming a song.",
-			'pauseCountdown',
-			'bool');
-		addOption(option);
-
 		var option:Option = new Option('Disable Reset Button',
 			"If checked, pressing Reset won't do anything.",
 			'noReset',
@@ -62,6 +56,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		option.onChange = onChangeHitsoundVolume;
+
+		var option:Option = new Option('Gold Ratings',
+			'If unchecked, the ratings won\'t display gold varients when having a 100% accuracy',
+			'marvelousRank',
+			'bool');
+		addOption(option);
 
 		var option:Option = new Option('Rating Offset',
 			'Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later.',

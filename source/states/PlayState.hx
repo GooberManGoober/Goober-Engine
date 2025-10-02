@@ -268,8 +268,6 @@ class PlayState extends MusicBeatState
 	public var startCallback:Void->Void = null;
 	public var endCallback:Void->Void = null;
 
-	public static var pauseCountEnabled:Bool = false;
-
 	var backupGpu:Bool;
 
 	override public function create()
@@ -432,11 +430,11 @@ class PlayState extends MusicBeatState
 
 		// STAGE SCRIPTS
 		#if LUA_ALLOWED
-		startLuasNamed('stages/' + curStage + '.lua');
+		startLuasNamed('data/stages/' + curStage + '.lua');
 		#end
 
 		#if HSCRIPT_ALLOWED
-		startHScriptsNamed('stages/' + curStage + '.hx');
+		startHScriptsNamed('data/stages/' + curStage + '.hx');
 		#end
 
 		if (!stageData.hide_girlfriend)
@@ -1030,8 +1028,6 @@ class PlayState extends MusicBeatState
 						FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6);
 						tick = GO;
 					case 4:
-						if (ClientPrefs.data.pauseCountdown)
-							pauseCountEnabled = true;
 						tick = START;
 				}
 
@@ -1317,9 +1313,9 @@ class PlayState extends MusicBeatState
 		// NEW SHIT
 		noteData = songData.notes;
 
-		var file:String = Paths.json(songName + '/events');
+		var file:String = Paths.json('songs/$songName/events');
 		#if MODS_ALLOWED
-		if (FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(file))
+		if (FileSystem.exists(Paths.modsJson('songs/$songName/events')) || FileSystem.exists(file))
 		#else
 		if (OpenFlAssets.exists(file))
 		#end
@@ -2412,7 +2408,6 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		pauseCountEnabled = false;
 		timeBar.visible = false;
 		timeTxt.visible = false;
 		canPause = false;
@@ -2592,7 +2587,7 @@ class PlayState extends MusicBeatState
 			antialias = !isPixelStage;
 		}
 
-		rating.loadGraphic(Paths.image(uiPrefix + "UI/" + daRating.image + ((ratingPercent == 1 || cpuControlled) ? "-gold" : "") + uiSuffix));
+		rating.loadGraphic(Paths.image(uiPrefix + "UI/" + daRating.image + (((ratingPercent == 1 || cpuControlled) && ClientPrefs.data.marvelousRank) ? "-gold" : "") + uiSuffix));
 		rating.screenCenter();
 		rating.x = placement - 40;
 		rating.y -= 60;
@@ -2647,7 +2642,7 @@ class PlayState extends MusicBeatState
 
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'UI/num' + Std.int(i) + ((ratingPercent == 1 || cpuControlled) ? "-gold" : "") + uiSuffix));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'UI/num' + Std.int(i) + (((ratingPercent == 1 || cpuControlled) && ClientPrefs.data.marvelousRank) ? "-gold" : "") + uiSuffix));
 			numScore.screenCenter();
 			numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
 			numScore.y += 80 - ClientPrefs.data.comboOffset[3];

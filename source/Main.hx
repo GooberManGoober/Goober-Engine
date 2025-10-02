@@ -4,7 +4,10 @@ package;
 import android.content.Context;
 #end
 
-import debug.FPSCounter;
+#if !mobile
+import debug.*;
+import debug.FunkinDebugDisplay.DebugDisplayMode;
+#end
 
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
@@ -15,6 +18,7 @@ import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.display.StageScaleMode;
+import backend.WidescreenScaleMode;
 import lime.app.Application;
 import states.TitleState;
 
@@ -48,7 +52,9 @@ class Main extends Sprite
 		startFullscreen: false // if the game should start at fullscreen mode
 	};
 
-	public static var fpsVar:FPSCounter;
+	#if !mobile
+	public static var debugDisplay:FunkinDebugDisplay;
+	#end
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -88,6 +94,9 @@ class Main extends Sprite
 		setupGame();
 	}
 
+	#if !mobile
+	var mode:DebugDisplayMode;
+	#end
 	private function setupGame():Void
 	{
 		var stageWidth:Int = Lib.current.stage.stageWidth;
@@ -109,13 +118,19 @@ class Main extends Sprite
 		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
 		#if !mobile
-		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
-		addChild(fpsVar);
-		Lib.current.stage.align = "tl";
-		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
-		if(fpsVar != null) {
-			fpsVar.visible = ClientPrefs.data.showFPS;
+		debugDisplay = new FunkinDebugDisplay(10, 10, 0xFFFFFF);
+		debugDisplay.backgroundOpacity = ClientPrefs.data.fpsBgOpacity;
+		switch (ClientPrefs.data.fpsStyle)
+		{
+			case "Simple":
+				mode = DebugDisplayMode.SIMPLE;
+			case "Advanced":
+				mode = DebugDisplayMode.ADVANCED;
+			case "Off":
+				mode = DebugDisplayMode.OFF;
 		}
+		setDebugDisplayMode(mode);
+		addChild(debugDisplay);
 		#end
 
 		#if linux
@@ -148,7 +163,25 @@ class Main extends Sprite
 			if (FlxG.game != null)
 			resetSpriteCache(FlxG.game);
 		});
+
+		FlxG.scaleMode = new WidescreenScaleMode(true); 
 	}
+
+	#if !mobile
+	static function setDebugDisplayMode(mode:DebugDisplayMode):Void
+	{
+		if (FlxG.game.parent.contains(Main.debugDisplay))
+		{
+		FlxG.game.parent.removeChild(Main.debugDisplay);
+		}
+
+		if (mode == DebugDisplayMode.OFF) return;
+
+		Main.debugDisplay.isAdvanced = (mode == DebugDisplayMode.ADVANCED);
+
+		FlxG.game.parent.addChild(Main.debugDisplay);
+	}
+	#end
 
 	static function resetSpriteCache(sprite:Sprite):Void {
 		@:privateAccess {

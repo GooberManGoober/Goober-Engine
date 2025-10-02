@@ -464,59 +464,17 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		hasResumed = true;
 		levelInfo.alpha = 0;
-		if (PlayState.pauseCountEnabled)
-		{
-			FlxG.sound.play(Paths.sound('clickText'), 0.6);
-
-			FlxTween.tween(levelInfo, {alpha: 0, y: 0}, 0.4, {ease: FlxEase.quartOut});
-			FlxTween.tween(levelDifficulty, {alpha: 0, y: levelDifficulty.y - 5}, 0.4, {ease: FlxEase.quartOut});
-			FlxTween.tween(blueballedTxt, {alpha: 0, y: blueballedTxt.y - 5}, 0.4, {ease: FlxEase.quartOut});
-
-			for (i in 0...grpMenuShit.members.length)
-				FlxTween.tween(grpMenuShit.members[i], {alpha: 0}, 0.4, {ease: FlxEase.quartOut});
-
-			new FlxTimer().start(0.4, function(tmr:FlxTimer)
-			{
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
-				countDown.visible = true;
-				countDown.text = "3";
-				new FlxTimer().start(1, function(tmr:FlxTimer)
-				{
-					FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
-					countDown.text = "2";
-					new FlxTimer().start(1, function(tmr:FlxTimer)
-					{
-						FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
-						countDown.text = "1";
-						FlxTween.tween(bg, {alpha: 0}, 1.2, {ease: FlxEase.quartInOut});
-						new FlxTimer().start(1, function(tmr:FlxTimer)
-						{
-							FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
-							countDown.text = "Go!";
-							FlxTween.tween(bg, {alpha: 0}, 0.3, {ease: FlxEase.quartOut});
-							FlxTween.tween(countDown, {alpha: 0}, 0.4);
-							new FlxTimer().start(0.55, function(tmr:FlxTimer)
-							{
-								close();
-							});
-						});
-					});
-				});
-			});
-		}
-		else
-		{
-			FlxG.sound.play(Paths.sound('clickText'), 0.6);
+		FlxG.sound.play(Paths.sound('clickText'), 0.6);
 			
-			FlxTween.tween(bg, {alpha: 0}, 0.4, {ease: FlxEase.quartOut});
-			FlxTween.tween(levelInfo, {alpha: 0, y: 0}, 0.4, {ease: FlxEase.quartOut});
-			FlxTween.tween(levelDifficulty, {alpha: 0, y: levelDifficulty.y - 5}, 0.4, {ease: FlxEase.quartOut});
-			FlxTween.tween(blueballedTxt, {alpha: 0, y: blueballedTxt.y - 5}, 0.4, {ease: FlxEase.quartOut});
+		FlxTween.tween(bg, {alpha: 0}, 0.4, {ease: FlxEase.quartOut});
+		FlxTween.tween(levelInfo, {alpha: 0, y: 0}, 0.4, {ease: FlxEase.quartOut});
+		FlxTween.tween(levelDifficulty, {alpha: 0, y: levelDifficulty.y - 5}, 0.4, {ease: FlxEase.quartOut});
+		FlxTween.tween(blueballedTxt, {alpha: 0, y: blueballedTxt.y - 5}, 0.4, {ease: FlxEase.quartOut});
+		FlxTween.tween(grpMenuShit, {alpha: 0}, 0.4, {ease: FlxEase.quartOut});
 
-			new FlxTimer().start(0.5, function(tmr:FlxTimer)
-			{
-				close();
-			});
-		}
+		new FlxTimer().start(0.5, function(tmr:FlxTimer)
+		{
+			close();
+		});
 	}
 }

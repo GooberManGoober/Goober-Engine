@@ -93,7 +93,7 @@ class ModchartFile
         //middle-upscroll
         var moddyFile4:String = Paths.json(#if PSYCH Paths.formatToSongPath(folder) #else PlayState.SONG.song #end + '/modchartData/modchart-middleUp');
         //global modchart
-        var moddyFile5:String = Paths.json(#if PSYCH Paths.formatToSongPath(folder) #else PlayState.SONG.song #end + '/modchartData/modchart');
+        var moddyFile5:String = Paths.json(#if PSYCH Paths.formatToSongPath(folder) #else PlayState.SONG.song #end + '/modchart');
 
         #if MODS_ALLOWED
         //downscroll in mods folder
@@ -105,7 +105,7 @@ class ModchartFile
         //middle-upscroll in mods folder
         var modModdyFile4:String = Paths.modsJson(#if PSYCH Paths.formatToSongPath(folder) #else PlayState.SONG.song #end + '/modchartData/modchart-middleUp');
         //global modchart
-        var modModdyFile5:String = Paths.modsJson(#if PSYCH Paths.formatToSongPath(folder) #else PlayState.SONG.song #end + '/modchartData/modchart');
+        var modModdyFile5:String = Paths.modsJson(#if PSYCH Paths.formatToSongPath(folder) #else PlayState.SONG.song #end + '/modchart');
         #end
 
         //this took too long just to get middlescroll support holy fucking shit - Sonic_fan0208
@@ -284,7 +284,7 @@ class ModchartFile
                 //global
                 else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
                 {
-                    filePath = Paths.json(folder + '/modchartData/modchart');
+                    filePath = Paths.json(folder + '/modchart');
                     folderShit = filePath.replace('modchart.json', "customMods/");
                 }
 
@@ -315,7 +315,7 @@ class ModchartFile
                 }
                 else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
                 {
-                    filePath = Paths.modsJson(folder + '/modchartData/modchart');
+                    filePath = Paths.modsJson(folder + '/modchart');
                     folderShit = filePath.replace('modchart.json', "customMods/");
                 }
                 #end

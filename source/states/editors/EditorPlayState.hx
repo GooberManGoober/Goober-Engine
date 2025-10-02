@@ -101,6 +101,7 @@ class EditorPlayState extends MusicBeatSubstate
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.scrollFactor.set();
 		bg.color = 0xFF101010;
+		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.alpha = 0.9;
 		add(bg);
 		
