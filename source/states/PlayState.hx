@@ -549,13 +549,13 @@ class PlayState extends MusicBeatState
 		reloadHealthBarColors();
 		uiGroup.add(healthBar);
 
-		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
+		iconP1 = new HealthIcon(boyfriend.healthIcon, boyfriend.animatedIcon, boyfriend.intenseIcon, true);
 		iconP1.y = healthBar.y - 75;
 		iconP1.visible = !ClientPrefs.data.hideHud;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP1);
 
-		iconP2 = new HealthIcon(dad.healthIcon, false);
+		iconP2 = new HealthIcon(dad.healthIcon, dad.animatedIcon, dad.intenseIcon, false);
 		iconP2.y = healthBar.y - 75;
 		iconP2.visible = !ClientPrefs.data.hideHud;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
@@ -1935,8 +1935,26 @@ class PlayState extends MusicBeatState
 		var newPercent:Null<Float> = FlxMath.remapToRange(FlxMath.bound(healthBar.valueFunction(), healthBar.bounds.min, healthBar.bounds.max), healthBar.bounds.min, healthBar.bounds.max, 0, 100);
 		healthBar.percent = (newPercent != null ? newPercent : 0);
 
-		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; //If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
-		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; //If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		if (!boyfriend.animatedIcon)
+		{
+			iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; //If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		}
+		else
+		{
+			if (healthBar.percent < 20 && iconP1.animation.name != '${boyfriend.healthIcon}Losing')
+				iconP1.animation.play(boyfriend.healthIcon + "Losing");
+			else if (healthBar.percent >= 20 && iconP1.animation.name != '${boyfriend.healthIcon}Neutral')
+				iconP1.animation.play(boyfriend.healthIcon + "Neutral");
+		}
+		if (!dad.animatedIcon)
+			iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; //If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		else
+		{
+			if (healthBar.percent > 80 && iconP2.animation.name != '${dad.healthIcon}Losing')
+				iconP2.animation.play(dad.healthIcon + "Losing");
+			else if (healthBar.percent <= 80 && iconP2.animation.name != '${dad.healthIcon}Neutral')
+				iconP2.animation.play(dad.healthIcon + "Neutral");
+		}
 		return health;
 	}
 
@@ -2215,7 +2233,7 @@ class PlayState extends MusicBeatState
 							boyfriend.alpha = 0.00001;
 							boyfriend = boyfriendMap.get(value2);
 							boyfriend.alpha = lastAlpha;
-							iconP1.changeIcon(boyfriend.healthIcon);
+							iconP1.changeIcon(boyfriend.healthIcon, boyfriend.animatedIcon, boyfriend.intenseIcon);
 						}
 						setOnScripts('boyfriendName', boyfriend.curCharacter);
 
@@ -2237,7 +2255,7 @@ class PlayState extends MusicBeatState
 								gf.visible = false;
 							}
 							dad.alpha = lastAlpha;
-							iconP2.changeIcon(dad.healthIcon);
+							iconP2.changeIcon(dad.healthIcon, dad.animatedIcon, dad.intenseIcon);
 						}
 						setOnScripts('dadName', dad.curCharacter);
 
@@ -3181,8 +3199,8 @@ class PlayState extends MusicBeatState
 		if (generatedMusic)
 			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
-		iconP1.scale.set(1.2, 1.2);
-		iconP2.scale.set(1.2, 1.2);
+		if (boyfriend.boppingIcon) iconP1.scale.set(1.2, 1.2);
+		if (dad.boppingIcon) iconP2.scale.set(1.2, 1.2);
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();

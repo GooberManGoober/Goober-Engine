@@ -7,18 +7,26 @@ class HealthIcon extends FlxSprite
 	private var isPlayer:Bool = false;
 	private var char:String = '';
 
-	public function new(char:String = 'bf', isPlayer:Bool = false, ?allowGPU:Bool = true)
+	private var isAnimated:Bool = false;
+	private var isShakeable:Bool = false;
+
+	public function new(char:String = 'bf', isPlayer:Bool = false, isAnimated:Bool = false, canShake:Bool = false, ?allowGPU:Bool = true)
 	{
 		super();
 		isOldIcon = (char == 'bf-old');
 		this.isPlayer = isPlayer;
-		changeIcon(char, allowGPU);
+		this.isAnimated = isAnimated;
+		this.isShakeable = canShake;
+		changeIcon(char, isAnimated, canShake, allowGPU);
 		scrollFactor.set();
 	}
 
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		if (isShakeable)
+			shake(2.7, 2, 0.1);
 
 		if (sprTracker != null)
 			setPosition(sprTracker.x + sprTracker.width + 12, sprTracker.y - 30);
@@ -32,14 +40,36 @@ class HealthIcon extends FlxSprite
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-face'; //Prevents crash from missing icon
 			
 			var graphic = Paths.image(name, allowGPU);
-			loadGraphic(graphic, true, Math.floor(graphic.width / 2), Math.floor(graphic.height));
-			iconOffsets[0] = (width - 150) / 2;
-			iconOffsets[1] = (height - 150) / 2;
+
+			if (!isAnimated)
+			{
+				loadGraphic(graphic, true, Math.floor(graphic.width / 2), Math.floor(graphic.height));
+				iconOffsets[0] = (width - 150) / 2;
+				iconOffsets[1] = (height - 150) / 2;
+			}
+			else
+			{
+				frames = Paths.getSparrowAtlas(name);
+				iconOffsets[0] = (width - 150) / 2;
+				iconOffsets[1] = (width - 150) / 2;
+			}
 			updateHitbox();
 
-			animation.add(char, [0, 1], 0, false, isPlayer);
-			animation.play(char);
+			if (!isAnimated)
+			{
+				animation.add(char, [0, 1], 0, false, isPlayer);
+				animation.play(char);
+			}
+			else
+			{
+				animation.addByPrefix(char + "Neutral", "icon neutral", 24, true, isPlayer);
+				animation.addByPrefix(char + "Losing", "icon losing", 24, true, isPlayer);
+				animation.play(char + "Neutral");
+			}
+
 			this.char = char;
+			this.isAnimated = isAnimated;
+			this.isShakeable = isShakeable;
 
 			if(char.endsWith('-pixel'))
 				antialiasing = false;
