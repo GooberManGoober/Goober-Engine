@@ -139,7 +139,7 @@ class Paths
 
 	inline public static function getSharedPath(file:String = '')
 	{
-		return 'assets/$file';
+		return 'assets/shared/$file';
 	}
 
 	inline static public function txt(key:String, ?library:String)

@@ -428,7 +428,6 @@ class CharacterEditorState extends MusicBeatState
 				image: 'characters/BOYFRIEND',
 				sing_duration: 4,
 				scale: 1,
-				animatedIcon: false,
 				intenseIcon: false,
 				iconBops: true,
 
@@ -721,26 +720,19 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.name = "Icon Settings";
 
 		checkBop = new FlxUICheckBox(15, 30, null, null, "Can icon bounce?", 100);
-		checkBop.checked = char.boppingIcon;
+		checkBop.checked = character.boppingIcon;
 		checkBop.callback = function() {
-			char.boppingIcon = !char.boppingIcon;
+			character.boppingIcon = !character.boppingIcon;
 		}
 
 		checkShake = new FlxUICheckBox(15, checkBop.y + 20, null, null, "Can icon shake?", 100);
-		checkShake.checked = char.intenseIcon;
+		checkShake.checked = character.intenseIcon;
 		checkBop.callback = function() {
-			char.intenseIcon = !char.intenseIcon;
-		}
-
-		checkAnimation = new FlxUICheckBox(15, checkShake.y + 20, null, null, "Is icon animated?", 100);
-		checkAnimation.checked = char.animatedIcon;
-		checkBop.callback = function() {
-			char.animatedIcon = !char.animatedIcon;
+			character.intenseIcon = !character.intenseIcon;
 		}
 
 		tab_group.add(checkBop);
 		tab_group.add(checkShake);
-		tab_group.add(checkAnimation);
 		UI_characterbox.addGroup(tab_group);
 	}
 
@@ -751,7 +743,7 @@ class CharacterEditorState extends MusicBeatState
 		{
 			if(sender == healthIconInputText) {
 				var lastIcon = healthIcon.getCharacter();
-				healthIcon.changeIcon(healthIconInputText.text, false);
+				healthIcon.changeIcon(healthIconInputText.text, character.intenseIcon);
 				character.healthIcon = healthIconInputText.text;
 				if(lastIcon != healthIcon.getCharacter()) updatePresence();
 			}
@@ -862,9 +854,8 @@ class CharacterEditorState extends MusicBeatState
 		check_player.checked = character.isPlayer;
 		imageInputText.text = character.imageFile;
 		healthIconInputText.text = character.healthIcon;
-		checkBop.checked = char.boppingIcon;
-		checkShake.checked = char.intenseIcon;
-		checkAnimation.checked = char.animatedIcon;
+		checkBop.checked = character.boppingIcon;
+		checkShake.checked = character.intenseIcon;
 		vocalsInputText.text = character.vocalsFile != null ? character.vocalsFile : '';
 		singDurationStepper.value = character.singDuration;
 		scaleStepper.value = character.jsonScale;
@@ -1138,7 +1129,7 @@ class CharacterEditorState extends MusicBeatState
 		healthColorStepperG.value = character.healthColorArray[1];
 		healthColorStepperB.value = character.healthColorArray[2];
 		healthBar.leftBar.color = healthBar.rightBar.color = FlxColor.fromRGB(character.healthColorArray[0], character.healthColorArray[1], character.healthColorArray[2]);
-		healthIcon.changeIcon(character.healthIcon, false);
+		healthIcon.changeIcon(character.healthIcon, character.intenseIcon);
 		updatePresence();
 	}
 
@@ -1313,7 +1304,6 @@ class CharacterEditorState extends MusicBeatState
 			"position":	character.positionArray,
 			"camera_position": character.cameraPosition,
 
-			"animatedIcon": character.animatedIcon,
 			"intenseIcon": character.intenseIcon,
 			"iconBops": character.boppingIcon,
 

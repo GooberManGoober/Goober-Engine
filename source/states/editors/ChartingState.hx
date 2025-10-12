@@ -2639,15 +2639,15 @@ class ChartingState extends MusicBeatState
 	{
 		if (_song.notes[curSec].mustHitSection)
 		{
-			leftIcon.changeIcon(characterData.iconP1);
-			rightIcon.changeIcon(characterData.iconP2);
-			if (_song.notes[curSec].gfSection) leftIcon.changeIcon('gf');
+			leftIcon.changeIcon(characterData.iconP1, false);
+			rightIcon.changeIcon(characterData.iconP2, false);
+			if (_song.notes[curSec].gfSection) leftIcon.changeIcon('gf', false);
 		}
 		else
 		{
-			leftIcon.changeIcon(characterData.iconP2);
-			rightIcon.changeIcon(characterData.iconP1);
-			if (_song.notes[curSec].gfSection) leftIcon.changeIcon('gf');
+			leftIcon.changeIcon(characterData.iconP2, false);
+			rightIcon.changeIcon(characterData.iconP1, false);
+			if (_song.notes[curSec].gfSection) leftIcon.changeIcon('gf', false);
 		}
 	}
 

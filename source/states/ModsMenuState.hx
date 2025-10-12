@@ -46,6 +46,8 @@ class ModsMenuState extends MusicBeatState
 	var noModsSine:Float = 0;
 	var noModsTxt:FlxText;
 
+	var CUTOUT_WIDTH:Float = backend.WidescreenScaleMode.gameCutoutSize.x / 1.5;
+
 	var _lastControllerMode:Bool = false;
 	var startMod:String = null;
 	public function new(startMod:String = null)
@@ -70,10 +72,11 @@ class ModsMenuState extends MusicBeatState
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFF665AFF;
 		bg.antialiasing = ClientPrefs.data.antialiasing;
+		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		add(bg);
 		bg.screenCenter();
 
-		bgList = FlxSpriteUtil.drawRoundRect(new FlxSprite(40, 40).makeGraphic(340, 440, FlxColor.TRANSPARENT), 0, 0, 340, 440, 15, 15, FlxColor.BLACK);
+		bgList = FlxSpriteUtil.drawRoundRect(new FlxSprite(CUTOUT_WIDTH+40, 40).makeGraphic(340, 440, FlxColor.TRANSPARENT), 0, 0, 340, 440, 15, 15, FlxColor.BLACK);
 		bgList.alpha = 0.6;
 
 		modsGroup = new FlxTypedGroup<ModItem>();

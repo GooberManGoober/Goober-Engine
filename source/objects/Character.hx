@@ -20,7 +20,6 @@ typedef CharacterFile = {
 	var sing_duration:Float;
 	var healthicon:String;
 
-	var animatedIcon:Bool;
 	var intenseIcon:Bool;
 	var iconBops:Bool;
 

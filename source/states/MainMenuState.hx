@@ -132,7 +132,7 @@ class MainMenuState extends MusicBeatState
 
 			if(FlxG.mouse.wheel != 0)
 			{
-				changeItem(FlxG.mouse.wheel);
+				changeItem(-FlxG.mouse.wheel);
 			}
 
 			if (controls.BACK)
