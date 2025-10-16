@@ -50,6 +50,7 @@ import modcharting.PlayfieldRenderer;
 #end
 
 import objects.Note.EventNote;
+import objects.StrumNote.SustainSplash;
 import objects.*;
 import states.stages.objects.*;
 
@@ -171,6 +172,7 @@ class PlayState extends MusicBeatState
 	public var opponentStrums:FlxTypedGroup<StrumNote>;
 	public var playerStrums:FlxTypedGroup<StrumNote>;
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
+	public var grpSustainSplashes:FlxTypedGroup<SustainSplash>;
 
 	public var camZooming:Bool = false;
 	public var camZoomingMult:Float = 1;
@@ -312,6 +314,7 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camOther, false);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
+		grpSustainSplashes = new FlxTypedGroup<SustainSplash>();
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -520,6 +523,7 @@ class PlayState extends MusicBeatState
 
 		playfieldRenderer = new PlayfieldRenderer(strumLineNotes, notes, this);
 		noteGroup.add(playfieldRenderer);
+		noteGroup.add(grpSustainSplashes);
 		noteGroup.add(grpNoteSplashes);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
@@ -650,6 +654,8 @@ class PlayState extends MusicBeatState
 		Paths.clearUnusedMemory();
 
 		if(eventNotes.length < 1) checkEventNote();
+
+		for(i in  0...unspawnNotes.length-1) if(unspawnNotes[i].isSustainNote) unspawnNotes[i].noAnimation = true;
 	}
 
 	function set_songSpeed(value:Float):Float
@@ -1521,6 +1527,8 @@ class PlayState extends MusicBeatState
 				opponentStrums.add(babyArrow);
 			}
 
+			grpSustainSplashes.add(babyArrow.sustainSplash);
+
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
 		}
@@ -1854,6 +1862,19 @@ class PlayState extends MusicBeatState
 								}
 							}
 
+							if (!isPixelStage)
+							{
+								if (daNote.isSustainNote && daNote.wasGoodHit && !strumGroup.members[daNote.noteData].sustainSplash.updatedThisFrame) {
+									if (daNote.animation.curAnim.name.endsWith("holdend")) {
+										if (Conductor.songPosition >= daNote.strumTime) {
+											strumGroup.members[daNote.noteData].sustainSplash.hide(!daNote.mustPress);
+										}
+									} else {
+										strumGroup.members[daNote.noteData].sustainSplash.show();
+									}
+								}
+							}
+
 							// Kill extremely late notes and cause misses
 							if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
 							{
@@ -1877,6 +1898,15 @@ class PlayState extends MusicBeatState
 							daNote.canBeHit = false;
 							daNote.wasGoodHit = false;
 						});
+					}
+				}
+
+				if (!isPixelStage)
+				{
+					for (strum in strumLineNotes.members) {
+						if (!strum.sustainSplash.updatedThisFrame) {
+							strum.sustainSplash.hide(true);
+						}
 					}
 				}
 			}
@@ -3004,6 +3034,10 @@ class PlayState extends MusicBeatState
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('opponentNoteHit', [note]);
 
 		if (!note.isSustainNote) invalidateNote(note);
+
+		if (note.isSustainNote){
+			dad.holdTimer = 0;
+		}
 	}
 
 	public function goodNoteHit(note:Note):Void
@@ -3088,6 +3122,10 @@ class PlayState extends MusicBeatState
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('goodNoteHit', [note]);
 
 		if(!note.isSustainNote) invalidateNote(note);
+
+		if (note.isSustainNote){
+			boyfriend.holdTimer = 0;
+		}
 	}
 
 	public function invalidateNote(note:Note):Void {

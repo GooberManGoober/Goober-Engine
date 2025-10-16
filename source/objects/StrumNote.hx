@@ -27,6 +27,8 @@ class StrumNote extends FlxSprite
 		return value;
 	}
 
+	public var sustainSplash:SustainSplash;
+	
 	public var useRGBShader:Bool = true;
 	public function new(x:Float, y:Float, leData:Int, player:Int) {
 		animation = new PsychAnimationController(this);
@@ -62,6 +64,7 @@ class StrumNote extends FlxSprite
 
 		texture = skin; //Load texture and anims
 		scrollFactor.set();
+		sustainSplash = new SustainSplash(this);
 	}
 
 	public function reloadNote()
@@ -158,6 +161,13 @@ class StrumNote extends FlxSprite
 				resetAnim = 0;
 			}
 		}
+
+		if(animation.curAnim != null && animation.curAnim.name == 'confirm')
+		{
+			if(animation.curAnim.finished) 
+				playAnim('pressed');
+		}
+
 		//if(animation.curAnim != null){ //my bad i was upset
 		if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
 			centerOrigin();
@@ -172,5 +182,68 @@ class StrumNote extends FlxSprite
 		centerOffsets();
 		centerOrigin();
 		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+	}
+}
+
+class SustainSplash extends FlxSprite {
+	public var rgbShader:RGBShaderReference;
+	public var strum:StrumNote;
+	override public function new(strum:StrumNote) {
+		super();
+		this.strum = strum;
+
+		@:privateAccess
+		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(strum.noteData));
+
+		frames = Paths.getSparrowAtlas("noteSplashes/sustain_cover");
+		animation.addByPrefix('cover', 'holdCoverStart0', 24, false);
+		animation.addByPrefix('splash', 'holdCoverEnd0', 24, false);
+		animation.addByPrefix('loop', 'holdCover0', 24);
+		animation.play("loop");
+		updateHitbox();
+		visible = false;
+		antialiasing = ClientPrefs.data.antialiasing;
+
+		scale.set(strum.scale.x / 0.7, strum.scale.y / 0.7);
+		updateHitbox();
+	}
+
+	public var updatedThisFrame:Bool = false;
+
+	public inline function show() {
+		updatedThisFrame = true;
+		visible = true;
+		if (animation.curAnim.name != "loop") {
+			animation.play("cover");
+			center();
+		}
+	}
+	public inline function hide(miss:Bool = false) {
+		if (animation.curAnim.name == "splash") return;
+
+		updatedThisFrame = true;
+		if (miss) visible = false;
+		if (animation.curAnim.name != "splash") {
+			animation.play("splash");
+			center();
+		}
+	}
+
+	override public function update(elapsed:Float) {
+		super.update(elapsed);
+		updatedThisFrame = false;
+
+		if (animation.curAnim.finished) {
+			if (animation.curAnim.name == "cover") animation.play("loop");
+			if (animation.curAnim.name == "splash") visible = false;
+		}
+		
+		center();
+	}
+
+	public function center() {
+		centerOffsets();
+		setPosition(strum.x, strum.y);
+		offset.set(106.25, 100);
 	}
 }

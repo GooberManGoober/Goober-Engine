@@ -150,6 +150,13 @@ class TitleState extends MusicBeatState
 			StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 		}
 
+		#if cpp
+		#if windows
+        backend.Native.fixScaling();
+        backend.Native.enableDarkMode(); // <- lowk do we need this or nah
+        #end
+		#end
+
 		FlxG.mouse.visible = false;
 		#if FREEPLAY
 		MusicBeatState.switchState(new FreeplayState());
