@@ -1862,16 +1862,13 @@ class PlayState extends MusicBeatState
 								}
 							}
 
-							if (!isPixelStage)
-							{
-								if (daNote.isSustainNote && daNote.wasGoodHit && !strumGroup.members[daNote.noteData].sustainSplash.updatedThisFrame) {
-									if (daNote.animation.curAnim.name.endsWith("holdend")) {
-										if (Conductor.songPosition >= daNote.strumTime) {
-											strumGroup.members[daNote.noteData].sustainSplash.hide(!daNote.mustPress);
-										}
-									} else {
-										strumGroup.members[daNote.noteData].sustainSplash.show();
+							if (daNote.isSustainNote && daNote.wasGoodHit && !strumGroup.members[daNote.noteData].sustainSplash.updatedThisFrame) {
+								if (daNote.animation.curAnim.name.endsWith("holdend")) {
+									if (Conductor.songPosition >= daNote.strumTime) {
+										strumGroup.members[daNote.noteData].sustainSplash.hide(!daNote.mustPress);
 									}
+								} else {
+									strumGroup.members[daNote.noteData].sustainSplash.show();
 								}
 							}
 
@@ -1901,12 +1898,9 @@ class PlayState extends MusicBeatState
 					}
 				}
 
-				if (!isPixelStage)
-				{
-					for (strum in strumLineNotes.members) {
-						if (!strum.sustainSplash.updatedThisFrame) {
-							strum.sustainSplash.hide(true);
-						}
+				for (strum in strumLineNotes.members) {
+					if (!strum.sustainSplash.updatedThisFrame) {
+						strum.sustainSplash.hide(true);
 					}
 				}
 			}
