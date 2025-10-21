@@ -83,7 +83,6 @@ import states.TitleState;
 	//Put new vars here
 	public var fpsStyle:String = 'Simple';
 	public var fpsBgOpacity:Float = 0.5;
-	public var marvelousRank:Bool = false;
 }
 
 class ClientPrefs {
