@@ -292,33 +292,34 @@ class ModchartFile
                 //downscroll only
                 if (useDownScrollChart)
                 {
-                    filePath = Paths.modsJson('songs/' + folder + '/modchartData/modchart-downscroll');
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-downscroll');
                     folderShit = filePath.replace('modchart-downscroll.json', "customMods/");
                 }
                 //upscroll only
                 else if (useUpScrollChart)
                 {
-                    filePath = Paths.modsJson('songs/' + folder + '/modchartData/modchart-upscroll');
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-upscroll');
                     folderShit = filePath.replace('modchart-upscroll.json', "customMods/");
                 }
                 //downscroll/middlescroll
                 else if (useMiddleDownScrollChart)
                 {
-                    filePath = Paths.modsJson('songs/' + folder + '/modchartData/modchart-middleDown');
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-middleDown');
                     folderShit = filePath.replace('modchart-middleDown.json', "customMods/");
                 }
                 //upscroll/middle
                 else if (useMiddleUpScrollChart)
                 {
-                    filePath = Paths.modsJson('songs/' + folder + '/modchartData/modchart-middleUp');
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-middleUp');
                     folderShit = filePath.replace('modchart-middleUp.json', "customMods/");
                 }
                 else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
                 {
-                    filePath = Paths.modsJson('songs/' + folder + '/modchart');
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchart');
                     folderShit = filePath.replace('modchart.json', "customMods/");
                 }
                 #end
+                trace(filePath);
             }
             catch(e:Dynamic)
             {

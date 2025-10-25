@@ -57,7 +57,6 @@ class NotesSubState extends MusicBeatSubstate
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFEA71FD;
 		bg.screenCenter();
-		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
 
@@ -631,7 +630,7 @@ class NotesSubState extends MusicBeatSubstate
 		for (i in 0...dataArray.length)
 		{
 			Note.initializeGlobalRGBShader(i);
-			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0);
+			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0, true);
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);
 			newNote.updateHitbox();

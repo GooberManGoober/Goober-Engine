@@ -17,8 +17,6 @@ import openfl.Assets;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.display.StageScaleMode;
-import backend.WidescreenScaleMode;
 import lime.app.Application;
 import states.TitleState;
 
@@ -115,7 +113,13 @@ class Main extends Sprite
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
-		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+
+		var game = new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
+			
+		@:privateAccess
+		game._customSoundTray = debug.FunkinSoundTray;
+		
+		addChild(game);
 
 		#if !mobile
 		debugDisplay = new FunkinDebugDisplay(10, 10, 0xFFFFFF);
@@ -163,8 +167,6 @@ class Main extends Sprite
 			if (FlxG.game != null)
 			resetSpriteCache(FlxG.game);
 		});
-
-		FlxG.scaleMode = new WidescreenScaleMode(true); 
 	}
 
 	#if !mobile

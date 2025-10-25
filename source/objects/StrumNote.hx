@@ -15,6 +15,7 @@ class StrumNote extends FlxSprite
 	public var direction:Float = 90;//plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
+	public var inEditor:Bool = false;
 	
 	private var player:Int;
 	
@@ -30,7 +31,7 @@ class StrumNote extends FlxSprite
 	public var sustainSplash:SustainSplash;
 	
 	public var useRGBShader:Bool = true;
-	public function new(x:Float, y:Float, leData:Int, player:Int) {
+	public function new(x:Float, y:Float, leData:Int, player:Int, ?inEditor:Bool = false) {
 		animation = new PsychAnimationController(this);
 
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
@@ -53,6 +54,7 @@ class StrumNote extends FlxSprite
 		noteData = leData;
 		this.player = player;
 		this.noteData = leData;
+		this.inEditor = inEditor;
 		super(x, y);
 
 		var skin:String = null;
@@ -162,10 +164,13 @@ class StrumNote extends FlxSprite
 			}
 		}
 
-		if(animation.curAnim != null && animation.curAnim.name == 'confirm')
+		if (!inEditor)
 		{
-			if(animation.curAnim.finished) 
-				playAnim('pressed');
+			if(animation.curAnim != null && animation.curAnim.name == 'confirm')
+			{
+				if(animation.curAnim.finished) 
+					playAnim('pressed');
+			}
 		}
 
 		//if(animation.curAnim != null){ //my bad i was upset
