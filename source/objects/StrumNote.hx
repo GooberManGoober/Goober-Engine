@@ -163,19 +163,14 @@ class StrumNote extends FlxSprite
 			}
 		}
 
-		if (!inEditor)
+		if(animation.curAnim != null && animation.curAnim.name == 'confirm')
 		{
-			if(animation.curAnim != null && animation.curAnim.name == 'confirm')
-			{
-				if(animation.curAnim.finished) 
-					playAnim('pressed');
-			}
+			if(animation.curAnim.finished) 
+				playAnim('pressed');
 		}
-
-		//if(animation.curAnim != null){ //my bad i was upset
+		
 		if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
 			centerOrigin();
-		//}
 		}
 
 		super.update(elapsed);
@@ -185,7 +180,15 @@ class StrumNote extends FlxSprite
 		animation.play(anim, force);
 		centerOffsets();
 		centerOrigin();
-		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+		if(animation.curAnim == null || animation.curAnim.name == 'static') {
+		
+		} else {
+			if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
+				centerOrigin();
+			}
+		}
+		if(useRGBShader) 
+			rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
 	}
 }
 
