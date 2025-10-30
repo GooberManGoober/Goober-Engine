@@ -11,6 +11,7 @@ class MasterEditorMenu extends MusicBeatState
 {
 	var options:Array<String> = [
 		'Chart Editor',
+		'Modchart Editor',
 		'Character Editor',
 		'Week Editor',
 		'Menu Character Editor',
@@ -118,6 +119,8 @@ class MasterEditorMenu extends MusicBeatState
 					LoadingState.loadAndSwitchState(new DialogueCharacterEditorState(), false);
 				case 'Note Splash Debug':
 					MusicBeatState.switchState(new NoteSplashDebugState());
+				case 'Modchart Editor':
+					LoadingState.loadAndSwitchState(new modcharting.ModchartEditorState(), false);
 			}
 			FlxG.sound.music.volume = 0;
 		}

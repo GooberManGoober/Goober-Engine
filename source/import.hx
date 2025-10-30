@@ -33,6 +33,8 @@ import backend.BaseStage;
 import backend.Difficulty;
 import backend.Mods;
 
+import backend.ui.*; //Psych-UI
+
 import objects.Alphabet;
 import objects.BGSprite;
 

@@ -5,8 +5,6 @@ import backend.animation.PsychAnimationController;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
-using StringTools;
-
 class StrumNote extends FlxSprite
 {
 	public var rgbShader:RGBShaderReference;
@@ -16,7 +14,7 @@ class StrumNote extends FlxSprite
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
 	public var inEditor:Bool = false;
-	
+
 	private var player:Int;
 	
 	public var texture(default, set):String = null;
@@ -29,7 +27,7 @@ class StrumNote extends FlxSprite
 	}
 
 	public var sustainSplash:SustainSplash;
-	
+
 	public var useRGBShader:Bool = true;
 	public function new(x:Float, y:Float, leData:Int, player:Int, ?inEditor:Bool = false) {
 		animation = new PsychAnimationController(this);
@@ -55,6 +53,7 @@ class StrumNote extends FlxSprite
 		this.player = player;
 		this.noteData = leData;
 		this.inEditor = inEditor;
+		this.ID = noteData;
 		super(x, y);
 
 		var skin:String = null;
@@ -67,6 +66,7 @@ class StrumNote extends FlxSprite
 		texture = skin; //Load texture and anims
 		scrollFactor.set();
 		sustainSplash = new SustainSplash(this);
+		playAnim('static');
 	}
 
 	public function reloadNote()
@@ -147,12 +147,11 @@ class StrumNote extends FlxSprite
 		}
 	}
 
-	public function postAddedToGroup() {
-		playAnim('static');
+	public function playerPosition()
+	{
 		x += Note.swagWidth * noteData;
 		x += 50;
 		x += ((FlxG.width / 2) * player);
-		ID = noteData;
 	}
 
 	override function update(elapsed:Float) {
@@ -198,7 +197,8 @@ class SustainSplash extends FlxSprite {
 		this.strum = strum;
 
 		@:privateAccess
-		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(strum.noteData));
+		if (!PlayState.isPixelStage)
+			rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(strum.noteData));
 
 		frames = Paths.getSparrowAtlas(PlayState.isPixelStage ? "pixelUI/pixelNoteHoldCover" : "noteSplashes/sustain_cover");
 		animation.addByPrefix('cover', 'holdCoverStart0', 24, false);

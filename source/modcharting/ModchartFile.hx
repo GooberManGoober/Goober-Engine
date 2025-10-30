@@ -108,7 +108,7 @@ class ModchartFile
         var modModdyFile5:String = Paths.modsJson(#if PSYCH Paths.formatToSongPath('songs/' + folder) #else PlayState.SONG.song #end + '/modchart');
         #end
 
-        //this took too long just to get middlescroll support holy fucking shit - Sonic_fan0208
+        //this took too long just to get middlescroll support holy fucking shit - Goober Man
         #if PSYCH
         try 
         {
@@ -319,7 +319,6 @@ class ModchartFile
                     folderShit = filePath.replace('modchart.json', "customMods/");
                 }
                 #end
-                trace(filePath);
             }
             catch(e:Dynamic)
             {

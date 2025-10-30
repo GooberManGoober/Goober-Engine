@@ -81,6 +81,8 @@ class TitleState extends MusicBeatState
 		FlxG.game.focusLostFramerate = 60;
 		FlxG.keys.preventDefaultKeys = [TAB];
 
+		backend.ScreenshotPlugin.initialize();
+
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		super.create();

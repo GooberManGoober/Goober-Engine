@@ -31,6 +31,18 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'ghostTapping',
 			'bool');
 		addOption(option);
+
+		var option:Option = new Option('Fancy Preview',
+			"If enabled, a preview will be shown after taking a screenshot.",
+			'fancyPreview',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Preview on save',
+			"If enabled, the preview will be shown only after a screenshot is saved.",
+			'previewOnSave',
+			'bool');
+		addOption(option);
 		
 		var option:Option = new Option('Auto Pause',
 			"If checked, the game automatically pauses if the screen isn't on focus.",

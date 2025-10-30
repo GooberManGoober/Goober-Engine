@@ -197,102 +197,13 @@ class EditorPlayState extends MusicBeatSubstate
 				var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
 				if(!daNote.mustPress) strumGroup = opponentStrums;
 
-				var strumX:Float = strumGroup.members[daNote.noteData].x;
-				var strumY:Float = strumGroup.members[daNote.noteData].y;
-				var strumAngle:Float = strumGroup.members[daNote.noteData].angle;
-				var strumDirection:Float = strumGroup.members[daNote.noteData].direction;
-				var strumAlpha:Float = strumGroup.members[daNote.noteData].alpha;
-				var strumScroll:Bool = strumGroup.members[daNote.noteData].downScroll;
+				var strum:StrumNote = strumGroup.members[daNote.noteData];
+				daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
 
-				strumX += daNote.offsetX;
-				strumY += daNote.offsetY;
-				strumAngle += daNote.offsetAngle;
-				strumAlpha *= daNote.multAlpha;
-
-				if (strumScroll) //Downscroll
-				{
-					//daNote.y = (strumY + 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed);
-					daNote.distance = (0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed * daNote.multSpeed);
-				}
-				else //Upscroll
-				{
-					//daNote.y = (strumY - 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed);
-					daNote.distance = (-0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed * daNote.multSpeed);
-				}
-
-				var angleDir = strumDirection * Math.PI / 180;
-				if (daNote.copyAngle)
-					daNote.angle = strumDirection - 90 + strumAngle;
-
-				if(daNote.copyAlpha)
-					daNote.alpha = strumAlpha;
-
-				if(daNote.copyX)
-					daNote.x = strumX + Math.cos(angleDir) * daNote.distance;
-
-				if(daNote.copyY)
-				{
-					daNote.y = strumY + Math.sin(angleDir) * daNote.distance;
-
-					//Jesus fuck this took me so much mother fucking time AAAAAAAAAA
-					if(strumScroll && daNote.isSustainNote)
-					{
-						if (daNote.animation.curAnim.name.endsWith('end')) {
-							daNote.y += 10.5 * (fakeCrochet / 400) * 1.5 * songSpeed + (46 * (songSpeed - 1));
-							daNote.y -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
-							if(PlayState.isPixelStage) {
-								daNote.y += 8 + (6 - daNote.originalHeight) * PlayState.daPixelZoom;
-							} else {
-								daNote.y -= 19;
-							}
-						}
-						daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
-						daNote.y += 27.5 * ((PlayState.SONG.bpm / 100) - 1) * (songSpeed - 1);
-					}
-				}
-
-				if (!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
-				{
+				if(!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
 					opponentNoteHit(daNote);
-				}
 
-				if(!daNote.blockHit && daNote.mustPress && daNote.canBeHit) {
-					if(daNote.isSustainNote) {
-						if(daNote.canBeHit) {
-							goodNoteHit(daNote);
-						}
-					} else if(daNote.strumTime <= Conductor.songPosition || daNote.isSustainNote) {
-						goodNoteHit(daNote);
-					}
-				}
-
-				var center:Float = strumY + Note.swagWidth / 2;
-				if(strumGroup.members[daNote.noteData].sustainReduce && daNote.isSustainNote && (daNote.mustPress || !daNote.ignoreNote) &&
-					(!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
-				{
-					if (strumScroll)
-					{
-						if(daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center)
-						{
-							var swagRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
-							swagRect.height = (center - daNote.y) / daNote.scale.y;
-							swagRect.y = daNote.frameHeight - swagRect.height;
-
-							daNote.clipRect = swagRect;
-						}
-					}
-					else
-					{
-						if (daNote.y + daNote.offset.y * daNote.scale.y <= center)
-						{
-							var swagRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
-							swagRect.y = (center - daNote.y) / daNote.scale.y;
-							swagRect.height -= swagRect.y;
-
-							daNote.clipRect = swagRect;
-						}
-					}
-				}
+				if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
 				// Kill extremely late notes and cause misses
 				if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
@@ -558,7 +469,7 @@ class EditorPlayState extends MusicBeatSubstate
 			}
 
 			strumLineNotes.add(babyArrow);
-			babyArrow.postAddedToGroup();
+			babyArrow.playerPosition();
 		}
 	}
 
@@ -590,10 +501,10 @@ class EditorPlayState extends MusicBeatSubstate
 	private function cachePopUpScore()
 	{
 		for (rating in ratingsData)
-			Paths.image(rating.image);
+			Paths.image('UI/' + rating.image);
 		
 		for (i in 0...10)
-			Paths.image('num' + i);
+			Paths.image('UI/num' + i);
 	}
 
 	private function popUpScore(note:Note = null):Void
@@ -633,7 +544,7 @@ class EditorPlayState extends MusicBeatSubstate
 		var pixelShitPart1:String = "";
 		var pixelShitPart2:String = '';
 
-		rating.loadGraphic(Paths.image(pixelShitPart1 + daRating.image + pixelShitPart2));
+		rating.loadGraphic(Paths.image(pixelShitPart1 + "UI/" + daRating.image + pixelShitPart2));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y -= 60;
@@ -644,7 +555,7 @@ class EditorPlayState extends MusicBeatSubstate
 		rating.x += ClientPrefs.data.comboOffset[0];
 		rating.y -= ClientPrefs.data.comboOffset[1];
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'UI/combo' + pixelShitPart2));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
@@ -698,7 +609,7 @@ class EditorPlayState extends MusicBeatSubstate
 		}
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'UI/num' + Std.int(i) + pixelShitPart2));
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
 			numScore.y += 80 - ClientPrefs.data.comboOffset[3];

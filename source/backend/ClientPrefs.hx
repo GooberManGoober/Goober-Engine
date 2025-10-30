@@ -83,6 +83,9 @@ import states.TitleState;
 	//Put new vars here
 	public var fpsStyle:String = 'Simple';
 	public var fpsBgOpacity:Float = 0.5;
+
+	public var fancyPreview:Bool = true;
+	public var previewOnSave:Bool = true;
 }
 
 class ClientPrefs {
@@ -113,7 +116,9 @@ class ClientPrefs {
 		
 		'debug_1'		=> [SEVEN],
 		'debug_2'		=> [EIGHT],
-		'debug_3'		=> [NINE]
+		'debug_3'		=> [NINE],
+
+		'screenshot'    => [F3]
 	];
 	public static var gamepadBinds:Map<String, Array<FlxGamepadInputID>> = [
 		'note_up'		=> [DPAD_UP, Y],

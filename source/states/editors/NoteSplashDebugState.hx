@@ -35,7 +35,11 @@ class NoteSplashDebugState extends MusicBeatState
 
 	override function create()
 	{
-		FlxG.camera.bgColor = FlxColor.fromHSL(0, 0, 0.5);
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		bg.scrollFactor.set();
+		bg.color = 0xFF505050;
+		add(bg);  
+		
 		selection = new FlxSprite(0, 270).makeGraphic(150, 150, FlxColor.BLACK);
 		selection.alpha = 0.4;
 		add(selection);

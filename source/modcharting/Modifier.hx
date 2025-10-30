@@ -780,16 +780,6 @@ class EaseCurveAngleModifier extends EaseCurveModifier
         noteData.angle += (easeFunc(curPos*0.01)*currentValue*0.2);
     }
 }
-/*
-class EaseCurveScaleModifier extends EaseCurveModifier
-{
-    override function noteMath(noteData:NotePositionData, lane:Int, curPos:Float, pf:Int)
-    {
-        noteData.scaleX += (easeFunc(curPos*0.01)*currentValue*0.2);
-        noteData.scaleY += (easeFunc(curPos*0.01)*currentValue*0.2);
-    }
-}*/
-
 
 class InvertSineModifier extends Modifier
 {
