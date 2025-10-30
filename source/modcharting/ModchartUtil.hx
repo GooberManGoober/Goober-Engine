@@ -22,7 +22,7 @@ using StringTools;
 
 class ModchartUtil
 {
-    public static function getDownscroll(instance:ModchartMusicBeatState)
+    public static function getDownscroll(instance:MusicBeatState)
     {
         //need to test each engine
         //not expecting all to work
@@ -48,7 +48,7 @@ class ModchartUtil
         return false;
         #end
     }
-    public static function getMiddlescroll(instance:ModchartMusicBeatState)
+    public static function getMiddlescroll(instance:MusicBeatState)
     {
         #if PSYCH
             #if (PSYCHVERSION <= "0.7")
@@ -79,7 +79,7 @@ class ModchartUtil
         #end
     }
 
-    public static function getIsPixelStage(instance:ModchartMusicBeatState)
+    public static function getIsPixelStage(instance:MusicBeatState)
     {
         if (instance == null)
             return false;
@@ -90,7 +90,7 @@ class ModchartUtil
         #end
     }
 
-    public static function getNoteOffsetX(daNote:Note, instance:ModchartMusicBeatState)
+    public static function getNoteOffsetX(daNote:Note, instance:MusicBeatState)
     {
         #if PSYCH
         return daNote.offsetX;

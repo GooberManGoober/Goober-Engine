@@ -4,11 +4,15 @@ import flixel.addons.ui.FlxUIState;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxState;
 import backend.PsychCamera;
+import modcharting.*;
 
-class MusicBeatState extends modcharting.ModchartMusicBeatState
+class MusicBeatState extends FlxUIState
 {
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
+
+	//just stores the renderer so instancing shit can work properly i guess
+ 	public var playfieldRenderer:PlayfieldRenderer;
 
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;

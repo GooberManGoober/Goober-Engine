@@ -2367,7 +2367,7 @@ class ModchartEditorState extends #if (PSYCH && PSYCHVERSION >= "0.7") backend.M
 
 
     var _file:FileReference;
-    public function saveModchartJson(?instance:ModchartMusicBeatState = null) : Void
+    public function saveModchartJson(?instance:MusicBeatState = null) : Void
     {
         if (instance == null)
             instance = PlayState.instance;

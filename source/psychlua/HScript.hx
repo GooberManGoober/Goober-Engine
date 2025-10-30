@@ -120,7 +120,6 @@ class HScript extends SScript
 		set('ModchartEventManager', modcharting.ModchartEventManager);
 		set('ModchartFile', modcharting.ModchartFile);
 		set('ModchartFuncs', modcharting.ModchartFuncs);
-		set('ModchartMusicBeatState', modcharting.ModchartMusicBeatState);
 		set('ModchartUtil', modcharting.ModchartUtil);
 		for (i in ['mod', 'Modifier'])
 			set(i, modcharting.Modifier); //the game crashes without this???????? what??????????? -- fue glow
