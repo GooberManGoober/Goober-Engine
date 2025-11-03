@@ -17,5 +17,6 @@ haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6
 haxelib git hxCodec https://github.com/polybiusproxy/hxCodec
 haxelib install hxdiscord_rpc 1.2.4
 haxelib install hxcpp 4.3.2
+haxelib install hscript
 echo Finished!
 pause
