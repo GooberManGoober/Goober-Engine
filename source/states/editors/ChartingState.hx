@@ -18,6 +18,8 @@ import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.Assets as OpenFlAssets;
 
+import flixel.util.FlxStringUtil;
+
 import backend.Song;
 import backend.Section;
 import backend.StageData;
@@ -77,6 +79,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var _file:FileReference;
 
 	var UI_box:PsychUIBox;
+	var infoBox:PsychUIBox;
 
 	var camUI:FlxCamera;
 
@@ -89,7 +92,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	public static var lastSection:Int = 0;
 	private static var lastSong:String = '';
 
-	var bpmTxt:FlxText;
+	var infoText:FlxText;
 
 	var camPos:FlxObject;
 	var strumLine:FlxSprite;
@@ -267,9 +270,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		Conductor.mapBPMChanges(_song);
 		if(curSec >= _song.notes.length) curSec = _song.notes.length - 1;
 
-		bpmTxt = new FlxText(1000, 50, 0, "", 16);
-		bpmTxt.scrollFactor.set();
-		add(bpmTxt);
+		infoBox = new PsychUIBox(1000, 25, 220, 220, ['Information']);
+		infoBox.canMove = false;
+		infoBox.scrollFactor.set();
+		infoText = new FlxText(15, 15, 230, '', 16);
+		infoText.scrollFactor.set();
+		infoBox.getTab('Information').menu.add(infoText);
+		add(infoBox);
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(GRID_SIZE * 9), 4);
 		add(strumLine);
@@ -2070,12 +2077,16 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		opponentVocals.pitch = playbackSpeed;
 		#end
 
-		bpmTxt.text =
-		Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) +
+		var curTime:String = FlxStringUtil.formatTime(Conductor.songPosition / 1000, true);
+		var songLength:String = (FlxG.sound.music != null) ? FlxStringUtil.formatTime(FlxG.sound.music.length / 1000, true) : '???';
+
+		infoText.text =
+		'$curTime / $songLength' +
 		"\nSection: " + curSec +
 		"\n\nBeat: " + Std.string(curDecBeat).substring(0,4) +
 		"\n\nStep: " + curStep +
 		"\n\nBeat Snap: " + quantization + "th";
+		if(infoText.autoSize) infoText.autoSize = false;
 
 		var playedSound:Array<Bool> = [false, false, false, false]; //Prevents ouchy GF sex sounds
 		curRenderedNotes.forEachAlive(function(note:Note) {
