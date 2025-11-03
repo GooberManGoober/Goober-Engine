@@ -78,8 +78,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	var _file:FileReference;
 
-	var UI_box:PsychUIBox;
-	var infoBox:PsychUIBox;
+	var uiBox:PsychUIBox;
+	var bpmBox:PsychUIBox;
 
 	var camUI:FlxCamera;
 
@@ -92,7 +92,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	public static var lastSection:Int = 0;
 	private static var lastSong:String = '';
 
-	var infoText:FlxText;
+	var bpmTxt:FlxText;
 
 	var camPos:FlxObject;
 	var strumLine:FlxSprite;
@@ -270,13 +270,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		Conductor.mapBPMChanges(_song);
 		if(curSec >= _song.notes.length) curSec = _song.notes.length - 1;
 
-		infoBox = new PsychUIBox(1000, 25, 220, 220, ['Information']);
-		infoBox.canMove = false;
-		infoBox.scrollFactor.set();
-		infoText = new FlxText(15, 15, 230, '', 16);
-		infoText.scrollFactor.set();
-		infoBox.getTab('Information').menu.add(infoText);
-		add(infoBox);
+		bpmBox = new PsychUIBox(1000, 25, 220, 220, ['Information']);
+		bpmBox.canMove = false;
+		bpmBox.scrollFactor.set();
+		bpmTxt = new FlxText(15, 15, 230, '', 16);
+		bpmTxt.scrollFactor.set();
+		bpmBox.getTab('Information').menu.add(bpmTxt);
+		add(bpmBox);
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(GRID_SIZE * 9), 4);
 		add(strumLine);
@@ -307,9 +307,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		dummyArrow.antialiasing = ClientPrefs.data.antialiasing;
 		add(dummyArrow);
 
-		UI_box = new PsychUIBox(640 + GRID_SIZE / 2, 25, 300, 400, ['Charting', 'Data', 'Events', 'Note', 'Section', 'Song']);
-		UI_box.canMove = false;
-		UI_box.scrollFactor.set();
+		uiBox = new PsychUIBox(640 + GRID_SIZE / 2, 25, 300, 400, ['Charting', 'Data', 'Events', 'Note', 'Section', 'Song']);
+		uiBox.canMove = false;
+		uiBox.scrollFactor.set();
 
 		text =
 		"W/S or Mouse Wheel - Change Conductor's strum time
@@ -331,14 +331,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		var tipTextArray:Array<String> = text.split('\n');
 		for (i in 0...tipTextArray.length) {
-			var tipText:FlxText = new FlxText(UI_box.x, UI_box.y + UI_box.height + 8, 0, tipTextArray[i], 16);
+			var tipText:FlxText = new FlxText(uiBox.x, uiBox.y + uiBox.height + 8, 0, tipTextArray[i], 16);
 			tipText.y += i * 12;
 			tipText.setFormat(Paths.font("vcr.ttf"), 14, FlxColor.WHITE, LEFT/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 			//tipText.borderSize = 2;
 			tipText.scrollFactor.set();
 			add(tipText);
 		}
-		add(UI_box);
+		add(uiBox);
 
 		addSongUI();
 		addSectionUI();
@@ -348,7 +348,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		addDataUI();
 		updateHeads();
 		updateWaveform();
-		//UI_box.selected_tab = 4;
+		//uiBox.selected_tab = 4;
 
 		add(curRenderedSustains);
 		add(curRenderedNotes);
@@ -601,7 +601,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		stageDropDown.selectedLabel = _song.stage;
 		blockPressWhileScrolling.push(stageDropDown);
 
-		var tab_group_song = UI_box.getTab('Song').menu;
+		var tab_group_song = uiBox.getTab('Song').menu;
 
 		tab_group_song.add(UI_songTitle);
 
@@ -646,7 +646,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function addSectionUI():Void
 	{
-		var tab_group_section = UI_box.getTab('Section').menu;
+		var tab_group_section = uiBox.getTab('Section').menu;
 
 		check_mustHitSection = new PsychUICheckBox(10, 15, "Must hit section", 100);
 		check_mustHitSection.name = 'check_mustHit';
@@ -905,7 +905,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function addNoteUI():Void
 	{
-		var tab_group_note = UI_box.getTab('Note').menu;
+		var tab_group_note = uiBox.getTab('Note').menu;
 
 		stepperSusLength = new PsychUINumericStepper(10, 25, Conductor.stepCrochet / 2, 0, 0, Conductor.stepCrochet * 64);
 		stepperSusLength.value = 0;
@@ -972,7 +972,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var selectedEventText:FlxText;
 	function addEventsUI():Void
 	{
-		var tab_group_event = UI_box.getTab('Events').menu;
+		var tab_group_event = uiBox.getTab('Events').menu;
 
 		#if LUA_ALLOWED
 		var eventPushedMap:Map<String, Bool> = new Map<String, Bool>();
@@ -1132,7 +1132,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var voicesVolume:PsychUINumericStepper;
 	var voicesOppVolume:PsychUINumericStepper;
 	function addChartingUI() {
-		var tab_group_chart = UI_box.getTab('Charting').menu;
+		var tab_group_chart = uiBox.getTab('Charting').menu;
 
 		#if desktop
 		if (FlxG.save.data.chart_waveformInst == null) FlxG.save.data.chart_waveformInst = false;
@@ -1338,7 +1338,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var noteSplashesInputText:PsychUIInputText;
 	function addDataUI()
 	{
-		var tab_group_data = UI_box.getTab('Data').menu;
+		var tab_group_data = uiBox.getTab('Data').menu;
 
 		//
 		gameOverCharacterInputText = new PsychUIInputText(10, 25, 150, _song.gameOverChar != null ? _song.gameOverChar : '', 8);
@@ -1521,7 +1521,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		}
 
 		// general shit
-		var title:FlxText = new FlxText(UI_box.x + 20, UI_box.y + 20, 0);
+		var title:FlxText = new FlxText(uiBox.x + 20, uiBox.y + 20, 0);
 		bullshitUI.add(title);
 	}
 
@@ -2080,13 +2080,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var curTime:String = FlxStringUtil.formatTime(Conductor.songPosition / 1000, true);
 		var songLength:String = (FlxG.sound.music != null) ? FlxStringUtil.formatTime(FlxG.sound.music.length / 1000, true) : '???';
 
-		infoText.text =
+		bpmTxt.text =
 		'$curTime / $songLength' +
 		"\nSection: " + curSec +
 		"\n\nBeat: " + Std.string(curDecBeat).substring(0,4) +
 		"\n\nStep: " + curStep +
 		"\n\nBeat Snap: " + quantization + "th";
-		if(infoText.autoSize) infoText.autoSize = false;
+		if(bpmTxt.autoSize) bpmTxt.autoSize = false;
 
 		var playedSound:Array<Bool> = [false, false, false, false]; //Prevents ouchy GF sex sounds
 		curRenderedNotes.forEachAlive(function(note:Note) {
