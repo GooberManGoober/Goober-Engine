@@ -35,6 +35,8 @@ import backend.Mods;
 
 import backend.ui.*; //Psych-UI
 
+import flixel.addons.transition.FlxTransitionableState;
+
 import objects.Alphabet;
 import objects.BGSprite;
 
@@ -43,6 +45,7 @@ import states.LoadingState;
 
 #if flxanimate
 import flxanimate.*;
+import flxanimate.PsychFlxAnimate as FlxAnimate;
 #end
 
 //Flixel

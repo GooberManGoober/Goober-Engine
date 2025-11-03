@@ -5,24 +5,20 @@ import haxe.Exception;
 import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;
-#if LEATHER
-import states.PlayState;
-import game.Note;
-import game.Conductor;
-#if polymod
-import polymod.backends.PolymodAssets;
-#end
-#end
+
 #if sys
 import sys.FileSystem;
 import sys.io.File;
 #end
+
 #if hscript
 import hscript.*;
 #end
-#if (HSCRIPT_ALLOWED && PSYCH && PSYCHVERSION >= "0.7")
-import psychlua.HScript as FunkinHScript;
+
+#if (HSCRIPT_ALLOWED)
+import psychlua.HScript;
 #end
+
 using StringTools;
 
 typedef ModchartJson = 
@@ -62,136 +58,186 @@ class ModchartFile
     #if hscript
     public var customModifiers:Map<String, Dynamic> = new Map<String, Dynamic>();
     #end
-    public var hasDifficultyModchart:Bool = false; //so it loads false as default!
+    public var useDownScrollChart:Bool = false; //so it loads false as default!
+    public var useMiddleDownScrollChart:Bool = false;
+    public var useMiddleUpScrollChart:Bool = false;
+    public var useUpScrollChart:Bool = false;
     
     public function new(renderer:PlayfieldRenderer)
     {
-        #if PSYCH
-	    #if (PSYCHVERSION >= "0.7")
-           	data = loadFromJson(PlayState.SONG.song.toLowerCase(), Difficulty.getString().toLowerCase() == null ? Difficulty.defaultList[PlayState.storyDifficulty] : Difficulty.getString().toLowerCase());
-	    #elseif (PSYCHVERSION < "0.7")
-            	data = loadFromJson(PlayState.SONG.song.toLowerCase(), CoolUtil.difficultyString().toLowerCase() == null ? CoolUtil.difficulties[PlayState.storyDifficulty] : CoolUtil.difficultyString().toLowerCase());
-	    #end
-        #else 
-            data = loadFromJson(PlayState.SONG.song.toLowerCase(), PlayState.storyDifficultyStr);
-        #end
-        this.renderer = renderer;
+        data = loadFromJson(PlayState.SONG.song.toLowerCase());
+	    this.renderer = renderer;
         renderer.modchart = this;
         loadPlayfields();
         loadModifiers();
         loadEvents();
     }
 
-    public function loadFromJson(folder:String, difficulty:String):ModchartJson //load da shit
+    public function loadFromJson(folder:String):ModchartJson //load da shit
     {
         var rawJson = null;
         var filePath = null;
 
         var folderShit:String = "";
-        
-        var moddyFile:String = Paths.json(#if PSYCH Paths.formatToSongPath('songs/' + folder) #else PlayState.SONG.song #end + '/modchart-' + difficulty.toLowerCase());
-        var moddyFile2:String = Paths.json(#if PSYCH Paths.formatToSongPath('songs/' + folder) #else PlayState.SONG.song #end + '/modchart');
+        #if sys
+        //downscroll
+        var moddyFile:String = Paths.json(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-downscroll');
+        //upscroll
+        var moddyFile2:String = Paths.json(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-upscroll');
+        //middle-downscroll
+        var moddyFile3:String = Paths.json(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-middleDown');
+        //middle-upscroll
+        var moddyFile4:String = Paths.json(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-middleUp');
+        //global modchart
+        var moddyFile5:String = Paths.json(Paths.formatToSongPath('songs/' + folder) + '/modchart');
 
         #if MODS_ALLOWED
-        var moddyFileMods:String = Paths.modsJson(#if PSYCH Paths.formatToSongPath('songs/' + folder) #else PlayState.SONG.song #end + '/modchart-' + difficulty.toLowerCase());
-        var moddyFileMods2:String = Paths.modsJson(#if PSYCH Paths.formatToSongPath('songs/' + folder) #else PlayState.SONG.song #end + '/modchart');
+        //downscroll in mods folder
+        var modModdyFile:String = Paths.modsJson(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-downscroll');
+        //upscroll in mods folder
+        var modModdyFile2:String = Paths.modsJson(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-upscroll');
+        //middle-downscroll in mods folder
+        var modModdyFile3:String = Paths.modsJson(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-middleDown');
+        //middle-upscroll in mods folder
+        var modModdyFile4:String = Paths.modsJson(Paths.formatToSongPath('songs/' + folder) + '/modchartData/modchart-middleUp');
+        //global modchart
+        var modModdyFile5:String = Paths.modsJson(Paths.formatToSongPath('songs/' + folder) + '/modchart');
         #end
 
-        #if PSYCH
+        //this took too long just to get middlescroll support holy fucking shit - Goober Man
         try 
         {
-
-            #if sys
-            #if MODS_ALLOWED
-            if(FileSystem.exists(moddyFileMods) && difficulty.toLowerCase() != null) 
-                hasDifficultyModchart = true;
-                if (FileSystem.exists(moddyFileMods2) && !FileSystem.exists(moddyFileMods))
-                    hasDifficultyModchart = false;
-            else if(FileSystem.exists(moddyFileMods2) && difficulty.toLowerCase() == null && !FileSystem.exists(moddyFileMods)) hasDifficultyModchart = false;
-            #end
-
-            if(FileSystem.exists(moddyFile) && difficulty.toLowerCase() != null) 
-                hasDifficultyModchart = true;
-                if (FileSystem.exists(moddyFile) && !FileSystem.exists(moddyFile))
-                    hasDifficultyModchart = false;
-            else if(FileSystem.exists(moddyFile2) && difficulty.toLowerCase() == null && !FileSystem.exists(moddyFile)) hasDifficultyModchart = false;
-
-            #if MODS_ALLOWED
-            if (hasDifficultyModchart)
+            //if modchart exists, downscroll is enabled, and middlescroll is disabled (it'll use the downscroll chart)
+            if(FileSystem.exists(moddyFile) && ClientPrefs.data.downScroll && !ClientPrefs.data.middleScroll) 
             {
-                rawJson = File.getContent(moddyFileMods).trim();
-                folderShit = moddyFileMods.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/");
-
-                trace('${difficulty} Modchart Found In Mods! loading modchart-${difficulty.toLowerCase()}.json');
+                useDownScrollChart = true;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = false;
             }
-            else
+            //if modchart exists, downscroll is disabled, and middlescroll is disabled (it'll use the upscroll chart)
+            else if(FileSystem.exists(moddyFile2) && !ClientPrefs.data.downScroll && !ClientPrefs.data.middleScroll) 
             {
-                rawJson = File.getContent(moddyFileMods2).trim();
-                folderShit = moddyFileMods2.replace('modchart.json', "customMods/");
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = true;
+            }
+            //if modchart exists, downscroll is disabled, and middlescroll is enabled (it'll use the upscroll-middlescroll chart)
+            else if(FileSystem.exists(moddyFile4) && !ClientPrefs.data.downScroll && ClientPrefs.data.middleScroll) 
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = true;
+                useUpScrollChart = false;
+            }
+            //if modchart exists, downscroll is enabled, and middlescroll is enabled (it'll use the downscroll-middlescroll chart)
+            else if(FileSystem.exists(moddyFile3) && ClientPrefs.data.downScroll && ClientPrefs.data.middleScroll) 
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = true;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = false;
+            }
+            //if a global modchart exists
+            else if (FileSystem.exists(moddyFile5) && !FileSystem.exists(moddyFile) && !FileSystem.exists(moddyFile2) && !FileSystem.exists(moddyFile3) && !FileSystem.exists(moddyFile4))
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = false;
+            }
 
-                trace('${difficulty} Modchart Has Not Been Found In Mods! loading modchart.json');
+            #if MODS_ALLOWED
+            if(FileSystem.exists(modModdyFile) && ClientPrefs.data.downScroll && !ClientPrefs.data.middleScroll) 
+            {
+                useDownScrollChart = true;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = false;
+            }
+            else if(FileSystem.exists(modModdyFile2) && !ClientPrefs.data.downScroll && !ClientPrefs.data.middleScroll) 
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = true;
+            }
+            else if(FileSystem.exists(modModdyFile4) && !ClientPrefs.data.downScroll && ClientPrefs.data.middleScroll) 
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = true;
+                useUpScrollChart = false;
+            }
+            else if(FileSystem.exists(modModdyFile3) && ClientPrefs.data.downScroll && ClientPrefs.data.middleScroll) 
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = true;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = false;
+            }
+            //if a global modchart exists
+            else if (FileSystem.exists(modModdyFile5) &&!FileSystem.exists(modModdyFile) && !FileSystem.exists(modModdyFile2) && !FileSystem.exists(modModdyFile3) && !FileSystem.exists(modModdyFile4))
+            {
+                useDownScrollChart = false;
+                useMiddleDownScrollChart = false;
+                useMiddleUpScrollChart = false;
+                useUpScrollChart = false;
             }
             #end
-
-            if (hasDifficultyModchart)
+            
+            if(useDownScrollChart) 
             {
                 rawJson = File.getContent(moddyFile).trim();
-                folderShit = moddyFile.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/");
-
-                trace('${difficulty} Modchart Found! loading modchart-${difficulty.toLowerCase()}.json');
+                folderShit = moddyFile.replace('modchart-downscroll.json', "customMods/");
             }
-            else
+            else if(useUpScrollChart) 
             {
                 rawJson = File.getContent(moddyFile2).trim();
-                folderShit = moddyFile2.replace('modchart.json', "customMods/");
-
-                trace('${difficulty} Modchart Has Not Been Found! loading modchart.json');
+                folderShit = moddyFile2.replace('modchart-upscroll.json', "customMods/");
             }
-            #else
+            else if(useMiddleDownScrollChart) 
+            {
+                rawJson = File.getContent(moddyFile3).trim();
+                folderShit = moddyFile3.replace('modchart-middleDown.json', "customMods/");
+            }
+            else if(useMiddleUpScrollChart) 
+            {
+                rawJson = File.getContent(moddyFile4).trim();
+                folderShit = moddyFile4.replace('modchart-middleUp.json', "customMods/");
+            }
+            else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
+            {
+                rawJson = File.getContent(moddyFile5).trim();
+                folderShit = moddyFile5.replace('modchart.json', "customMods/");
+            }
+
             #if MODS_ALLOWED
-            if(Assets.exists(moddyFileMods) && difficulty.toLowerCase() != null) 
-                hasDifficultyModchart = true;
-                if (Assets.exists(moddyFileMods2) && !Assets.exists(moddyFileMods))
-                    hasDifficultyModchart = false;
-            else if(Assets.exists(moddyFileMods2) && difficulty.toLowerCase() == null && !Assets.exists(moddyFileMods)) hasDifficultyModchart = false;
-            #end
-
-            if(Assets.exists(moddyFile) && difficulty.toLowerCase() != null) 
-                hasDifficultyModchart = true;
-                if (Assets.exists(moddyFile) && !Assets.exists(moddyFile))
-                    hasDifficultyModchart = false;
-            else if(Assets.exists(moddyFile2) && difficulty.toLowerCase() == null && !Assets.exists(moddyFile)) hasDifficultyModchart = false;
-
-            #if MODS_ALLOWED
-            if (hasDifficultyModchart)
+            if(useDownScrollChart) 
             {
-                rawJson = File.getContent(moddyFileMods).trim();
-                folderShit = moddyFileMods.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/");
-
-                trace('${difficulty} Modchart Found In Mods! loading modchart-${difficulty.toLowerCase()}.json');
+                rawJson = File.getContent(modModdyFile).trim();
+                folderShit = modModdyFile.replace('modchart-downscroll.json', "customMods/");
             }
-            else
+            else if(useUpScrollChart) 
             {
-                rawJson = File.getContent(moddyFileMods2).trim();
-                folderShit = moddyFileMods2.replace('modchart.json', "customMods/");
-
-                trace('${difficulty} Modchart Has Not Been Found In Mods! loading modchart.json');
+                rawJson = File.getContent(modModdyFile2).trim();
+                folderShit = modModdyFile2.replace('modchart-upscroll.json', "customMods/");
             }
-            #end
-
-            if (hasDifficultyModchart)
+            else if(useMiddleDownScrollChart) 
             {
-                rawJson = File.getContent(moddyFile).trim();
-                folderShit = moddyFile.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/");
-
-                trace('${difficulty} Modchart Found! loading modchart-${difficulty.toLowerCase()}.json');
+                rawJson = File.getContent(modModdyFile3).trim();
+                folderShit = modModdyFile3.replace('modchart-middleDown.json', "customMods/");
             }
-            else
+            else if(useMiddleUpScrollChart) 
             {
-                rawJson = File.getContent(moddyFile2).trim();
-                folderShit = moddyFile2.replace('modchart.json', "customMods/");
-
-                trace('${difficulty} Modchart Has Not Been Found! loading modchart.json');
+                rawJson = File.getContent(modModdyFile4).trim();
+                folderShit = modModdyFile4.replace('modchart-middleUp.json', "customMods/");
+            }
+            else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
+            {
+                rawJson = File.getContent(modModdyFile5).trim();
+                folderShit = modModdyFile5.replace('modchart.json', "customMods/");
             }
             #end
         }
@@ -200,85 +246,96 @@ class ModchartFile
             trace(e);
         }
         #end
-        
+
         if (rawJson == null)
         {
             try
-            {
-                #if MODS_ALLOWED
-                if (hasDifficultyModchart)
+            {   
+                //downscroll only
+                if (useDownScrollChart)
                 {
-
-                    #if LEATHER
-                        filePath = Paths.json("song data/" + folder + '/modchart-' + difficulty.toLowerCase());
-                        folderShit = PolymodAssets.getPath(filePath.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/"));
-                    #else 
-                        filePath = Paths.modsJson(folder + '/modchart-' + difficulty.toLowerCase());
-                        folderShit = filePath.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/");
-                    #end
-
-                    trace('${difficulty} Modchart FolderShit Found In Mods! loading modchart-${difficulty.toLowerCase()}.json');
+                    filePath = Paths.json('songs/' + folder + '/modchartData/modchart-downscroll');
+                    folderShit = filePath.replace('modchart-downscroll.json', "customMods/");
                 }
-                else
-                { 
-                    #if LEATHER
-                        filePath = Paths.json("song data/" + folder + '/modchart');
-                        folderShit = PolymodAssets.getPath(filePath.replace('modchart.json', "customMods/"));
-                    #else 
-                        filePath = Paths.modsJson(folder + '/modchart');
-                        folderShit = filePath.replace('modchart.json', "customMods/");
-                    #end
+                //upscroll only
+                else if (useUpScrollChart)
+                {
+                    filePath = Paths.json('songs/' + folder + '/modchartData/modchart-upscroll');
+                    folderShit = filePath.replace('modchart-upscroll.json', "customMods/");
+                }
+                //downscroll/middlescroll
+                else if (useMiddleDownScrollChart)
+                {
+                    filePath = Paths.json('songs/' + folder + '/modchartData/modchart-middleDown');
+                    folderShit = filePath.replace('modchart-middleDown.json', "customMods/");
+                }
+                //upscroll/middle
+                else if (useMiddleUpScrollChart)
+                {
+                    filePath = Paths.json('songs/' + folder + '/modchartData/modchart-middleUp');
+                    folderShit = filePath.replace('modchart-middleUp.json', "customMods/");
+                }
+                //global
+                else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
+                {
+                    filePath = Paths.json('songs/' + folder + '/modchart');
+                    folderShit = filePath.replace('modchart.json', "customMods/");
+                }
 
-                    trace('${difficulty} Modchart Has No FolderShit Found In Mods! loading modchart.json');
+                #if MODS_ALLOWED
+                //downscroll only
+                if (useDownScrollChart)
+                {
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-downscroll');
+                    folderShit = filePath.replace('modchart-downscroll.json', "customMods/");
+                }
+                //upscroll only
+                else if (useUpScrollChart)
+                {
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-upscroll');
+                    folderShit = filePath.replace('modchart-upscroll.json', "customMods/");
+                }
+                //downscroll/middlescroll
+                else if (useMiddleDownScrollChart)
+                {
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-middleDown');
+                    folderShit = filePath.replace('modchart-middleDown.json', "customMods/");
+                }
+                //upscroll/middle
+                else if (useMiddleUpScrollChart)
+                {
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchartData/modchart-middleUp');
+                    folderShit = filePath.replace('modchart-middleUp.json', "customMods/");
+                }
+                else if(!useDownScrollChart && !useUpScrollChart && !useMiddleDownScrollChart && !useMiddleUpScrollChart) 
+                {
+                    filePath = Paths.modsJson('songs/' + folder.replace(" ", "-") + '/modchart');
+                    folderShit = filePath.replace('modchart.json', "customMods/");
                 }
                 #end
-
-
-                if (hasDifficultyModchart)
-                {
-                    #if LEATHER
-                        filePath = Paths.json("song data/" + folder + '/modchart-' + difficulty.toLowerCase());
-                        folderShit = PolymodAssets.getPath(filePath.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/"));
-                    #else 
-                        filePath = Paths.json(folder + '/modchart-' + difficulty.toLowerCase());
-                        folderShit = filePath.replace('modchart-' + difficulty.toLowerCase() + '.json', "customMods/");
-                    #end
-
-                    trace('${difficulty} Modchart FolderShit Found! loading modchart-${difficulty.toLowerCase()}.json');
-                }
-                else
-                {
-                    #if LEATHER
-                        filePath = Paths.json("song data/" + folder + '/modchart');
-                        folderShit = PolymodAssets.getPath(filePath.replace('modchart.json', "customMods/"));
-                    #else 
-                        filePath = Paths.json(folder + '/modchart');
-                        folderShit = filePath.replace('modchart.json', "customMods/");
-                    #end
-
-                    trace('${difficulty} Modchart Has No FolderShit Found! loading modchart.json');
-                }
             }
             catch(e:Dynamic)
             {
                 trace(e);
             }
             
-            trace(filePath);
+            if(FileSystem.exists(filePath))
+                trace(filePath);
+            else
+                trace('No modchart loaded');
             #if sys
             if(FileSystem.exists(filePath))
                 rawJson = File.getContent(filePath).trim();
             else #end //should become else if i think???
                 if (Assets.exists(filePath))
-                    rawJson = Assets.getText(filePath).trim();
+                    rawJson = Assets.getText(filePath).trim();  
                 
         }
         var json:ModchartJson = null;
         if (rawJson != null)
         {
-            for (i in 0...difficulty.length)
-                json = cast Json.parse(rawJson);
-            trace('loaded json');
+            json = cast Json.parse(rawJson);
+            trace('loaded Modchart');
             trace(folderShit);
 
             #if (hscript && sys)
@@ -292,7 +349,7 @@ class ModchartFile
                         {
                             var scriptStr = File.getContent(folderShit + file);
                             var scriptInit:Dynamic = null;
-                            scriptInit = #if (HSCRIPT_ALLOWED && PSYCH && PSYCHVERSION >= "0.7") new FunkinHScript(null, scriptStr) #else new CustomModifierScript(scriptStr) #end;
+                            scriptInit = new HScript(null, scriptStr);
                             customModifiers.set(file.replace(".hx", ""), scriptInit);
                             trace('loaded custom mod: ' + file);
                         }
@@ -413,10 +470,6 @@ class CustomModifierScript
         if (interp == null)
             return;
 
-        #if LEATHER
-        interp.variables.set('mod', Modifier); //the game crashes without this???????? what??????????? -- fue glow
-        #end
-
         interp.variables.set('Math', Math);
         interp.variables.set('PlayfieldRenderer', PlayfieldRenderer);
         interp.variables.set('ModchartUtil', ModchartUtil);
@@ -433,20 +486,17 @@ class CustomModifierScript
 		interp.variables.set('FlxTimer', flixel.util.FlxTimer);
 		interp.variables.set('FlxTween', flixel.tweens.FlxTween);
 		interp.variables.set('FlxEase', flixel.tweens.FlxEase);
-		interp.variables.set('PlayState', #if (PSYCH && PSYCHVERSION >= "0.7") states.PlayState #else PlayState #end);
-		interp.variables.set('game', #if (PSYCH && PSYCHVERSION >= "0.7") states.PlayState.instance #else PlayState.instance #end);
-		interp.variables.set('Paths', #if (PSYCH && PSYCHVERSION >= "0.7") backend.Paths #else Paths #end);
-		interp.variables.set('Conductor', #if (PSYCH && PSYCHVERSION >= "0.7") backend.Conductor #else Conductor #end);
+		interp.variables.set('PlayState', states.PlayState);
+		interp.variables.set('game', states.PlayState.instance);
+		interp.variables.set('Paths', backend.Paths);
+		interp.variables.set('Conductor', backend.Conductor);
         interp.variables.set('StringTools', StringTools);
-        interp.variables.set('Note', #if (PSYCH && PSYCHVERSION >= "0.7") objects.Note #else Note #end);
+        interp.variables.set('Note', objects.Note);
 
-        #if PSYCH
-        interp.variables.set('ClientPrefs', #if (PSYCHVERSION >= "0.7") backend.ClientPrefs #else ClientPrefs #end);
-        interp.variables.set('ColorSwap', #if (PSYCHVERSION >= "0.7") shaders.ColorSwap #else ColorSwap #end);
-        #end
-
-        
+        interp.variables.set('ClientPrefs', backend.ClientPrefs);
+        interp.variables.set('ColorSwap', shaders.ColorSwap);
     }
+
     public function call(event:String, args:Array<Dynamic>)
     {
         if (interp == null)

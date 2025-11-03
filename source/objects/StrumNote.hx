@@ -5,7 +5,9 @@ import backend.animation.PsychAnimationController;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
-class StrumNote extends FlxSprite
+import flixel.addons.effects.FlxSkewedSprite;
+
+class StrumNote extends FlxSkewedSprite
 {
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
@@ -163,7 +165,7 @@ class StrumNote extends FlxSprite
 			}
 		}
 
-		if(animation.curAnim != null && animation.curAnim.name == 'confirm')
+		if(animation.curAnim != null && animation.curAnim.name == 'confirm' && !inEditor)
 		{
 			if(animation.curAnim.finished) 
 				playAnim('pressed');

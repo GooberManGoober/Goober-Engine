@@ -10,6 +10,8 @@ import objects.StrumNote;
 
 import flixel.math.FlxRect;
 
+import flixel.addons.effects.FlxSkewedSprite;
+
 using StringTools;
 
 typedef EventNote = {
@@ -36,7 +38,7 @@ typedef NoteSplashData = {
  * 
  * If you want to make a custom note type, you should search for: "function set_noteType"
 **/
-class Note extends FlxSprite
+class Note extends FlxSkewedSprite
 {
 	//This is needed for the hardcoded note types to appear on the Chart Editor,
 	//It's also used for backwards compatibility with 0.1 - 0.3.2 charts.
