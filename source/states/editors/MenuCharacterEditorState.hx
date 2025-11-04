@@ -54,7 +54,8 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 
 		var tipText:FlxText = new FlxText(0, 540, FlxG.width,
 			"Arrow Keys - Change Offset (Hold shift for 10x speed)
-			\nSpace - Play \"Start Press\" animation (Boyfriend Character Type)", 16);
+			\nSpace - Play \"Start Press\" animation (Boyfriend Character Type)
+			\nF2 - Reset Editor UI Positions", 16);
 		tipText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		tipText.scrollFactor.set();
 		add(tipText);
@@ -218,6 +219,12 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				}
 				else openSubState(new ExitConfirmationPrompt());
+			}
+
+			if(FlxG.keys.justPressed.F2)
+			{
+				UI_typebox.setPosition(100, FlxG.height - 230);
+				UI_mainbox.setPosition(FlxG.width - 340, FlxG.height - 265);
 			}
 
 			var shiftMult:Int = 1;

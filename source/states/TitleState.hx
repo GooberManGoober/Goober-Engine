@@ -156,7 +156,6 @@ class TitleState extends MusicBeatState
 		cpp.NativeGc.enable(true);
 		cpp.NativeGc.run(true);
 
-        backend.Native.fixScaling();
         backend.Native.enableDarkMode(); // <- lowk do we need this or nah
 		#end
 

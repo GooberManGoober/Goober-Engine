@@ -6,6 +6,8 @@ import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;
 
+import flixel.util.FlxSave;
+
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -62,17 +64,33 @@ class ModchartFile
     public var useMiddleDownScrollChart:Bool = false;
     public var useMiddleUpScrollChart:Bool = false;
     public var useUpScrollChart:Bool = false;
+    public static var autosaveMod:String = null;
+
+
+    public var emptyMod:String = 
+    '{
+        "modifiers": [],
+        "playfields": 1,
+        "events": []
+    }';
+    public static var instance:ModchartFile;
+    var autosave:FlxSave;
     
     public function new(renderer:PlayfieldRenderer)
     {
+        autosave = new FlxSave();
+        autosave.bind("dataAutosave", CoolUtil.getSavePath());
+        
         data = loadFromJson(PlayState.SONG.song.toLowerCase());
 	    this.renderer = renderer;
         renderer.modchart = this;
+        instance = this;
         loadPlayfields();
         loadModifiers();
         loadEvents();
     }
 
+    public var json:String = null;
     public function loadFromJson(folder:String):ModchartJson //load da shit
     {
         var rawJson = null;
@@ -331,10 +349,10 @@ class ModchartFile
                     rawJson = Assets.getText(filePath).trim();  
                 
         }
-        var json:ModchartJson = null;
+        
         if (rawJson != null)
         {
-            json = cast Json.parse(rawJson);
+            json = rawJson;
             trace('loaded Modchart');
             trace(folderShit);
 
@@ -359,10 +377,26 @@ class ModchartFile
         }
         else 
         {
-            json = {modifiers: [], events: [], playfields: 1};
+            if (autosaveMod != null)
+            {
+                json = autosaveMod;
+                autosave.data.autosaveModchart = autosaveMod;
+                autosave.flush();
+            }
+            else
+                json = emptyMod;
+            autosaveMod = null;
         }
-        return json;
+        var modchartJson:Dynamic = parseModchartBullshit(json);
+        return modchartJson;
     }
+
+    public static function parseModchartBullshit(rawJson:String):ModchartJson
+	{
+		var swagShit:ModchartJson = cast Json.parse(rawJson);
+		return swagShit;
+	}
+
     public function loadEmpty()
     {
         data.modifiers = [];

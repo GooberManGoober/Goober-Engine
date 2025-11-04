@@ -184,6 +184,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		"",
 		"OTHER",
 		"F12 - Toggle Silhouettes",
+		"F2 - Reset Editor UI Positions",
 		"Hold Shift - Move Offsets 10x faster and Camera 4x faster",
 		"Hold Control - Move camera 4x slower"];
 
@@ -1041,6 +1042,12 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		// OTHER CONTROLS
 		if(FlxG.keys.justPressed.F12)
 			silhouettes.visible = !silhouettes.visible;
+
+		if(FlxG.keys.justPressed.F2)
+		{
+			UI_box.setPosition(FlxG.width - 275, 25);
+			UI_characterbox.setPosition(UI_box.x - 100, UI_box.y + UI_box.height + 10);
+		}
 
 		if(FlxG.keys.justPressed.F1 || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
 		{

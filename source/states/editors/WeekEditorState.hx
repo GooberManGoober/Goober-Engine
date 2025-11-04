@@ -410,6 +410,13 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		}
 		else ClientPrefs.toggleVolumeKeys(false);
 
+		if(FlxG.keys.justPressed.F2)
+		{
+			UI_box.setPosition(FlxG.width, FlxG.height);
+			UI_box.x -= UI_box.width;
+			UI_box.y -= UI_box.height;
+		}
+
 		super.update(elapsed);
 
 		lock.y = weekThing.y;
@@ -748,6 +755,13 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
 			MusicBeatState.switchState(new WeekEditorFreeplayState(WeekEditorState.loadedWeek));
 			WeekEditorState.loadedWeek = null;
 			return;
+		}
+
+		if(FlxG.keys.justPressed.F2)
+		{
+			UI_box.setPosition(FlxG.width, FlxG.height);
+			UI_box.x -= UI_box.width + 100;
+			UI_box.y -= UI_box.height + 60;
 		}
 		
 		if(PsychUIInputText.focusOn != null)

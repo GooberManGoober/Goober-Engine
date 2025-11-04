@@ -31,6 +31,7 @@ import flixel.FlxG;
 import flixel.util.FlxDestroyUtil;
 import flixel.addons.transition.FlxTransitionableState;
 
+import flixel.util.FlxSave;
 
 import backend.Section.SwagSection;
 import backend.MusicBeatSubstate;
@@ -44,6 +45,9 @@ import modcharting.*;
 import modcharting.PlayfieldRenderer.StrumNoteType;
 import modcharting.Modifier;
 import modcharting.ModchartFile;
+import modcharting.ModchartFile.ModchartJson;
+import substates.Prompt;
+
 using StringTools;
 
 class ModchartEditorEvent extends FlxSprite
@@ -204,6 +208,14 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     public var opponentVocals:FlxSound;
     var generatedMusic:Bool = false;
 
+    var _song:SwagSong;
+    var _modchart:ModchartJson;
+
+    var playfieldInstance:MusicBeatState;
+
+    var helpBg:FlxSprite;
+	var helpTexts:FlxSpriteGroup;
+
     private var grid:FlxBackdrop;
     private var line:FlxSprite;
     var beatTexts:Array<FlxText> = [];
@@ -225,6 +237,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     var selectedEventBox:FlxSprite;
 
     var inst:FlxSound;
+
+    var hasAutoSave:Bool = false;
 
     public var opponentMode:Bool = false;
 
@@ -257,7 +271,27 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		bg.color = 0xFF222222;
 		add(bg);
 
-        var tipText:FlxText = new FlxText(FlxG.width - 300, FlxG.height - 24, 300, "Press F1 to Hide Notes", 20);
+        if (PlayState.SONG != null)
+			_song = PlayState.SONG;
+		else
+		{
+			Difficulty.resetList();
+			_song = {
+				song: 'Test',
+				notes: [],
+				events: [],
+				bpm: 150.0,
+				needsVoices: true,
+				player1: 'bf',
+				player2: 'dad',
+				gfVersion: 'gf',
+				speed: 1,
+				stage: 'stage'
+			};
+			PlayState.SONG = _song;
+		}
+
+        var tipText:FlxText = new FlxText(FlxG.width - 300, FlxG.height - 24, 300, "Press F1 for Help", 20);
 		tipText.cameras = [camHUD];
 		tipText.setFormat(null, 16, FlxColor.WHITE, RIGHT, OUTLINE_FAST, FlxColor.BLACK);
 		tipText.borderColor = FlxColor.BLACK;
@@ -272,8 +306,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             modifierList.remove(SkewXModifier);
             modifierList.remove(SkewYModifier);
         }
-
-        if (PlayState.SONG == null) PlayState.SONG = Song.loadFromJson('test', 'test');
 
         #if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
@@ -306,6 +338,28 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		playfieldRenderer.cameras = [camHUD];
         playfieldRenderer.inEditor = true;
 		add(playfieldRenderer);
+
+        playfieldInstance = PlayState.instance;
+        if (playfieldRenderer.modchart.data != null)
+            _modchart = playfieldRenderer.modchart.data;
+        else if (playfieldInstance.playfieldRenderer.modchart.data != null)
+            _modchart = playfieldInstance.playfieldRenderer.modchart.data;
+        else {
+            _modchart = {
+                modifiers: [],
+                playfields: 1,
+                events: []
+            };
+        }
+
+        var autosave:FlxSave = new FlxSave();
+        autosave.bind("dataAutosave", CoolUtil.getSavePath());
+        if (autosave.data.autosaveModchart != null)
+        {
+            ModchartFile.autosaveMod = autosave.data.autosaveModchart;
+            trace('FOUND LAST SAVED MODCHART DATA: ${ModchartFile.autosaveMod}');
+            hasAutoSave = true;
+        }
 
         #if ("flixel-addons" >= "3.0.0")
         grid = new FlxBackdrop(FlxGraphic.fromBitmapData(createGrid(gridSize, gridSize, FlxG.width, gridSize)), FlxAxes.X, 0, 0);
@@ -344,14 +398,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         generateStaticArrows(1);
         NoteMovement.getDefaultStrumPosEditor(this);
 
-        //gridGap = FlxMath.remapToRange(Conductor.stepCrochet, 0, Conductor.stepCrochet, 0, gridSize); //idk why i even thought this was how i do it
-        //trace(gridGap);
-
         debugText = new FlxText(0, gridSize*2, 0, "", 16);
         debugText.alignment = FlxTextAlign.LEFT;
         
 
-        UI_box = new PsychUIBox(100, gridSize*2, FlxG.width-200, 550, ['Editor', 'Modifiers', 'Events', 'Playfields']);
+        UI_box = new PsychUIBox(100, gridSize*2, FlxG.width-200, 550, ['Editor', 'Events', 'Modifiers', 'Playfields']);
         UI_box.canMove = false;
 		UI_box.scrollFactor.set();
         add(UI_box);
@@ -360,6 +411,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
         add(debugText);
 
+        addHelpScreen();
+
         super.create(); //do here because tooltips be dumb
         //_ui.load(null);
         setupEditorUI();
@@ -367,6 +420,53 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         setupEventUI();
         setupPlayfieldUI();
     }
+
+    function addHelpScreen()
+	{
+		var str:Array<String> = [
+            "A/D, Left/Right or Mouse Wheel - Go to the previous/next section",
+            "Hold Shift to move 4x faster",
+            "Click on an arrow to select it",
+            "BACKSPACE - Delete an Event",
+            #if FLX_PITCH
+            "",
+            "Left Bracket / Right Bracket - Change Song Playback Rate (SHIFT to go Faster)",
+            "ALT + Left Bracket / Right Bracket - Reset Song Playback Rate",
+            #end
+            "",
+            "ENTER - Play your Modchart",
+            "Space - Stop/Resume song",
+            "ESC - Leave",
+        ];
+
+		helpBg = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
+		helpBg.scale.set(FlxG.width, FlxG.height);
+		helpBg.updateHitbox();
+		helpBg.alpha = 0.6;
+		helpBg.cameras = [camHUD];
+		helpBg.active = helpBg.visible = false;
+		add(helpBg);
+
+		helpTexts = new FlxSpriteGroup();
+		helpTexts.cameras = [camHUD];
+		for (i => txt in str)
+		{
+			if(txt.length < 1) continue;
+
+			var helpText:FlxText = new FlxText(0, 0, 600, txt, 16);
+			helpText.setFormat(null, 16, FlxColor.WHITE, CENTER, OUTLINE_FAST, FlxColor.BLACK);
+			helpText.borderColor = FlxColor.BLACK;
+			helpText.scrollFactor.set();
+			helpText.borderSize = 1;
+			helpText.screenCenter();
+			add(helpText);
+			helpText.y += ((i - str.length/2) * 32) + 16;
+			helpText.active = false;
+			helpTexts.add(helpText);
+		}
+		helpTexts.active = helpTexts.visible = false;
+		add(helpTexts);
+	}
     
     override public function destroy() {
         ClientPrefs.data.cacheOnGPU = backupGpu;
@@ -423,7 +523,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         {
             ClientPrefs.toggleVolumeKeys(false);
         }
-        
 
         if (!blockInput)
         {
@@ -484,7 +583,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
 
             // OTHER CONTROLS
-		    if(FlxG.keys.justPressed.F1)
+		    if(FlxG.keys.justPressed.F2)
 			    playfieldRenderer.visible = !playfieldRenderer.visible;
     
             if (FlxG.keys.justPressed.D || FlxG.keys.justPressed.RIGHT)
@@ -661,35 +760,53 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             updateEventSprites();
         }
 
-        if (playfieldRenderer.modchart.data.playfields != playfieldCountStepper.value)
+        if (_modchart.playfields != playfieldCountStepper.value)
         {
-            playfieldRenderer.modchart.data.playfields = Std.int(playfieldCountStepper.value);
+            _modchart.playfields = Std.int(playfieldCountStepper.value);
             playfieldRenderer.modchart.loadPlayfields();
         }
 
+        if (FlxG.keys.justPressed.ENTER)
+        {
+            ClientPrefs.toggleVolumeKeys(true);
+            FlxG.mouse.visible = false;
+            inst.stop();
+            if(vocals != null) vocals.stop();
+            if(opponentVocals != null) opponentVocals.stop();
+            backend.StageData.loadDirectory(PlayState.SONG);
+            
+            if (hasUnsavedChanges)
+                autosaveModchart(this);
+            LoadingState.loadAndSwitchState(new PlayState());
+        }
 
-        if (FlxG.keys.justPressed.ESCAPE)
+        if(FlxG.keys.justPressed.F1 || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
+        {
+            helpBg.visible = !helpBg.visible;
+            helpTexts.visible = helpBg.visible;
+        }
+        else if(FlxG.keys.justPressed.ESCAPE)
         {
             var exitFunc = function()
             {
                 ClientPrefs.toggleVolumeKeys(true);
-	        
-                FlxG.mouse.visible = false;
+                
                 inst.stop();
                 if(vocals != null) vocals.stop();
                 if(opponentVocals != null) opponentVocals.stop();
 
-                backend.StageData.loadDirectory(PlayState.SONG);
-                
-                LoadingState.loadAndSwitchState(new PlayState());
+                if (hasUnsavedChanges)
+                    autosaveModchart(this);
+                MusicBeatState.switchState(new states.editors.MasterEditorMenu());
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				FlxG.mouse.visible = false;
+                ModchartFile.autosaveMod = null; //makes it so it won't interfere with anything else upon leaving the editor
             };
-            if (hasUnsavedChanges)
+            persistentUpdate = false;
+            openSubState(new Prompt('This action will clear all unsaved progress or data here.\n\nProceed?', function() 
             {
-                persistentUpdate = false;
-                openSubState(new ModchartEditorExitSubstate(exitFunc));
-            }
-            else 
                 exitFunc();
+            }));
 
         }
 
@@ -746,7 +863,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             event[EVENT_REPEAT][EVENT_REPEATBEATGAP] = highlightedEvent[EVENT_REPEAT][EVENT_REPEATBEATGAP];
         
         }
-        playfieldRenderer.modchart.data.events.push(event);
+        _modchart.events.push(event);
         hasUnsavedChanges = true;
         return event;
     }
@@ -756,7 +873,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         // var i = eventSprites.length - 1;
         // while (i >= 0) {
         //     var daEvent:ModchartEditorEvent = eventSprites.members[i];
-        //     var beat:Float = playfieldRenderer.modchart.data.events[i][1][0];
+        //     var beat:Float = _modchart.events[i][1][0];
         //     if(curBeat < beat-4 && curBeat > beat+16)
         //     {
         //         daEvent.active = false;
@@ -769,12 +886,12 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         //     --i;
         // }
         eventSprites.clear();
-        for (i in 0...playfieldRenderer.modchart.data.events.length)
+        for (i in 0..._modchart.events.length)
         {
-            var beat:Float = playfieldRenderer.modchart.data.events[i][1][0];
+            var beat:Float = _modchart.events[i][1][0];
             if (curBeat > beat-5  && curBeat < beat+5)
             {
-                var daEvent:ModchartEditorEvent = new ModchartEditorEvent(playfieldRenderer.modchart.data.events[i]);
+                var daEvent:ModchartEditorEvent = new ModchartEditorEvent(_modchart.events[i]);
                 eventSprites.add(daEvent);
                 //trace("added event sprite "+beat);
             }
@@ -785,11 +902,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     {
         if (highlightedEvent == null)
             return;
-        for (i in 0...playfieldRenderer.modchart.data.events.length)
+        for (i in 0..._modchart.events.length)
         {
-            if (highlightedEvent == playfieldRenderer.modchart.data.events[i])
+            if (highlightedEvent == _modchart.events[i])
             {
-                playfieldRenderer.modchart.data.events.remove(playfieldRenderer.modchart.data.events[i]);
+                _modchart.events.remove(_modchart.events[i]);
                 dirtyUpdateEvents = true;
                 break;
             }
@@ -1122,8 +1239,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     function updateModList()
     {
         mods = [];
-        for (i in 0...playfieldRenderer.modchart.data.modifiers.length)
-            mods.push(playfieldRenderer.modchart.data.modifiers[i][MOD_NAME]);
+        for (i in 0..._modchart.modifiers.length)
+            mods.push(_modchart.modifiers[i][MOD_NAME]);
         if (mods.length == 0)
             mods.push('');
 
@@ -1147,23 +1264,21 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     {
         var tab_group = UI_box.getTab('Modifiers').menu;
 
-        
-        for (i in 0...playfieldRenderer.modchart.data.modifiers.length)
-            mods.push(playfieldRenderer.modchart.data.modifiers[i][MOD_NAME]);
+        for (i in 0..._modchart.modifiers.length)
+            mods.push(_modchart.modifiers[i][MOD_NAME]);
 
         if (mods.length == 0)
             mods.push('');
 
         modifierDropDown = new PsychUIDropDownMenu(25, 50, mods, function(id:Int, mod:String)
         {
-            var modName = mods[Std.parseInt(mod)];
-            for (i in 0...playfieldRenderer.modchart.data.modifiers.length)
-                if (playfieldRenderer.modchart.data.modifiers[i][MOD_NAME] == modName)
-                    currentModifier = playfieldRenderer.modchart.data.modifiers[i];
+            var modName = mods[id];
+            for (i in 0..._modchart.modifiers.length)
+                if (_modchart.modifiers[i][MOD_NAME] == modName)
+                    currentModifier = _modchart.modifiers[i];
 
             if (currentModifier != null)
             {
-                //trace(currentModifier);
                 modNameInputText.text = currentModifier[MOD_NAME];
                 modClassInputText.text = currentModifier[MOD_CLASS];
                 modTypeInputText.text = currentModifier[MOD_TYPE];
@@ -1181,34 +1296,36 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         var saveModifier:PsychUIButton = new PsychUIButton(refreshModifiers.x, refreshModifiers.y+refreshModifiers.height+20, 'Save Modifier', function ()
         {
             var alreadyExists = false;
-            for (i in 0...playfieldRenderer.modchart.data.modifiers.length)
-                if (playfieldRenderer.modchart.data.modifiers[i][MOD_NAME] == modNameInputText.text)
+            for (i in 0..._modchart.modifiers.length)
+                if (_modchart.modifiers[i][MOD_NAME] == modNameInputText.text)
                 {
-                    playfieldRenderer.modchart.data.modifiers[i] = [modNameInputText.text, modClassInputText.text, 
+                    _modchart.modifiers[i] = [modNameInputText.text, modClassInputText.text,
                         modTypeInputText.text, playfieldStepper.value, targetLaneStepper.value];
                     alreadyExists = true;
                 }
 
             if (!alreadyExists)
             {
-                playfieldRenderer.modchart.data.modifiers.push([modNameInputText.text, modClassInputText.text, 
+                _modchart.modifiers.push([modNameInputText.text, modClassInputText.text, 
                     modTypeInputText.text, playfieldStepper.value, targetLaneStepper.value]);
             }
             dirtyUpdateModifiers = true;
             updateModList();
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         });
 
         var removeModifier:PsychUIButton = new PsychUIButton(saveModifier.x, saveModifier.y+saveModifier.height+20, 'Remove Modifier', function ()
         {
-            for (i in 0...playfieldRenderer.modchart.data.modifiers.length)
-                if (playfieldRenderer.modchart.data.modifiers[i][MOD_NAME] == modNameInputText.text)
+            for (i in 0..._modchart.modifiers.length)
+                if (_modchart.modifiers[i][MOD_NAME] == modNameInputText.text)
                 {
-                    playfieldRenderer.modchart.data.modifiers.remove(playfieldRenderer.modchart.data.modifiers[i]);
+                    _modchart.modifiers.remove(_modchart.modifiers[i]);
                 }
             dirtyUpdateModifiers = true;
             updateModList();
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         }, 80, 30);
 
         modNameInputText = new PsychUIInputText(modifierDropDown.x + 300, modifierDropDown.y, 160, '', 8);
@@ -1232,7 +1349,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         
         var modClassDropDown = new PsychUIDropDownMenu(modClassInputText.x, modClassInputText.y+30, modClassList, function(id:Int, mod:String)
         {
-            modClassInputText.text = modClassList[Std.parseInt(mod)];
+            modClassInputText.text = modClassList[id];
             if (modClassInputText.text != '')
                 explainText.text = ('Current Modifier: ${modClassInputText.text}, Explaination: ' + modifierExplain(modClassInputText.text));
         });
@@ -1240,7 +1357,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         var modTypeList = ["All", "Player", "Opponent", "Lane"];
         var modTypeDropDown = new PsychUIDropDownMenu(modTypeInputText.x, modClassInputText.y+30, modTypeList, function(id:Int, mod:String)
         {
-            modTypeInputText.text = modTypeList[Std.parseInt(mod)];
+            modTypeInputText.text = modTypeList[id];
         });
         centerXToObject(modTypeInputText, modTypeDropDown);
         centerXToObject(modTypeInputText, explainText);
@@ -1633,6 +1750,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventDataInputText.text = highlightedEvent[EVENT_DATA][EVENT_EASEDATA];
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
+                autosaveModchart(this);
             }
         };
         eventValueInputText = new PsychUIInputText(25 + 200, 50, 160, '', 8);
@@ -1646,6 +1764,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventDataInputText.text = highlightedEvent[EVENT_DATA][EVENT_EASEDATA];
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
+                autosaveModchart(this);
             }
         };
 
@@ -1671,7 +1790,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
         eventTypeDropDown = new PsychUIDropDownMenu(25 + 500, 50, eventTypes, function(id:Int, mod:String)
         {
-            var et = eventTypes[Std.parseInt(mod)];
+            var et = eventTypes[id];
             trace(et);
             var data = getCurrentEventInData();
             if (data != null)
@@ -1690,6 +1809,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
             dirtyUpdateEvents = true;
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         });
         eventEaseInputText = new PsychUIInputText(25 + 650, 50+100, 160, '', 8);
         eventTimeInputText = new PsychUIInputText(25 + 650, 50, 160, '', 8);
@@ -1703,6 +1823,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
             dirtyUpdateEvents = true;
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         }
         eventTimeInputText.onChange = function(str:String, str2:String)
         {
@@ -1714,31 +1835,34 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
             dirtyUpdateEvents = true;
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         }
 
         easeDropDown = new PsychUIDropDownMenu(25, eventEaseInputText.y+30, easeList, function(id:Int, ease:String)
         {
-            var easeStr = easeList[Std.parseInt(ease)];
+            var easeStr = easeList[id];
             eventEaseInputText.text = easeStr;
             eventEaseInputText.onChange("", ""); //make sure it updates
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         });
         centerXToObject(eventEaseInputText, easeDropDown);
 
 
         eventModifierDropDown = new PsychUIDropDownMenu(25, 50+20, mods, function(id:Int, mod:String)
         {
-            var modName = mods[Std.parseInt(mod)];
+            var modName = mods[id];
             eventModInputText.text = modName;
             updateSubModList(modName);
             eventModInputText.onChange("", ""); //make sure it updates
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         });
         centerXToObject(eventModInputText, eventModifierDropDown);
         
         subModDropDown = new PsychUIDropDownMenu(25, 50+80, subMods, function(id:Int, mod:String)
         {
-            var modName = subMods[Std.parseInt(mod)];
+            var modName = subMods[id];
             var splitShit = eventModInputText.text.split(":"); //use to get the normal mod
 
             if (modName == "")
@@ -1752,6 +1876,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             
             eventModInputText.onChange("", ""); //make sure it updates
             hasUnsavedChanges = true;
+            autosaveModchart(this);
         });
         centerXToObject(eventModInputText, subModDropDown);
 
@@ -1766,6 +1891,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 highlightedEvent = data; 
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
+                autosaveModchart(this);
             }
         };
 
@@ -1781,6 +1907,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventValueInputText.text = getEventModData(false);
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
+                autosaveModchart(this);
             }
         });
         var remove:PsychUIButton = new PsychUIButton(0, selectedEventDataStepper.y+50, 'Remove', function ()
@@ -1795,6 +1922,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventValueInputText.text = getEventModData(false);
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
+                autosaveModchart(this);
             }
         });
         centerXToObject(selectedEventDataStepper, add);
@@ -1854,11 +1982,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     {
         if (highlightedEvent == null)
             return null;
-        for (i in 0...playfieldRenderer.modchart.data.events.length)
+        for (i in 0..._modchart.events.length)
         {
-            if (playfieldRenderer.modchart.data.events[i] == highlightedEvent)
+            if (_modchart.events[i] == highlightedEvent)
             {
-                return playfieldRenderer.modchart.data.events[i];
+                return _modchart.events[i];
             }
         }
 
@@ -1922,6 +2050,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
         playfieldCountStepper = new PsychUINumericStepper(25, 50, 1, 1, 1, 100, 0);
         playfieldCountStepper.value = playfieldRenderer.modchart.data.playfields;
+        playfieldCountStepper.value = _modchart.playfields;
         
         tab_group.add(playfieldCountStepper);
         tab_group.add(makeLabel(playfieldCountStepper, 0, -15, "Playfield Count"));
@@ -2000,6 +2129,23 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 160, '', 8);
         saveExplainText.text = ("When saving your modchart, put the .json file in a folder called 'modchartData' located inside your songs's data folder (data/songs/\"songName\"/modchartData/)/\nLook at the list of what you would call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown");
         
+        var getAutosave:PsychUIButton = new PsychUIButton(200, 300, 'Load Autosave', function ()
+        {
+            var autosave:FlxSave = new FlxSave();
+            autosave.bind("dataAutosave", CoolUtil.getSavePath());
+
+            if (playfieldInstance != null)
+                playfieldInstance.playfieldRenderer.modchart.data = ModchartFile.parseModchartBullshit(autosave.data.autosaveModchart);
+            else
+                playfieldRenderer.modchart.data = ModchartFile.parseModchartBullshit(autosave.data.autosaveModchart);
+            MusicBeatState.resetState();
+        });
+        getAutosave.normalStyle.bgColor = 0xFF12172C;
+		getAutosave.normalStyle.textColor = FlxColor.WHITE;
+
+        if(hasAutoSave)
+            tab_group.add(getAutosave);
+        
         tab_group.add(sliderRate);
         tab_group.add(resetSpeed);
         tab_group.add(songSlider);
@@ -2031,7 +2177,10 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         if (instance == null)
             instance = PlayState.instance;
 
-		var data:String = Json.stringify(instance.playfieldRenderer.modchart.data, "\t");
+		var json = {
+            _modchart;
+        };
+		var data:String = Json.stringify(json, "\t");
         //data = data.replace("\n", "");
         //data = data.replace(" ", "");
         #if sys
@@ -2055,6 +2204,21 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         _file.removeEventListener(openfl.events.Event.CANCEL, onSaveCancel);
         _file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
         _file = null;
+    }
+
+    function autosaveModchart(?instance:MusicBeatState = null):Void
+    {
+        if (instance == null)
+            instance = PlayState.instance;
+
+        var autosave:FlxSave = new FlxSave();
+        autosave.bind("dataAutosave", CoolUtil.getSavePath());
+        autosave.data.autosaveModchart = haxe.Json.stringify({
+			instance.playfieldRenderer.modchart.data;
+		});
+
+        autosave.flush();
+        ModchartFile.autosaveMod = autosave.data.autosaveModchart;
     }
 
     /**
@@ -2100,6 +2264,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                     highlightedEvent = data;
                     hasUnsavedChanges = true;
                     dirtyUpdateEvents = true;
+                    autosaveModchart(this);
                 }
 			}
             else if (sender == repeatCountStepper)
@@ -2111,6 +2276,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                     highlightedEvent = data;
                     hasUnsavedChanges = true;
                     dirtyUpdateEvents = true;
+                    autosaveModchart(this);
                 }
 			}
             else if (sender == stackedEventStepper)
@@ -2124,51 +2290,4 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 			}
 		}
 	}
-}
-class ModchartEditorExitSubstate extends MusicBeatSubstate
-{
-    var exitFunc:Void->Void;
-    override public function new(funcOnExit:Void->Void)
-    {
-        exitFunc = funcOnExit;
-        super();
-    }
-    
-    override public function create()
-    {
-        super.create();
-
-        var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		bg.alpha = 0;
-		bg.scrollFactor.set();
-		add(bg);
-        FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
-
-
-        var warning:FlxText = new FlxText(0, 0, 0, 'You have unsaved changes!\nAre you sure you want to exit?', 48);
-        warning.alignment = CENTER;
-        warning.screenCenter();
-        warning.y -= 150;
-        add(warning);
-
-        var goBackButton:PsychUIButton = new PsychUIButton(0, 500, 'Go Back', function()
-        {
-            close();
-        }, 160, 40);
-        goBackButton.text.size = 12;
-        goBackButton.x = (FlxG.width*0.3)-(goBackButton.width*0.5);
-        add(goBackButton);
-        
-        var exit:PsychUIButton = new PsychUIButton(0, 500, 'Exit without saving', function()
-        {
-            exitFunc();
-        }, 160, 40);
-        exit.text.size = 12;
-        exit.text.fieldWidth = exit.width;
-        
-        exit.x = (FlxG.width*0.7)-(exit.width*0.5);
-        add(exit);
-
-        cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
-    }
 }

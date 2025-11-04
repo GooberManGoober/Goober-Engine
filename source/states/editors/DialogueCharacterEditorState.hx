@@ -24,6 +24,7 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 	\nQ/E - Zoom out/in
 	\nR - Reset Camera
 	\nH - Toggle Speech Bubble
+	\nF2 - Reset Editor UI Positions
 	\nSpace - Reset text';
 
 	private static var TIP_TEXT_OFFSET:String =
@@ -514,6 +515,12 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 					ghostLoop.offset.set(animShit.loop_offsets[0], animShit.loop_offsets[1]);
 					ghostIdle.offset.set(animShit.idle_offsets[0], animShit.idle_offsets[1]);
 				}
+			}
+
+			if(FlxG.keys.justPressed.F2)
+			{
+				UI_typebox.setPosition(900, FlxG.height - 230);
+				UI_mainbox.setPosition(UI_typebox.x + UI_typebox.width + 10, FlxG.height - 300);
 			}
 
 			if (FlxG.keys.pressed.Q && camGame.zoom > 0.1) {

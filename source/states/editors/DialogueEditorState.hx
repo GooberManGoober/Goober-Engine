@@ -342,6 +342,11 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 				}
 			}
 
+			if(FlxG.keys.justPressed.F2)
+			{
+				UI_box.setPosition(FlxG.width - 260, 10);
+			}
+
 			if(FlxG.keys.justPressed.O) {
 				dialogueFile.dialogue.remove(dialogueFile.dialogue[curSelected]);
 				if(dialogueFile.dialogue.length < 1) //You deleted everything, dumbo!
