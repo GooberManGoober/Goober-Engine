@@ -38,6 +38,9 @@ class EditorPlayState extends MusicBeatSubstate
 	var notes:FlxTypedGroup<Note>;
 	var unspawnNotes:Array<Note> = [];
 	var ratingsData:Array<Rating> = Rating.loadDefault();
+
+	//just stores the renderer so instancing shit can work properly i guess
+ 	public var playfieldRenderer:PlayfieldRenderer;
 	
 	var strumLineNotes:FlxTypedGroup<StrumNote>;
 	var opponentStrums:FlxTypedGroup<StrumNote>;
