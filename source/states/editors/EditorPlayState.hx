@@ -124,7 +124,7 @@ class EditorPlayState extends MusicBeatSubstate
 		generateStaticArrows(0);
 		generateStaticArrows(1);
 
-		NoteMovement.getDefaultStrumPos(this)
+		NoteMovement.getDefaultStrumPos(this);
 		/***************/
 		
 		scoreTxt = new FlxText(10, FlxG.height - 50, FlxG.width - 20, "", 20);
