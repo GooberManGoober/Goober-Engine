@@ -19,9 +19,6 @@ import haxe.Json;
 import objects.Character;
 import openfl.utils.Assets as OpenFlAssets;
 
-import modcharting.NoteMovement;
-import modcharting.PlayfieldRenderer;
-
 class EditorPlayState extends MusicBeatSubstate
 {
 	// Borrowed from original PlayState
@@ -38,9 +35,6 @@ class EditorPlayState extends MusicBeatSubstate
 	var notes:FlxTypedGroup<Note>;
 	var unspawnNotes:Array<Note> = [];
 	var ratingsData:Array<Rating> = Rating.loadDefault();
-
-	//just stores the renderer so instancing shit can work properly i guess
- 	public var playfieldRenderer:PlayfieldRenderer;
 	
 	var strumLineNotes:FlxTypedGroup<StrumNote>;
 	var opponentStrums:FlxTypedGroup<StrumNote>;
@@ -112,9 +106,6 @@ class EditorPlayState extends MusicBeatSubstate
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
-
-		playfieldRenderer = new PlayfieldRenderer(strumLineNotes, notes, this);
-		add(playfieldRenderer);
 		add(grpNoteSplashes);
 		
 		var splash:NoteSplash = new NoteSplash();
@@ -126,8 +117,6 @@ class EditorPlayState extends MusicBeatSubstate
 		
 		generateStaticArrows(0);
 		generateStaticArrows(1);
-
-		NoteMovement.getDefaultStrumPos(this);
 		/***************/
 		
 		scoreTxt = new FlxText(10, FlxG.height - 50, FlxG.width - 20, "", 20);
