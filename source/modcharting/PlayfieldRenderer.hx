@@ -43,8 +43,6 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
     public var playStateInstance:PlayState;
     public var playfields:Array<Playfield> = []; //adding an extra playfield will add 1 for each player
 
-    public var isInvertColors:Bool = false;
-
     public var eventManager:ModchartEventManager;
     public var modifierTable:ModTable;
     public var tweenManager:FlxTweenManager;
@@ -82,7 +80,8 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
         eventManager = new ModchartEventManager(this);
         modifierTable = new ModTable(instance, this);
         addNewPlayfield(0,0,0);
-        modchart = new ModchartFile(this);
+		if (!Std.isOfType(instance, states.editors.EditorPlayState))
+        	modchart = new ModchartFile(this);
     }
 
 
