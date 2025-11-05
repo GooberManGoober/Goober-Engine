@@ -5,8 +5,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 
 #if !mobile
-import debug.*;
-import debug.FunkinDebugDisplay.DebugDisplayMode;
+import funkin.fps.FunkinDebugDisplay;
 #end
 
 import states.TitleState;
@@ -77,7 +76,6 @@ import states.TitleState;
 	public var goodWindow:Int = 90;
 	public var badWindow:Int = 135;
 	public var safeFrames:Float = 10;
-	public var guitarHeroSustains:Bool = true;
 	public var discordRPC:Bool = true;
 	
 	//Put new vars here

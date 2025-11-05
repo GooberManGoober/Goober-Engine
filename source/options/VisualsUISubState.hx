@@ -3,8 +3,7 @@ package options;
 import objects.Alphabet;
 
 #if !mobile
-import debug.*;
-import debug.FunkinDebugDisplay.DebugDisplayMode;
+import funkin.fps.FunkinDebugDisplay;
 #end
 
 class VisualsUISubState extends BaseOptionsMenu
@@ -121,11 +120,11 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 		#end
 		
-		var option:Option = new Option('Pause Screen Song:',
+		var option:Option = new Option('Pause Music:',
 			"What song do you prefer for the Pause Screen?",
 			'pauseMusic',
 			'string',
-			['None', 'Breakfast', 'Tea Time']);
+			['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico Mix)']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
 		

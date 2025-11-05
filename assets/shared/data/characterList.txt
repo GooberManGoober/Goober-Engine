@@ -22,5 +22,11 @@ gf-tankmen
 tankman
 pico-speaker
 bf-holding-gf
+darnell
+darnell-blazin
+nene
 pico-player
+pico-blazin
+pico-dead
+pico-explosion-dead
 tankman-player

@@ -402,7 +402,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         debugText.alignment = FlxTextAlign.LEFT;
         
 
-        UI_box = new PsychUIBox(100, gridSize*2, FlxG.width-200, 550, ['Editor', 'Events', 'Modifiers', 'Playfields']);
+        UI_box = new PsychUIBox(100, gridSize*2 + 50, FlxG.width-200, 450, ['Editor', 'Events', 'Modifiers', 'Playfields']);
         UI_box.canMove = false;
 		UI_box.scrollFactor.set();
         add(UI_box);
@@ -430,7 +430,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             "BACKSPACE - Delete an Event",
             #if FLX_PITCH
             "",
-            "Left Bracket / Right Bracket - Change Song Playback Rate (SHIFT to go Faster)",
+            "Left Bracket / Right Bracket - Change Song Playback Rate",
             "ALT + Left Bracket / Right Bracket - Reset Song Playback Rate",
             #end
             "",
@@ -1147,7 +1147,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
             }
 
-            var babyArrow:StrumNote = new StrumNote(TRUE_STRUM_X, strumLine.y, i, player);
+            var babyArrow:StrumNote = new StrumNote(TRUE_STRUM_X, strumLine.y, i, player, true);
             babyArrow.downScroll = ClientPrefs.data.downScroll;
             babyArrow.alpha = targetAlpha;
             
@@ -2210,6 +2210,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     {
         if (instance == null)
             instance = PlayState.instance;
+
+        trace("saving modchart...");
 
         var autosave:FlxSave = new FlxSave();
         autosave.bind("dataAutosave", CoolUtil.getSavePath());

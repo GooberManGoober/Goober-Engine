@@ -1,8 +1,8 @@
 {
 	"songs": [
-		["Cocoa", "parents", [160, 209, 255], 100],
-		["Eggnog", "parents", [160, 209, 255], 150],
-		["Winter Horrorland", "monster", [160, 209, 255], 159]
+		["Cocoa", "parents", [160, 209, 255]],
+		["Eggnog", "parents", [160, 209, 255]],
+		["Winter Horrorland", "monster", [160, 209, 255]]
 	],
 
 	"weekCharacters": [

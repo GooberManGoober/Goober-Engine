@@ -5,8 +5,7 @@ import android.content.Context;
 #end
 
 #if !mobile
-import debug.*;
-import debug.FunkinDebugDisplay.DebugDisplayMode;
+import funkin.fps.FunkinDebugDisplay;
 #end
 
 import flixel.graphics.FlxGraphic;
@@ -117,7 +116,7 @@ class Main extends Sprite
 		var game = new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
 			
 		@:privateAccess
-		game._customSoundTray = debug.FunkinSoundTray;
+		game._customSoundTray = funkin.FunkinSoundTray;
 		
 		addChild(game);
 
@@ -172,16 +171,16 @@ class Main extends Sprite
 	#if !mobile
 	static function setDebugDisplayMode(mode:DebugDisplayMode):Void
 	{
-		if (FlxG.game.parent.contains(Main.debugDisplay))
+		if (FlxG.game.parent.contains(debugDisplay))
 		{
-		FlxG.game.parent.removeChild(Main.debugDisplay);
+		FlxG.game.parent.removeChild(debugDisplay);
 		}
 
 		if (mode == DebugDisplayMode.OFF) return;
 
-		Main.debugDisplay.isAdvanced = (mode == DebugDisplayMode.ADVANCED);
+		debugDisplay.isAdvanced = (mode == DebugDisplayMode.ADVANCED);
 
-		FlxG.game.parent.addChild(Main.debugDisplay);
+		FlxG.game.parent.addChild(debugDisplay);
 	}
 	#end
 

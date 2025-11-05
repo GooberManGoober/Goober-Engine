@@ -52,8 +52,7 @@ class WeekData {
 						146, 
 						113, 
 						253
-					], 
-					100
+					]
 				], 
 				[
 					"Fresh", 
@@ -62,8 +61,7 @@ class WeekData {
 						146, 
 						113, 
 						253
-					], 
-					120
+					]
 				], 
 				[
 					"Dad Battle", 
@@ -72,8 +70,7 @@ class WeekData {
 						146, 
 						113, 
 						253
-					], 
-					180
+					]
 				]
 			],
 			weekCharacters: ['dad', 'bf', 'gf'],
