@@ -142,9 +142,6 @@ class FlxSprite extends FlxObject
 	 */
 	public var animation:FlxAnimationController;
 
-	public var zoomFactor:Float = 1;
-	public var zoomFactorEnabled:Bool = true;
-
 	// TODO: maybe convert this var to property...
 
 	/**
@@ -858,8 +855,6 @@ class FlxSprite extends FlxObject
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
 
-		doAdditionalMatrixStuff(_matrix, camera);
-
 		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 	}
 
@@ -1271,19 +1266,6 @@ class FlxSprite extends FlxObject
 		return camera.containsRect(getScreenBounds(_rect, camera));
 	}
 
-	// ZOOM FACTOR RENDERING
-	public function doAdditionalMatrixStuff(matrix:FlxMatrix, camera:FlxCamera)
-	{
-		if(__shouldDoZoomFactor()) {
-			matrix.translate(-camera.width / 2, -camera.height / 2);
-
-			var requestedZoom = (camera.zoom >= 0 ? Math.max : Math.min)(FlxMath.lerp(1, camera.zoom, zoomFactor), 0);
-			var diff = requestedZoom / camera.zoom;
-			matrix.scale(diff, diff);
-			matrix.translate(camera.width / 2, camera.height / 2);
-		}
-	}
-
 	/**
 	 * Returns the result of `isSimpleRenderBlit()` if `FlxG.renderBlit` is
 	 * `true`, or `false` if `FlxG.renderTile` is `true`.
@@ -1329,10 +1311,6 @@ class FlxSprite extends FlxObject
 		return newRect.getRotatedBounds(angle, origin, newRect);
 	}
 
-	// ZOOM FACTOR
-	private inline function __shouldDoZoomFactor()
-		return zoomFactorEnabled && zoomFactor != 1;
-	
 	/**
 	 * Calculates the smallest globally aligned bounding box that encompasses this sprite's graphic as it
 	 * would be displayed. Honors scrollFactor, rotation, scale, offset and origin.
@@ -1359,23 +1337,6 @@ class FlxSprite extends FlxObject
 			newRect.floor();
 		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
-
-		var r = getScreenBounds(newRect, camera);
-
-		if(__shouldDoZoomFactor()) {
-			r.x -= camera.width / 2;
-			r.y -= camera.height / 2;
-
-			var ratio = (camera.zoom > 0 ? Math.max : Math.min)(0, FlxMath.lerp(1 / camera.zoom, 1, zoomFactor));
-			r.x *= ratio;
-			r.y *= ratio;
-			r.width *= ratio;
-			r.height *= ratio;
-
-			r.x += camera.width / 2;
-			r.y += camera.height / 2;
-		}
-		return r;
 	}
 	
 	/**

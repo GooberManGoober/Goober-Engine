@@ -766,8 +766,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var angleStepper:PsychUINumericStepper;
 	var alphaStepper:PsychUINumericStepper;
 
-	var zoomFactorStepper:PsychUINumericStepper;
-
 	var antialiasingCheckbox:PsychUICheckBox;
 	var flipXCheckBox:PsychUICheckBox;
 	var flipYCheckBox:PsychUICheckBox;
@@ -923,17 +921,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		};
 		tab_group.add(alphaStepper);
 
-		tab_group.add(new FlxText(objX + 90, objY - 18, 80, 'Zoom Factor:'));
-		zoomFactorStepper = new PsychUINumericStepper(objX + 90, objY, 0.05, 1, 0, 10, 2);
-		zoomFactorStepper.onValueChange = function() {
-			// zoom factor
-			var selected = getSelected();
-			if(selected != null)
-				selected.zoomFactor = zoomFactorStepper.value;
-		};
-		tab_group.add(zoomFactorStepper);
-
-		objY += 40;
 		antialiasingCheckbox = new PsychUICheckBox(objX + 90, objY, 'Anti-Aliasing', 80);
 		antialiasingCheckbox.onClick = function()
 		{
@@ -1277,7 +1264,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		scrollStepperY.value = selected.scroll[1];
 		angleStepper.value = selected.angle;
 		alphaStepper.value = selected.alpha;
-		zoomFactorStepper.value = selected.zoomFactor;
 
 		// Checkboxes
 		antialiasingCheckbox.checked = selected.antialiasing;
@@ -1466,7 +1452,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			FlxG.camera.zoom = Math.min(maxZoom, FlxG.camera.zoom + elapsed * FlxG.camera.zoom * shiftMult * ctrlMult);
 		else if (FlxG.keys.pressed.Q && FlxG.camera.zoom > minZoom)
 			FlxG.camera.zoom = Math.max(minZoom, FlxG.camera.zoom - elapsed * FlxG.camera.zoom * shiftMult * ctrlMult);
-		
+
 		// SPRITE X/Y
 		var shiftMult:Float = 1;
 		var ctrlMult:Float = 1;
@@ -1887,29 +1873,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			case _: BlendMode.NORMAL;
 		}
 	}
-
-	public static function returnBlendModeToString(blendType:BlendMode):String
-	{
-		return switch (blendType)
-		{
-			case BlendMode.ADD: "add";
-			case BlendMode.ALPHA: "alpha";
-			case BlendMode.DARKEN: "darken";
-			case BlendMode.DIFFERENCE: "difference";
-			case BlendMode.ERASE: "erase";
-			case BlendMode.HARDLIGHT: "hardlight";
-			case BlendMode.INVERT: "invert";
-			case BlendMode.LAYER: "layer";
-			case BlendMode.LIGHTEN: "lighten";
-			case BlendMode.MULTIPLY: "multiply";
-			case BlendMode.NORMAL: "normal";
-			case BlendMode.OVERLAY: "overlay";
-			case BlendMode.SCREEN: "screen";
-			case BlendMode.SHADER: "shader";
-			case BlendMode.SUBTRACT: "subtract";
-			default: "normal";
-		}
-	}
 }
 
 class StageEditorMetaSprite
@@ -1929,10 +1892,9 @@ class StageEditorMetaSprite
 	public var y(get, set):Float;
 	public var alpha(get, set):Float;
 	public var angle(get, set):Float;
-	
-	public var zoomFactor(get, set):Float;
+
 	public var blend(get, set):BlendMode;
-	
+
 	function get_x() return sprite.x;
 	function set_x(v:Float) return (sprite.x = v);
 	function get_y() return sprite.y;
@@ -1941,9 +1903,7 @@ class StageEditorMetaSprite
 	function set_alpha(v:Float) return (sprite.alpha = v);
 	function get_angle() return sprite.angle;
 	function set_angle(v:Float) return (sprite.angle = v);
-	
-	function get_zoomFactor() return sprite.zoomFactor;
-	function set_zoomFactor(v:Float) return (sprite.zoomFactor = v);
+
 	function get_blend() return sprite.blend;
 	function set_blend(v:BlendMode) return (sprite.blend = v);
 
@@ -2044,7 +2004,6 @@ class StageEditorMetaSprite
 				obj.angle = angle;
 				obj.color = color;
 				obj.filters = filters;
-				obj.zoomFactor = zoomFactor;
 
 				if(type != 'square')
 				{
