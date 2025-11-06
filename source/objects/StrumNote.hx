@@ -69,6 +69,8 @@ class StrumNote extends FlxSkewedSprite
 		scrollFactor.set();
 		sustainSplash = new SustainSplash(this);
 		playAnim('static');
+
+		alpha = 1 * ClientPrefs.data.noteAlpha;
 	}
 
 	public function reloadNote()
@@ -247,6 +249,8 @@ class SustainSplash extends FlxSprite {
 			if (animation.curAnim.name == "cover") animation.play("loop");
 			if (animation.curAnim.name == "splash") visible = false;
 		}
+
+		alpha = strum.alpha;
 		
 		center();
 	}

@@ -11,6 +11,8 @@ import flixel.addons.display.FlxGridOverlay;
 import flixel.math.FlxRect;
 import flixel.util.FlxDestroyUtil;
 
+import openfl.display.BlendMode;
+
 import openfl.utils.Assets;
 
 import openfl.display.Sprite;
@@ -753,6 +755,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	}
 
 	var colorInputText:PsychUIInputText;
+	var blendInputText:PsychUIInputText;
 	var nameInputText:PsychUIInputText;
 	var imgTxt:FlxText;
 
@@ -762,6 +765,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var scrollStepperY:PsychUINumericStepper;
 	var angleStepper:PsychUINumericStepper;
 	var alphaStepper:PsychUINumericStepper;
+
+	var zoomFactorStepper:PsychUINumericStepper;
 
 	var antialiasingCheckbox:PsychUICheckBox;
 	var flipXCheckBox:PsychUICheckBox;
@@ -865,6 +870,16 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		};
 		tab_group.add(colorInputText);
 
+		blendInputText = new PsychUIInputText(animationsButton.x, colorInputText.y, 80, 'normal', 8);
+		blendInputText.onChange = function(old:String, cur:String) {
+			// change blend
+			var selected = getSelected();
+			if(selected != null)
+				selected.blend = returnBlendModeFromString(blendInputText.text.toLowerCase().trim());
+		};
+		tab_group.add(blendInputText);
+		tab_group.add(new FlxText(blendInputText.x, objY - 18, 80, 'Blend Mode:'));
+
 		function updateScale()
 		{
 			// scale
@@ -908,6 +923,17 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		};
 		tab_group.add(alphaStepper);
 
+		tab_group.add(new FlxText(objX + 90, objY - 18, 80, 'Zoom Factor:'));
+		zoomFactorStepper = new PsychUINumericStepper(objX + 90, objY, 0.05, 1, 0, 10, 2);
+		zoomFactorStepper.onValueChange = function() {
+			// zoom factor
+			var selected = getSelected();
+			if(selected != null)
+				selected.zoomFactor = zoomFactorStepper.value;
+		};
+		tab_group.add(zoomFactorStepper);
+
+		objY += 40;
 		antialiasingCheckbox = new PsychUICheckBox(objX + 90, objY, 'Anti-Aliasing', 80);
 		antialiasingCheckbox.onClick = function()
 		{
@@ -926,7 +952,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		};
 		tab_group.add(antialiasingCheckbox);
 
-		objY += 40;
 		tab_group.add(new FlxText(objX, objY - 18, 80, 'Angle:'));
 		angleStepper = new PsychUINumericStepper(objX, objY, 10, 0, 0, 360, 0);
 		angleStepper.onValueChange = function() {
@@ -1227,6 +1252,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 		// Texts/Input Texts
 		colorInputText.text = selected.color;
+		blendInputText.text = returnBlendModeFromString(selected.blend);
 		nameInputText.text = selected.name;
 		imgTxt.text = 'Image: ' + selected.image;
 
@@ -1251,6 +1277,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		scrollStepperY.value = selected.scroll[1];
 		angleStepper.value = selected.angle;
 		alphaStepper.value = selected.alpha;
+		zoomFactorStepper.value = selected.zoomFactor;
 
 		// Checkboxes
 		antialiasingCheckbox.checked = selected.antialiasing;
@@ -1841,6 +1868,48 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		animationEditor.destroy();
 		super.destroy();
 	}
+
+	public static function returnBlendModeFromString(str:String):BlendMode
+	{
+		return switch (str)
+		{
+			case "normal": BlendMode.NORMAL;
+			case "darken": BlendMode.DARKEN;
+			case "multiply": BlendMode.MULTIPLY;
+			case "lighten": BlendMode.LIGHTEN;
+			case "screen": BlendMode.SCREEN;
+			case "overlay": BlendMode.OVERLAY;
+			case "hardlight": BlendMode.HARDLIGHT;
+			case "difference": BlendMode.DIFFERENCE;
+			case "add": BlendMode.ADD;
+			case "subtract": BlendMode.SUBTRACT;
+			case "invert": BlendMode.INVERT;
+			case _: BlendMode.NORMAL;
+		}
+	}
+
+	public static function returnBlendModeToString(blendType:BlendMode):String
+	{
+		return switch (blendType)
+		{
+			case BlendMode.ADD: "add";
+			case BlendMode.ALPHA: "alpha";
+			case BlendMode.DARKEN: "darken";
+			case BlendMode.DIFFERENCE: "difference";
+			case BlendMode.ERASE: "erase";
+			case BlendMode.HARDLIGHT: "hardlight";
+			case BlendMode.INVERT: "invert";
+			case BlendMode.LAYER: "layer";
+			case BlendMode.LIGHTEN: "lighten";
+			case BlendMode.MULTIPLY: "multiply";
+			case BlendMode.NORMAL: "normal";
+			case BlendMode.OVERLAY: "overlay";
+			case BlendMode.SCREEN: "screen";
+			case BlendMode.SHADER: "shader";
+			case BlendMode.SUBTRACT: "subtract";
+			default: "normal";
+		}
+	}
 }
 
 class StageEditorMetaSprite
@@ -1853,6 +1922,8 @@ class StageEditorMetaSprite
 	// basic variables for all types
 	public var type:String;
 
+	public var blend(get, set):BlendMode;
+
 	// variables for all types that aren't Character
 	public var name:String;
 	public var filters:LoadFilters = (LOW_QUALITY)|(HIGH_QUALITY);
@@ -1860,6 +1931,7 @@ class StageEditorMetaSprite
 	public var y(get, set):Float;
 	public var alpha(get, set):Float;
 	public var angle(get, set):Float;
+	public var zoomFactor(get, set):Float;
 	function get_x() return sprite.x;
 	function set_x(v:Float) return (sprite.x = v);
 	function get_y() return sprite.y;
@@ -1868,6 +1940,11 @@ class StageEditorMetaSprite
 	function set_alpha(v:Float) return (sprite.alpha = v);
 	function get_angle() return sprite.angle;
 	function set_angle(v:Float) return (sprite.angle = v);
+	function get_zoomFactor() return sprite.zoomFactor;
+	function set_zoomFactor(v:Float) return (sprite.zoomFactor = v);
+
+	function get_blend() return sprite.blend;
+	function set_blend(v:BlendMode) return (sprite.blend = v);
 
 	public var color(default, set):String = 'FFFFFF';
 	function set_color(v:String)
@@ -1966,6 +2043,7 @@ class StageEditorMetaSprite
 				obj.angle = angle;
 				obj.color = color;
 				obj.filters = filters;
+				obj.zoomFactor = zoomFactor;
 
 				if(type != 'square')
 				{

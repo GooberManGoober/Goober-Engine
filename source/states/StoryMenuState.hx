@@ -106,7 +106,7 @@ class StoryMenuState extends MusicBeatState
 		#end
 
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
-		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'scripts/story/'))
+		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'data/states/story/'))
 			for (file in FileSystem.readDirectory(folder))
 			{
 				#if LUA_ALLOWED

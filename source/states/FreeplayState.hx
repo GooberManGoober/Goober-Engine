@@ -80,7 +80,7 @@ class FreeplayState extends MusicBeatState
 		#end
 
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
-		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'scripts/freeplay/'))
+		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'data/states/freeplay/'))
 			for (file in FileSystem.readDirectory(folder))
 			{
 				#if LUA_ALLOWED
