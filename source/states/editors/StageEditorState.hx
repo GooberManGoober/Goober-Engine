@@ -1922,8 +1922,6 @@ class StageEditorMetaSprite
 	// basic variables for all types
 	public var type:String;
 
-	public var blend(get, set):BlendMode;
-
 	// variables for all types that aren't Character
 	public var name:String;
 	public var filters:LoadFilters = (LOW_QUALITY)|(HIGH_QUALITY);
@@ -1931,7 +1929,10 @@ class StageEditorMetaSprite
 	public var y(get, set):Float;
 	public var alpha(get, set):Float;
 	public var angle(get, set):Float;
+	
 	public var zoomFactor(get, set):Float;
+	public var blend(get, set):BlendMode;
+	
 	function get_x() return sprite.x;
 	function set_x(v:Float) return (sprite.x = v);
 	function get_y() return sprite.y;
@@ -1940,9 +1941,9 @@ class StageEditorMetaSprite
 	function set_alpha(v:Float) return (sprite.alpha = v);
 	function get_angle() return sprite.angle;
 	function set_angle(v:Float) return (sprite.angle = v);
+	
 	function get_zoomFactor() return sprite.zoomFactor;
 	function set_zoomFactor(v:Float) return (sprite.zoomFactor = v);
-
 	function get_blend() return sprite.blend;
 	function set_blend(v:BlendMode) return (sprite.blend = v);
 
