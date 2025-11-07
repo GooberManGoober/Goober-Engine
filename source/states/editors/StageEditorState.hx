@@ -766,6 +766,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var angleStepper:PsychUINumericStepper;
 	var alphaStepper:PsychUINumericStepper;
 
+	var zoomFactorStepper:PsychUINumericStepper;
+
 	var antialiasingCheckbox:PsychUICheckBox;
 	var flipXCheckBox:PsychUICheckBox;
 	var flipYCheckBox:PsychUICheckBox;
@@ -921,6 +923,17 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		};
 		tab_group.add(alphaStepper);
 
+		tab_group.add(new FlxText(objX + 90, objY - 18, 80, 'Zoom Factor:'));
+		zoomFactorStepper = new PsychUINumericStepper(objX + 90, objY, 0.05, 1, 0, 10, 2);
+		zoomFactorStepper.onValueChange = function() {
+			// zoom factor
+			var selected = getSelected();
+			if(selected != null)
+				selected.zoomFactor = zoomFactorStepper.value;
+		};
+		tab_group.add(zoomFactorStepper);
+
+		objY += 40;
 		antialiasingCheckbox = new PsychUICheckBox(objX + 90, objY, 'Anti-Aliasing', 80);
 		antialiasingCheckbox.onClick = function()
 		{
@@ -1264,6 +1277,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		scrollStepperY.value = selected.scroll[1];
 		angleStepper.value = selected.angle;
 		alphaStepper.value = selected.alpha;
+		zoomFactorStepper.value = selected.zoomFactor;
 
 		// Checkboxes
 		antialiasingCheckbox.checked = selected.antialiasing;
@@ -1893,6 +1907,7 @@ class StageEditorMetaSprite
 	public var alpha(get, set):Float;
 	public var angle(get, set):Float;
 
+	public var zoomFactor(get, set):Float;
 	public var blend(get, set):BlendMode;
 
 	function get_x() return sprite.x;
@@ -1904,6 +1919,8 @@ class StageEditorMetaSprite
 	function get_angle() return sprite.angle;
 	function set_angle(v:Float) return (sprite.angle = v);
 
+	function get_zoomFactor() return sprite.zoomFactor;
+	function set_zoomFactor(v:Float) return (sprite.zoomFactor = v);
 	function get_blend() return sprite.blend;
 	function set_blend(v:BlendMode) return (sprite.blend = v);
 
@@ -2004,6 +2021,7 @@ class StageEditorMetaSprite
 				obj.angle = angle;
 				obj.color = color;
 				obj.filters = filters;
+				obj.zoomFactor = zoomFactor;
 
 				if(type != 'square')
 				{
