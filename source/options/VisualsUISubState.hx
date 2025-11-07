@@ -10,7 +10,7 @@ class VisualsUISubState extends BaseOptionsMenu
 {
 	public function new()
 	{
-		title = 'Visuals and UI';
+		title = Language.getPhrase('visuals_menu', 'Visuals & UI Settings');
 		rpcTitle = 'Visuals & UI Settings Menu'; //for Discord Rich Presence
 
 		// options
@@ -44,28 +44,6 @@ class VisualsUISubState extends BaseOptionsMenu
 				noteSplashes);
 			addOption(option);
 		}
-
-		var option:Option = new Option('Arrow Opacity',
-			'Sets the opacity for the arrows at the top/bottom of the screen.',
-			'noteAlpha',
-			'percent');
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.1;
-		option.decimals = 1;
-		addOption(option);
-
-		var option:Option = new Option('Hold Opacity',
-			"Sets the opacity for the Hold Notes.",
-			'noteHoldAlpha',
-			'percent');
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.1;
-		option.decimals = 1;
-		addOption(option);
 
 		var option:Option = new Option('Note Splash Opacity',
 			'How much transparent should the Note Splashes be.',

@@ -72,7 +72,7 @@ class StoryMenuState extends MusicBeatState
 		if(curWeek >= WeekData.weeksList.length) curWeek = 0;
 		persistentUpdate = persistentDraw = true;
 
-		scoreText = new FlxText(10, 10, 0, "SCORE: 49324858", 36);
+		scoreText = new FlxText(10, 10, 0, Language.getPhrase('week_score', 'LEVEL SCORE: {1}', [49324858]), 36);
 		scoreText.setFormat("VCR OSD Mono", 32);
 
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
@@ -106,7 +106,7 @@ class StoryMenuState extends MusicBeatState
 		#end
 
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
-		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'data/states/story/'))
+		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'states/story/'))
 			for (file in FileSystem.readDirectory(folder))
 			{
 				#if LUA_ALLOWED
@@ -232,7 +232,7 @@ class StoryMenuState extends MusicBeatState
 		callOnHScript('onUpdate', [elapsed]);
 		callOnLuas('onUpdate', [elapsed]);
 
-		scoreText.text = "LEVEL SCORE:" + lerpScore;
+		scoreText.text = Language.getPhrase('week_score', 'LEVEL SCORE: {1}', [lerpScore]);
 
 		// FlxG.watch.addQuick('font', scoreText.font);
 
@@ -442,7 +442,7 @@ class StoryMenuState extends MusicBeatState
 		var leWeek:WeekData = loadedWeeks[curWeek];
 		WeekData.setDirectoryFromWeek(leWeek);
 
-		var leName:String = leWeek.storyName;
+		var leName:String = Language.getPhrase('storyname_${leWeek.fileName}', leWeek.storyName);
 		txtWeekTitle.text = leName.toUpperCase();
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 

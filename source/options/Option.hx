@@ -35,8 +35,8 @@ class Option
 
 	public function new(name:String, description:String = '', variable:String, type:String = 'bool', ?options:Array<String> = null)
 	{
-		this.name = name;
-		this.description = description;
+		this.name = Language.getPhrase('setting_$name', name);
+		this.description = Language.getPhrase('description_$name', description);
 		this.variable = variable;
 		this.type = type;
 		this.options = options;

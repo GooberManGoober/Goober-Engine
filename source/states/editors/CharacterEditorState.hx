@@ -184,7 +184,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		"",
 		"OTHER",
 		"F12 - Toggle Silhouettes",
-		"F2 - Reset Editor UI Positions",
 		"Hold Shift - Move Offsets 10x faster and Camera 4x faster",
 		"Hold Control - Move camera 4x slower"];
 
@@ -436,7 +435,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		{
 			if(intended == null || intended.length < 1) return;
 
-			var characterPath:String = 'data/characters/$intended.json';
+			var characterPath:String = 'characters/$intended.json';
 			var path:String = Paths.getPath(characterPath, TEXT, null, true);
 			#if MODS_ALLOWED
 			if (FileSystem.exists(path))
@@ -531,7 +530,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			for (anim in character.animationsArray)
 				if(animationInputText.text == anim.anim) {
 					lastOffsets = anim.offsets;
-					if(character.hasAnimation(animationInputText.text))
+					if(character.animOffsets.exists(animationInputText.text))
 					{
 						if(!character.isAnimateAtlas) character.animation.remove(animationInputText.text);
 						else @:privateAccess character.atlas.anim.animsMap.remove(animationInputText.text);
@@ -559,7 +558,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				{
 					var resetAnim:Bool = false;
 					if(anim.anim == character.getAnimationName()) resetAnim = true;
-					if(character.hasAnimation(anim.anim))
+					if(character.animOffsets.exists(anim.anim))
 					{
 						if(!character.isAnimateAtlas) character.animation.remove(anim.anim);
 						else @:privateAccess character.atlas.anim.animsMap.remove(anim.anim);
@@ -1043,12 +1042,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		if(FlxG.keys.justPressed.F12)
 			silhouettes.visible = !silhouettes.visible;
 
-		if(FlxG.keys.justPressed.F2)
-		{
-			UI_box.setPosition(FlxG.width - 275, 25);
-			UI_characterbox.setPosition(UI_box.x - 100, UI_box.y + UI_box.height + 10);
-		}
-
 		if(FlxG.keys.justPressed.F1 || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
 		{
 			helpBg.visible = !helpBg.visible;
@@ -1203,7 +1196,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				character.atlas.anim.addBySymbol(anim, name, fps, loop);
 		}
 
-		if(!character.hasAnimation(anim))
+		if(!character.animOffsets.exists(anim))
 			character.addOffset(anim, 0, 0);
 	}
 
@@ -1222,7 +1215,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var characterList:Array<String> = [];
 	function reloadCharacterDropDown() {
 		characterList = Mods.mergeAllTextsNamed('data/characterList.txt');
-		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'data/characters/');
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'characters/');
 		for (folder in foldersToCheck)
 			for (file in FileSystem.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.json'))

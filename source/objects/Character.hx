@@ -91,7 +91,7 @@ class Character extends FlxSprite
 		animOffsets = new Map<String, Array<Dynamic>>();
 		this.isPlayer = isPlayer;
 		changeCharacter(character);
-		
+
 		switch(curCharacter)
 		{
 			case 'pico-speaker':
@@ -108,7 +108,7 @@ class Character extends FlxSprite
 		animationsArray = [];
 		animOffsets = [];
 		curCharacter = character;
-		var characterPath:String = 'data/characters/$character.json';
+		var characterPath:String = 'characters/$curCharacter.json';
 
 		var path:String = Paths.getPath(characterPath, TEXT, null, true);
 		#if MODS_ALLOWED
@@ -117,7 +117,7 @@ class Character extends FlxSprite
 		if (!Assets.exists(path))
 		#end
 		{
-			path = Paths.getSharedPath('data/characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
 			missingCharacter = true;
 			missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
 			missingText.alignment = CENTER;
@@ -156,7 +156,9 @@ class Character extends FlxSprite
 		updateHitbox();
 
 		if(!isAnimateAtlas)
-			frames = Paths.getAtlas(json.image);
+		{
+			frames = Paths.getMultiAtlas(json.image.split(','));
+		}
 		#if flxanimate
 		else
 		{

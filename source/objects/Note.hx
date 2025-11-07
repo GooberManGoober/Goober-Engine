@@ -282,16 +282,10 @@ class Note extends FlxSkewedSprite
 		if(prevNote != null)
 			prevNote.nextNote = this;
 
-		if (!isSustainNote && prevNote != null)
-		{
-			alpha = 1 * ClientPrefs.data.noteAlpha;
-			multAlpha = 1 * ClientPrefs.data.noteAlpha;
-		}
-
 		if (isSustainNote && prevNote != null)
 		{
-			alpha = 1 * ClientPrefs.data.noteHoldAlpha;
-			multAlpha = 1 * ClientPrefs.data.noteHoldAlpha;
+			alpha = 0.6;
+			multAlpha = 0.6;
 			hitsoundDisabled = true;
 			if(ClientPrefs.data.downScroll) flipY = true;
 

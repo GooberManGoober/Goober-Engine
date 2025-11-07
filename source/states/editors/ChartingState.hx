@@ -497,11 +497,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		stepperSpeed.name = 'song_speed';
 		blockPressWhileTypingOnStepper.push(stepperSpeed);
 		#if MODS_ALLOWED
-		var directories:Array<String> = [Paths.mods('data/characters/'), Paths.mods(Mods.currentModDirectory + '/data/characters/'), Paths.getSharedPath('data/characters/')];
+		var directories:Array<String> = [Paths.mods('characters/'), Paths.mods(Mods.currentModDirectory + '/characters/'), Paths.getSharedPath('characters/')];
 		for(mod in Mods.getGlobalMods())
-			directories.push(Paths.mods(mod + '/data/characters/'));
+			directories.push(Paths.mods(mod + '/characters/'));
 		#else
-		var directories:Array<String> = [Paths.getSharedPath('data/characters/')];
+		var directories:Array<String> = [Paths.getSharedPath('characters/')];
 		#end
 
 		var tempArray:Array<String> = [];

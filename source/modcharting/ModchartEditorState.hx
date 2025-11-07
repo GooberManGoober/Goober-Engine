@@ -1181,7 +1181,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 	{
 		try
 		{
-			var path:String = Paths.getPath('data/characters/$char.json' , TEXT, null, true);
+			var path:String = Paths.getPath('characters/$char.json' , TEXT, null, true);
 			#if MODS_ALLOWED
 			var character:Dynamic = Json.parse(File.getContent(path));
 			#else
@@ -2127,7 +2127,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		tab_group.add(saveJson);
         
 		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 160, '', 8);
-        saveExplainText.text = ("When saving your modchart, put the .json file in a folder called 'modchartData' located inside your songs's data folder (data/songs/\"songName\"/modchartData/)/\nLook at the list of what you would call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown");
+        saveExplainText.text = ("When saving your modchart, put the .json file in a folder called 'modchartData' located inside your songs's data folder (data/\"songName\"/modchartData/)/\nLook at the list of what you would call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown");
         
         var getAutosave:PsychUIButton = new PsychUIButton(200, 300, 'Load Autosave', function ()
         {
