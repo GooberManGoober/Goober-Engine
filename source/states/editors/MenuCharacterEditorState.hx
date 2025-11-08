@@ -8,7 +8,8 @@ import haxe.Json;
 
 import objects.MenuCharacter;
 
-import substates.Prompt;
+import states.editors.content.Prompt;
+import states.editors.content.PsychJsonPrinter;
 
 class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
@@ -339,7 +340,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 	}
 
 	function saveCharacter() {
-		var data:String = haxe.Json.stringify(characterFile, "\t");
+		var data:String = PsychJsonPrinter.print(characterFile, ['position']);
 		if (data.length > 0)
 		{
 			var splittedImage:Array<String> = imageInputText.text.trim().split('_');

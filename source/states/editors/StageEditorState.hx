@@ -25,8 +25,8 @@ import openfl.events.IOErrorEvent;
 import psychlua.ModchartSprite;
 import flash.net.FileFilter;
 
-import substates.Prompt;
-import substates.PreloadListSubState;
+import states.editors.content.Prompt;
+import states.editors.content.PreloadListSubState;
 
 class StageEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {

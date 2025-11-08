@@ -46,7 +46,8 @@ import modcharting.PlayfieldRenderer.StrumNoteType;
 import modcharting.Modifier;
 import modcharting.ModchartFile;
 import modcharting.ModchartFile.ModchartJson;
-import substates.Prompt;
+
+import states.editors.content.Prompt;
 
 using StringTools;
 

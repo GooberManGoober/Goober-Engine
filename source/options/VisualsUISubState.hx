@@ -2,10 +2,6 @@ package options;
 
 import objects.Alphabet;
 
-#if !mobile
-import funkin.fps.FunkinDebugDisplay;
-#end
-
 class VisualsUISubState extends BaseOptionsMenu
 {
 	public function new()
@@ -99,25 +95,12 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 		
 		#if !mobile
-		var option:Option = new Option('Debug Display:',
-			'If enabled, FPS and other debug stats will be displayed.',
-			'fpsStyle',
-			'string',
-			['Off', 'Simple', 'Advanced']);
+		var option:Option = new Option('FPS Counter',
+			'If unchecked, hides FPS Counter.',
+			'showFPS',
+			'bool');
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
-
-		var option:Option = new Option('FPS Counter BG Opacity',
-			'Change debug display\'s background opacity.',
-			'fpsBgOpacity',
-			'percent');
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.1;
-		option.decimals = 1;
-		option.onChange = onChangeFPSCounterAlpha;
-		addOption(option);
 		#end
 		
 		var option:Option = new Option('Pause Music:',
@@ -171,49 +154,10 @@ class VisualsUISubState extends BaseOptionsMenu
 	}
 
 	#if !mobile
-	var mode:DebugDisplayMode;
 	function onChangeFPSCounter()
 	{
-		if(Main.debugDisplay != null)
-		{
-			switch (ClientPrefs.data.fpsStyle)
-			{
-				case "Simple":
-					mode = DebugDisplayMode.SIMPLE;
-				case "Advanced":
-					mode = DebugDisplayMode.ADVANCED;
-				default:
-					mode = DebugDisplayMode.OFF;
-			}
-
-			setDebugDisplayMode(mode);
-		}
-	}
-
-	static function setDebugDisplayMode(mode:DebugDisplayMode):Void
-	{
-		if (FlxG.game.parent.contains(Main.debugDisplay))
-		{
-		FlxG.game.parent.removeChild(Main.debugDisplay);
-		}
-
-		if (mode == DebugDisplayMode.OFF) return;
-
-		Main.debugDisplay.isAdvanced = (mode == DebugDisplayMode.ADVANCED);
-
-		FlxG.game.parent.addChild(Main.debugDisplay);
-	}
-
-	function onChangeFPSCounterAlpha()
-	{
-		setDebugDisplayBGOpacity(ClientPrefs.data.fpsBgOpacity);
-	}
-
-	static function setDebugDisplayBGOpacity(value:Float):Void
-	{
-		if (Main.debugDisplay == null) return;
-
-		Main.debugDisplay.backgroundOpacity = value;
+		if(Main.fpsVar != null)
+			Main.fpsVar.visible = ClientPrefs.data.showFPS;
 	}
 	#end
 }

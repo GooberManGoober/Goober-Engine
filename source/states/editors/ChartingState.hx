@@ -30,7 +30,7 @@ import objects.NoteSplash;
 import objects.HealthIcon;
 import objects.AttachedSprite;
 import objects.Character;
-import substates.Prompt;
+import states.editors.content.Prompt;
 
 
 #if sys
@@ -559,11 +559,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		blockPressWhileScrolling.push(player2DropDown);
 
 		#if MODS_ALLOWED
-		var directories:Array<String> = [Paths.mods('data/stages/'), Paths.mods(Mods.currentModDirectory + '/data/stages/'), Paths.getSharedPath('data/stages/')];
+		var directories:Array<String> = [Paths.mods('stages/'), Paths.mods(Mods.currentModDirectory + '/stages/'), Paths.getSharedPath('stages/')];
 		for(mod in Mods.getGlobalMods())
-			directories.push(Paths.mods(mod + '/data/stages/'));
+			directories.push(Paths.mods(mod + '/stages/'));
 		#else
-		var directories:Array<String> = [Paths.getSharedPath('data/stages/')];
+		var directories:Array<String> = [Paths.getSharedPath('stages/')];
 		#end
 
 		var stageFile:Array<String> = Mods.mergeAllTextsNamed('data/stageList.txt', Paths.getSharedPath());
@@ -1790,7 +1790,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				playtesting = true;
 				playtestingTime = Conductor.songPosition;
 				playtestingOnComplete = FlxG.sound.music.onComplete;
-				openSubState(new states.editors.EditorPlayState(playbackSpeed));
+				openSubState(new states.editors.content.EditorPlayState(cast _song.notes, [vocals, opponentVocals]));
 			}
 			else if (FlxG.keys.justPressed.ENTER)
 			{
@@ -2584,7 +2584,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var characterFailed:Bool = false;
 	function loadCharacterFile(char:String):CharacterFile {
 		characterFailed = false;
-		var characterPath:String = 'data/characters/' + char + '.json';
+		var characterPath:String = 'characters/' + char + '.json';
 		#if MODS_ALLOWED
 		var path:String = Paths.modFolders(characterPath);
 		if (!FileSystem.exists(path)) {
@@ -2597,7 +2597,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		if (!OpenFlAssets.exists(path))
 		#end
 		{
-			path = Paths.getSharedPath('data/characters/' + Character.DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getSharedPath('characters/' + Character.DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
 			characterFailed = true;
 		}
 

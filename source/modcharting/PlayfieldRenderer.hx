@@ -1,7 +1,5 @@
 package modcharting;
 
-import flixel.tweens.misc.BezierPathTween;
-import flixel.tweens.misc.BezierPathNumTween;
 import flixel.math.FlxMath;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -80,8 +78,7 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
         eventManager = new ModchartEventManager(this);
         modifierTable = new ModTable(instance, this);
         addNewPlayfield(0,0,0);
-		if (!Std.isOfType(instance, states.editors.EditorPlayState))
-        	modchart = new ModchartFile(this);
+		modchart = new ModchartFile(this);
     }
 
 
@@ -496,17 +493,14 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
 
     override public function destroy()
     {
-        if (!Std.isOfType(instance, states.editors.EditorPlayState))
+        if (modchart != null)
         {
-            if (modchart != null)
+            #if hscript
+            for (customMod in modchart.customModifiers)
             {
-                #if hscript
-                for (customMod in modchart.customModifiers)
-                {
-                    customMod.destroy(); //make sure the interps are dead
-                }
-                #end
+                customMod.destroy(); //make sure the interps are dead
             }
+            #end
         }
         super.destroy();
     }

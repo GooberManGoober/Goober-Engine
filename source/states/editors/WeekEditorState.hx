@@ -15,7 +15,7 @@ import objects.MenuCharacter;
 import objects.MenuItem;
 
 import states.editors.MasterEditorMenu;
-import substates.Prompt;
+import states.editors.content.Prompt;
 
 class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
