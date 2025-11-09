@@ -31,6 +31,8 @@ import flixel.FlxG;
 import flixel.util.FlxDestroyUtil;
 import flixel.addons.transition.FlxTransitionableState;
 
+import flixel.util.FlxStringUtil;
+
 import flixel.util.FlxSave;
 
 import backend.Section.SwagSection;
@@ -399,18 +401,15 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         generateStaticArrows(1);
         NoteMovement.getDefaultStrumPosEditor(this);
 
-        debugText = new FlxText(0, gridSize*2, 0, "", 16);
-        debugText.alignment = FlxTextAlign.LEFT;
-        
-
         UI_box = new PsychUIBox(100, gridSize*2 + 50, FlxG.width-200, 450, ['Editor', 'Events', 'Modifiers', 'Playfields']);
         UI_box.canMove = false;
 		UI_box.scrollFactor.set();
         add(UI_box);
 
-        UI_box.selectedName = 'Editor';
+        debugText = new FlxText(10, 640, FlxG.width - 20, "", 16);
+		add(debugText);
 
-        add(debugText);
+        UI_box.selectedName = 'Editor';
 
         addHelpScreen();
 
@@ -605,21 +604,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 dirtyUpdateNotes = true;
                 dirtyUpdateEvents = true;
             }
-            var holdingShift = FlxG.keys.pressed.SHIFT;
-            var holdingLB = FlxG.keys.pressed.LBRACKET;
-            var holdingRB = FlxG.keys.pressed.RBRACKET;
-            var pressedLB = FlxG.keys.justPressed.LBRACKET;
-            var pressedRB = FlxG.keys.justPressed.RBRACKET;
 
             var curSpeed = playbackSpeed;
     
-            if (!holdingShift && pressedLB || holdingShift && holdingLB)
-                playbackSpeed -= 0.01;
-            if (!holdingShift && pressedRB || holdingShift && holdingRB)
-                playbackSpeed += 0.01;
-            if (FlxG.keys.pressed.ALT && (pressedLB || pressedRB || holdingLB || holdingRB))
-                playbackSpeed = 1;
-            //
             if (curSpeed != playbackSpeed)
                 dirtyUpdateEvents = true;
         }
@@ -822,7 +809,10 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             Conductor.bpm = curBpmChange.bpm;
         }
 
-        debugText.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(inst.length / 1000, 2)) +
+        var curTime:String = FlxStringUtil.formatTime(Conductor.songPosition / 1000, true);
+		var songLength:String = (FlxG.sound.music != null) ? FlxStringUtil.formatTime(FlxG.sound.music.length / 1000, true) : '???';
+
+        debugText.text = '$curTime / $songLength' +
 		"\nBeat: " + Std.string(curDecBeat).substring(0,4) +
 		"\nStep: " + curStep + "\n";
 
@@ -1292,7 +1282,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         var refreshModifiers:PsychUIButton = new PsychUIButton(25+modifierDropDown.width+10, modifierDropDown.y, 'Refresh Modifiers', function()
 		{
 			updateModList();
-		}, 80, 30);
+		});
+        refreshModifiers.resize(80, 30);
 
         var saveModifier:PsychUIButton = new PsychUIButton(refreshModifiers.x, refreshModifiers.y+refreshModifiers.height+20, 'Save Modifier', function ()
         {
@@ -1327,7 +1318,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             updateModList();
             hasUnsavedChanges = true;
             autosaveModchart(this);
-        }, 80, 30);
+        });
+        removeModifier.resize(80, 30);
 
         modNameInputText = new PsychUIInputText(modifierDropDown.x + 300, modifierDropDown.y, 160, '', 8);
         modClassInputText = new PsychUIInputText(modifierDropDown.x + 500, modifierDropDown.y, 160, '', 8);
@@ -1911,7 +1903,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 autosaveModchart(this);
             }
         });
-        var remove:PsychUIButton = new PsychUIButton(0, selectedEventDataStepper.y+50, 'Remove', function ()
+        var remove:PsychUIButton = new PsychUIButton(0, selectedEventDataStepper.y+55, 'Remove', function ()
         {
             var data = removeModData();
             if (data != null)
@@ -2067,9 +2059,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         sliderRate = new PsychUISlider(20, 120, function(v:Float) {
             playbackSpeed = v;
             dirtyUpdateEvents = true;
-        }, 1, 0.1, 3, 250, FlxColor.WHITE, FlxColor.BLACK);
+        }, 1, 0.1, 3, 250);
 		sliderRate.label = 'Playback Rate';
-        sliderRate.valueText.color = FlxColor.WHITE;
 
         songSlider = new PsychUISlider(20, 200, function(fuck:Float)
 		{
@@ -2079,9 +2070,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 			Conductor.songPosition = inst.time;
             dirtyUpdateEvents = true;
             dirtyUpdateNotes = true;
-		}, 0, 0, inst.length, 250, FlxColor.WHITE, FlxColor.BLACK);
+		}, 0, 0, inst.length, 250);
         songSlider.label = 'Song Time';
-        songSlider.valueText.color = FlxColor.WHITE;
 
         var check_mute_inst = new PsychUICheckBox(10, 20, "Mute Instrumental (in editor)", 100);
 		check_mute_inst.checked = false;
@@ -2105,7 +2095,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 			if (vocals != null) vocals.volume = vol;
 		};
         
-        var check_mute_opponent_vocals = new PsychUICheckBox(check_mute_inst.x + 120, check_mute_inst.y + 40, "Mute Opp. Vocals (in editor)", 100);
+        var check_mute_opponent_vocals = new PsychUICheckBox(check_mute_vocals.x + 120, check_mute_inst.y, "Mute Opp. Vocals (in editor)", 100);
 		check_mute_opponent_vocals.checked = false;
 		check_mute_opponent_vocals.onClick = function()
 		{
@@ -2128,7 +2118,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		tab_group.add(saveJson);
         
 		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 160, '', 8);
-        saveExplainText.text = ("When saving your modchart, put the .json file in a folder called 'modchartData' located inside your songs's data folder (data/\"songName\"/modchartData/)/\nLook at the list of what you would call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown");
+        saveExplainText.text = ("When saving your modchart, put the .json file in a folder called 'modchartData' located inside your songs's data folder (\"songName\"/modchartData/)/\nLook at the list of what you would call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown");
         
         var getAutosave:PsychUIButton = new PsychUIButton(200, 300, 'Load Autosave', function ()
         {

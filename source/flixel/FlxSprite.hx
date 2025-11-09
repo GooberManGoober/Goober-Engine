@@ -1,11 +1,5 @@
 package flixel;
 
-import flixel.util.FlxTimer;
-import flash.display.BitmapData;
-import flash.display.BlendMode;
-import flash.geom.ColorTransform;
-import flash.geom.Point;
-import flash.geom.Rectangle;
 import flixel.FlxBasic.IFlxBasic;
 import flixel.animation.FlxAnimationController;
 import flixel.graphics.FlxGraphic;
@@ -23,6 +17,11 @@ import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxDirectionFlags;
+import openfl.display.BitmapData;
+import openfl.display.BlendMode;
+import openfl.geom.ColorTransform;
+import openfl.geom.Point;
+import openfl.geom.Rectangle;
 
 using flixel.util.FlxColorTransformUtil;
 
@@ -37,7 +36,7 @@ using flixel.util.FlxColorTransformUtil;
  * - [Handbook - FlxSprite](https://haxeflixel.com/documentation/flxsprite/)
  * 
  * ## Collision and Motion
- * Flixel handles many aspects of collision nad physics motions for you. This is all defined in the
+ * Flixel handles many aspects of collision and physics motions for you. This is all defined in the
  * base class: [FlxObject](https://api.haxeflixel.com/flixel/FlxObject.html), check there for things
  * like: `x`, `y`, `width`, `height`, `velocity`, `acceleration`, `maxVelocity`, `drag`, `angle`,
  * and `angularVelocity`. All of these affect the movement and orientation of the sprite as well
@@ -102,7 +101,7 @@ using flixel.util.FlxColorTransformUtil;
  * ### Scale
  * [Snippets - Scale](https://snippets.haxeflixel.com/sprites/scale/)
  * (FlxPoint) Change the size of your sprite's graphic. NOTE: The hitbox is not automatically
- * adjusted, use updateHitbox() for that (or setGraphicSize()).
+ * adjusted, use updateHitbox() for that.
  * ```haxe
  * // twice as big
  * whiteSquare.scale.set(2, 2);
@@ -195,7 +194,7 @@ class FlxSprite extends FlxObject
 	 * The total number of frames in this image.
 	 * WARNING: assumes each row in the sprite sheet is full!
 	 */
-	public var numFrames(default, null):Int = 0;
+	public var numFrames(get, never):Int;
 
 	/**
 	 * Rendering variables.
@@ -216,11 +215,6 @@ class FlxSprite extends FlxObject
 	 @see https://snippets.haxeflixel.com/sprites/alpha/
 	 */
 	public var alpha(default, set):Float = 1.0;
-
-	/**
-        * the `Dynamic` of the FlxSprite
-        */
-	public var dynamicContent:Dynamic = {};
 
 	/**
 	 * Can be set to `LEFT`, `RIGHT`, `UP`, and `DOWN` to take advantage
@@ -254,7 +248,7 @@ class FlxSprite extends FlxObject
 
 	/**
 	 * Change the size of your sprite's graphic.
-	 * NOTE: The hitbox is not automatically adjusted, use `updateHitbox()` for that (or `setGraphicSize()`).
+	 * NOTE: The hitbox is not automatically adjusted, use `updateHitbox()` for that.
 	 * WARNING: With `FlxG.renderBlit`, scaling sprites decreases rendering performance by a factor of about x10!
 	 * @see https://snippets.haxeflixel.com/sprites/scale/
 	 */
@@ -288,20 +282,9 @@ class FlxSprite extends FlxObject
 	public var clipRect(default, set):FlxRect;
 
 	/**
-	 * If true, clipRect will behave as it did in flixel 4 and earlier.
-	 * Where the clipRect will scale up proportionally with the sprite.
-	 * @since 5.0.0
-	 */
-	public var clipRectIgnoreScale(default, set):Bool = false;
-
-	/**
-	 * GLSL shader for this sprite. Only works with OpenFL Next or WebGL.
-	 * Avoid changing it frequently as this is a costly operation.
+	 * GLSL shader for this sprite. Avoid changing it frequently as this is a costly operation.
 	 * @since 4.1.0
 	 */
-	#if openfl_legacy
-	@:noCompletion
-	#end
 	public var shader:FlxShader;
 
 	/**
@@ -496,38 +479,44 @@ class FlxSprite extends FlxObject
 	 * HaxeFlixel copies the previous reference onto the `pixels` field instead
 	 * of creating another copy of the image data, to save memory.
 	 *
-	 * @param   Graphic    The image you want to use.
-	 * @param   Animated   Whether the `Graphic` parameter is a single sprite or a row / grid of sprites.
-	 * @param   Width      Specify the width of your sprite
-	 *                     (helps figure out what to do with non-square sprites or sprite sheets).
-	 * @param   Height     Specify the height of your sprite
-	 *                     (helps figure out what to do with non-square sprites or sprite sheets).
-	 * @param   Unique     Whether the graphic should be a unique instance in the graphics cache.
-	 *                     Set this to `true` if you want to modify the `pixels` field without changing
-	 *                     the `pixels` of other sprites with the same `BitmapData`.
-	 * @param   Key        Set this parameter if you're loading `BitmapData`.
+	 * NOTE: This method updates hitbox size and frame size.
+	 *
+	 * @param   graphic      The image you want to use.
+	 * @param   animated     Whether the `Graphic` parameter is a single sprite or a row / grid of sprites.
+	 * @param   frameWidth   Specify the width of your sprite
+	 *                       (helps figure out what to do with non-square sprites or sprite sheets).
+	 * @param   frameHeight  Specify the height of your sprite
+	 *                       (helps figure out what to do with non-square sprites or sprite sheets).
+	 * @param   unique       Whether the graphic should be a unique instance in the graphics cache.
+	 *                       Set this to `true` if you want to modify the `pixels` field without changing
+	 *                       the `pixels` of other sprites with the same `BitmapData`.
+	 * @param   key          Set this parameter if you're loading `BitmapData`.
 	 * @return  This `FlxSprite` instance (nice for chaining stuff together, if you're into that).
 	 */
-	public function loadGraphic(Graphic:FlxGraphicAsset, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false, ?Key:String):FlxSprite
+	public function loadGraphic(graphic:FlxGraphicAsset, animated = false, frameWidth = 0, frameHeight = 0, unique = false, ?key:String):FlxSprite
 	{
-		var graph:FlxGraphic = FlxG.bitmap.add(Graphic, Unique, Key);
+		var graph:FlxGraphic = FlxG.bitmap.add(graphic, unique, key);
 		if (graph == null)
 			return this;
 
-		if (Width == 0)
+		if (frameWidth == 0)
 		{
-			Width = Animated ? graph.height : graph.width;
-			Width = (Width > graph.width) ? graph.width : Width;
+			frameWidth = animated ? graph.height : graph.width;
+			frameWidth = (frameWidth > graph.width) ? graph.width : frameWidth;
 		}
+		else if (frameWidth > graph.width)
+			FlxG.log.warn('frameWidth:$frameWidth is larger than the graphic\'s width:${graph.width}');
 
-		if (Height == 0)
+		if (frameHeight == 0)
 		{
-			Height = Animated ? Width : graph.height;
-			Height = (Height > graph.height) ? graph.height : Height;
+			frameHeight = animated ? frameWidth : graph.height;
+			frameHeight = (frameHeight > graph.height) ? graph.height : frameHeight;
 		}
+		else if (frameHeight > graph.height)
+			FlxG.log.warn('frameHeight:$frameHeight is larger than the graphic\'s height:${graph.height}');
 
-		if (Animated)
-			frames = FlxTileFrames.fromGraphic(graph, FlxPoint.get(Width, Height));
+		if (animated)
+			frames = FlxTileFrames.fromGraphic(graph, FlxPoint.get(frameWidth, frameHeight));
 		else
 			frames = graph.imageFrame;
 
@@ -635,6 +624,8 @@ class FlxSprite extends FlxObject
 	 * HaxeFlixel copies the previous reference onto the pixels field instead
 	 * of creating another copy of the image data, to save memory.
 	 *
+	 * NOTE: This method updates hitbox size and frame size.
+	 *
 	 * @param   Width    The width of the sprite you want to generate.
 	 * @param   Height   The height of the sprite you want to generate.
 	 * @param   Color    Specifies the color of the generated block (ARGB format).
@@ -706,12 +697,12 @@ class FlxSprite extends FlxObject
 
 	/**
 	 * Helper function to set the graphic's dimensions by using `scale`, allowing you to keep the current aspect ratio
-	 * should one of the Integers be `<= 0`. It might make sense to call `updateHitbox()` afterwards!
+	 * should one of the numbers be `<= 0`. It might make sense to call `updateHitbox()` afterwards!
 	 *
-	 * @param   Width    How wide the graphic should be. If `<= 0`, and `Height` is set, the aspect ratio will be kept.
-	 * @param   Height   How high the graphic should be. If `<= 0`, and `Width` is set, the aspect ratio will be kept.
+	 * @param   width    How wide the graphic should be. If `<= 0`, and `height` is set, the aspect ratio will be kept.
+	 * @param   height   How high the graphic should be. If `<= 0`, and `width` is set, the aspect ratio will be kept.
 	 */
-	public function setGraphicSize(width = .0, height = .0):Void
+	public function setGraphicSize(width = 0.0, height = 0.0):Void
 	{
 		if (width <= 0 && height <= 0)
 			return;
@@ -768,9 +759,6 @@ class FlxSprite extends FlxObject
 	{
 		super.update(elapsed);
 		updateAnimation(elapsed);
-
-		if (dynamicContent.update != null)
-			dynamicContent.update(elapsed);
 	}
 
 	/**
@@ -786,6 +774,16 @@ class FlxSprite extends FlxObject
 	{
 		if (_frame == null)
 			loadGraphic("flixel/images/logo/default.png");
+		else if (graphic != null && graphic.isDestroyed)
+		{
+			// switch graphic but log and preserve size
+			final width = this.width;
+			final height = this.height;
+			FlxG.log.error('Cannot render a destroyed graphic, the placeholder image will be used instead');
+			loadGraphic("flixel/images/logo/default.png");
+			this.width = width;
+			this.height = height;
+		}
 	}
 
 	/**
@@ -959,34 +957,6 @@ class FlxSprite extends FlxObject
 		origin.set(frameWidth * 0.5, frameHeight * 0.5);
 	}
 
-    /**
-     * Shakes a `FlxSprite` using his Offsets
-     * 
-     * @param ShakeValue Value of the `FlxSprite` shake
-     * @param AngleValue Value of the `FlxSprite` angle shake
-     * @param Timer How many time does it affect
-     * @param onComplete OPTIONAL: a function triggered after the shake is finished
-     * @return The `FlxSprite` to shake
-     */
-    public inline function shake(ShakeValue:Float = 0.05, AngleValue:Int = 0, Timer:Float = 1, ?onComplete:Null<FlxSprite -> Void>):FlxSprite
-        {
-			var stop:Bool = false;
-
-			if(!stop)
-				{
-					if(AngleValue > 360)
-						AngleValue = 360;
-	
-					offset.x = FlxG.random.float(-ShakeValue, ShakeValue);
-					offset.y = FlxG.random.float(-ShakeValue, ShakeValue);
-					angle = FlxG.random.int(-AngleValue, AngleValue);	
-				}
-			
-			new FlxTimer().start(Timer, timer->stop = true);
-
-            return this;
-        }
-
 	/**
 	 * Replaces all pixels with specified `Color` with `NewColor` pixels.
 	 * WARNING: very expensive (especially on big graphics) as it iterates over every single pixel.
@@ -1017,8 +987,8 @@ class FlxSprite extends FlxObject
 	 * @param   blueOffset        The offset for the blue color channel value, in the range from `-255` to `255`.
 	 * @param   alphaOffset       The offset for alpha transparency channel value, in the range from `-255` to `255`.
 	 */
-	public function setColorTransform(redMultiplier:Float = 1.0, greenMultiplier:Float = 1.0, blueMultiplier:Float = 1.0, alphaMultiplier:Float = 1.0,
-			redOffset:Int = 0, greenOffset:Int = 0, blueOffset:Int = 0, alphaOffset:Int = 0):Void
+	public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0,
+			redOffset = 0.0, greenOffset = 0.0, blueOffset = 0.0, alphaOffset = 0.0):Void
 	{
 		color = FlxColor.fromRGBFloat(redMultiplier, greenMultiplier, blueMultiplier).to24Bit();
 		alpha = alphaMultiplier;
@@ -1029,11 +999,11 @@ class FlxSprite extends FlxObject
 		useColorTransform = alpha != 1 || color != 0xffffff || colorTransform.hasRGBOffsets();
 		dirty = true;
 	}
-
+	
 	function updateColorTransform():Void
 	{
 		if (colorTransform == null)
-			colorTransform = new ColorTransform();
+			return;
 
 		useColorTransform = alpha != 1 || color != 0xffffff;
 		if (useColorTransform)
@@ -1049,17 +1019,17 @@ class FlxSprite extends FlxObject
 	 * current displayed pixels. This check is ALWAYS made in screen space, and
 	 * factors in `scale`, `angle`, `offset`, `origin`, and `scrollFactor`.
 	 *
-	 * @param   worldPoint  point in world space you want to check.
-	 * @param   mask        Used in the pixel hit test to determine what counts as solid.
-	 * @param   camera      The desired "screen" coordinate space. If `null`, `FlxG.camera` is used.
+	 * @param   worldPoint      point in world space you want to check.
+	 * @param   alphaTolerance  Used to determine what counts as solid.
+	 * @param   camera          The desired "screen" coordinate space. If `null`, `FlxG.camera` is used.
 	 * @return  Whether or not the point overlaps this object.
 	 */
-	public function pixelsOverlapPoint(worldPoint:FlxPoint, mask:Int = 0xFF, ?camera:FlxCamera):Bool
+	public function pixelsOverlapPoint(worldPoint:FlxPoint, alphaTolerance = 0xFF, ?camera:FlxCamera):Bool
 	{
-		var pixelColor = getPixelAt(worldPoint);
+		final pixelColor = getPixelAt(worldPoint, camera);
 		
 		if (pixelColor != null)
-			return pixelColor.alpha * alpha >= mask;
+			return pixelColor.alpha * alpha >= alphaTolerance;
 		
 		// point is outside of the graphic
 		return false;
@@ -1332,7 +1302,7 @@ class FlxSprite extends FlxObject
 	// ZOOM FACTOR
 	private inline function __shouldDoZoomFactor()
 		return zoomFactorEnabled && zoomFactor != 1;
-
+		
 	/**
 	 * Calculates the smallest globally aligned bounding box that encompasses this sprite's graphic as it
 	 * would be displayed. Honors scrollFactor, rotation, scale, offset and origin.
@@ -1359,7 +1329,7 @@ class FlxSprite extends FlxObject
 			newRect.floor();
 		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
-		
+
 		var r = getScreenBounds(newRect, camera);
 
 		if(__shouldDoZoomFactor()) {
@@ -1487,49 +1457,14 @@ class FlxSprite extends FlxObject
 
 		if (clipRect != null)
 		{
-			if (clipRectIgnoreScale)
-				_frame = frame.clipTo(clipRect, _frame);
-			else
-			{
-				//translate clipRect's world coorinates to graphical cooridinates
-				var rect = FlxRect.get();
-				var point = FlxPoint.get();
-				
-				point.set(x + clipRect.x, y + clipRect.y);
-				transformClipRectPoint(point);
-				rect.x = point.x;
-				rect.y = point.y;
-				
-				point.set(x + clipRect.right, y + clipRect.bottom);
-				transformClipRectPoint(point);
-				rect.right = point.x;
-				rect.bottom = point.y;
-				
-				_frame = frame.clipTo(rect, _frame);
-				
-				point.put();
-				rect.put();
-			}
+			_frame = frame.clipTo(clipRect, _frame);
 		}
 		else
 		{
 			_frame = frame.copyTo(_frame);
 		}
-		return frame;
-	}
 
-	/**
-	 * Copied from transformWorldToPixelsSimple with angle and offset ignored.
-	 */
-	 function transformClipRectPoint(worldPoint:FlxPoint)
-	{
-		worldPoint.subtract(x, y);
-		// result.addPoint(offset);
-		worldPoint.subtractPoint(origin);
-		worldPoint.scale(1 / scale.x, 1 / scale.y);
-		// can't clip an angled rect.
-		// result.degrees -= angle;
-		worldPoint.addPoint(origin);
+		return frame;
 	}
 
 	@:noCompletion
@@ -1602,25 +1537,25 @@ class FlxSprite extends FlxObject
 
 	/**
 	 * Internal function for setting graphic property for this object.
-	 * It changes graphics' `useCount` also for better memory tracking.
+	 * Changes the graphic's `useCount` for better memory tracking.
 	 */
 	@:noCompletion
-	@:access(flixel.graphics.FlxGraphic) // "The field or identifier useCount is not accessible for writing" ???
-	function set_graphic(Value:FlxGraphic):FlxGraphic
+	function set_graphic(value:FlxGraphic):FlxGraphic
 	{
-		var oldGraphic:FlxGraphic = graphic;
-
-		if ((graphic != Value) && (Value != null))
+		if (graphic != value)
 		{
-			Value.useCount++;
+			// If new graphic is not null, increase its use count
+			if (value != null)
+				value.incrementUseCount();
+			
+			// If old graphic is not null, decrease its use count
+			if (graphic != null)
+				graphic.decrementUseCount();
+			
+			graphic = value;
 		}
-
-		if ((oldGraphic != null) && (oldGraphic != Value))
-		{
-			oldGraphic.useCount--;
-		}
-
-		return graphic = Value;
+		
+		return value;
 	}
 
 	@:noCompletion
@@ -1635,12 +1570,6 @@ class FlxSprite extends FlxObject
 			frame = frames.frames[animation.frameIndex];
 
 		return rect;
-	}
-
-	@:noCompletion
-	function set_clipRectIgnoreScale(value:Bool):Bool
-	{
-		return this.clipRectIgnoreScale = value;
 	}
 
 	/**
@@ -1663,7 +1592,6 @@ class FlxSprite extends FlxObject
 			graphic = Frames.parent;
 			frames = Frames;
 			frame = frames.getByIndex(0);
-			numFrames = frames.numFrames;
 			resetHelpers();
 			bakedRotationAngle = 0;
 			animation.frameIndex = 0;
@@ -1677,6 +1605,13 @@ class FlxSprite extends FlxObject
 		}
 
 		return Frames;
+	}
+	function get_numFrames()
+	{
+		if (frames != null)
+			return frames.numFrames;
+			
+		return 0;
 	}
 
 	@:noCompletion
