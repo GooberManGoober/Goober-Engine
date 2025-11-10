@@ -20,6 +20,14 @@
 	
 	<!-- ______________________ GOOBER ENGINE CUSTOMIZATION ______________________ -->
 
+	<section unless="debug">
+		<!-- Adds the ability to use OpenFL asset lookup (defaults to sys if disabled)  -->
+		<define name="OPENFL_LOOKUP" />
+
+		<!-- Adds the ability to use NativeFileSystem on the computer to acsess files  -->
+		<define name="NATIVE_LOOKUP" if="MODS_ALLOWED" />
+	</section>
+
 	<define name="MODS_ALLOWED" if="desktop" unless="html5" />
 	<define name="HSCRIPT_ALLOWED" if="desktop" unless="html5" />
 	<define name="LUA_ALLOWED" if="desktop" unless="html5" />
@@ -31,6 +39,18 @@
 
 	<define name="TITLE_SCREEN_EASTER_EGG"/>
 	<define name="VIDEOS_ALLOWED" if="windows || linux || android" unless="32bits"/>
+
+	<!-- Debug utilities (useful when testing the game)-->
+	<section if="debug">
+		<!-- For testing file access times-->
+		<define name="OPENFL_LOOKUP" />
+		<define name="NATIVE_LOOKUP" />
+
+		<define name="IRIS_DEBUG" />
+		<define name="FEATURE_DEBUG_FUNCTIONS" />
+		<haxedef name="HXVLC_VERBOSE" value="2" />
+		<haxedef name="HXVLC_LOGGING" />
+	</section>
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 
