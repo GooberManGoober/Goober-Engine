@@ -174,7 +174,7 @@ class NativeFileSystem
 					else if (Assets.exists(dir))
 					{
 						var parts = dir.split("/");
-						dirs.pushUnique(parts.pop());
+						dirs.push(parts.pop());
 					}
 				}
 			}
