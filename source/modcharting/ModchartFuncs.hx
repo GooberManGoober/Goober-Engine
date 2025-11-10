@@ -29,9 +29,9 @@ using StringTools;
 //for lua and hscript
 class ModchartFuncs
 {
+    #if LUA_ALLOWED
     public static function loadLuaFunctions(funkin:FunkinLua)
     {
-        #if LUA_ALLOWED
         Lua_helper.add_callback(funkin.lua, 'startMod', function(name:String, modClass:String, type:String = '', pf:Int = -1){
             startMod(name,modClass,type,pf);
 
@@ -72,7 +72,6 @@ class ModchartFuncs
         });
         
         loadHaxeFunctions(funkin);
-        #end
     }
     
     public static function loadHaxeFunctions(funkin:FunkinLua)
@@ -102,6 +101,8 @@ class ModchartFuncs
         }
         #end
     }
+    #end
+        
     #if HSCRIPT_ALLOWED
     public static function loadHScriptFunctions(parent:Dynamic)
     {
