@@ -44,6 +44,9 @@ import objects.BGSprite;
 import states.PlayState;
 import states.LoadingState;
 
+import backend.NativeFileSystem as FileSystem;
+import backend.NativeFileSystem as File;
+
 #if flxanimate
 import flxanimate.*;
 import flxanimate.PsychFlxAnimate as FlxAnimate;
