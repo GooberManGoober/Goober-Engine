@@ -31,11 +31,9 @@ using StringTools;
 //finish setting up tooltips in editor
 //start documenting more stuff idk
 
-typedef StrumNoteType = StrumNote;
-
 class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can edit draw
 {
-    public var strumGroup:FlxTypedGroup<StrumNoteType>;
+    public var strumGroup:FlxTypedGroup<StrumNote>;
     public var notes:FlxTypedGroup<Note>;
     public var instance:MusicBeatState;
     public var playStateInstance:PlayState;
@@ -59,7 +57,7 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
     }
 
 
-    public function new(strumGroup:FlxTypedGroup<StrumNoteType>, notes:FlxTypedGroup<Note>,instance:MusicBeatState) 
+    public function new(strumGroup:FlxTypedGroup<StrumNote>, notes:FlxTypedGroup<Note>,instance:MusicBeatState) 
     {
         super(0,0);
         this.strumGroup = strumGroup;
@@ -113,7 +111,7 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
     }
 
 
-    private function addDataToStrum(strumData:NotePositionData, strum:StrumNoteType)
+    private function addDataToStrum(strumData:NotePositionData, strum:StrumNote)
     {
         strum.x = strumData.x;
         strum.y = strumData.y;

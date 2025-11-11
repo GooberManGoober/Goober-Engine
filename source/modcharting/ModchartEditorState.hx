@@ -44,7 +44,6 @@ import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
 import modcharting.*;
-import modcharting.PlayfieldRenderer.StrumNoteType;
 import modcharting.Modifier;
 import modcharting.ModchartFile;
 import modcharting.ModchartFile.ModchartJson;
@@ -202,9 +201,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 	public var camGame:FlxCamera;
     public var notes:FlxTypedGroup<Note>;
     private var strumLine:FlxSprite;
-    public var strumLineNotes:FlxTypedGroup<StrumNoteType>;
-	public var opponentStrums:FlxTypedGroup<StrumNoteType>;
-	public var playerStrums:FlxTypedGroup<StrumNoteType>;
+    public var strumLineNotes:FlxTypedGroup<StrumNote>;
+	public var opponentStrums:FlxTypedGroup<StrumNote>;
+	public var playerStrums:FlxTypedGroup<StrumNote>;
 	public var unspawnNotes:Array<Note> = [];
     public var loadedNotes:Array<Note> = []; //stored notes from the chart that unspawnNotes can copy from
     public var vocals:FlxSound;
@@ -329,11 +328,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		
 		strumLine.scrollFactor.set();
 
-        strumLineNotes = new FlxTypedGroup<StrumNoteType>();
+        strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
 
-		opponentStrums = new FlxTypedGroup<StrumNoteType>();
-		playerStrums = new FlxTypedGroup<StrumNoteType>();
+		opponentStrums = new FlxTypedGroup<StrumNote>();
+		playerStrums = new FlxTypedGroup<StrumNote>();
 
         generateSong(PlayState.SONG);
 
@@ -491,6 +490,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 			inst.time = 0;
 		}
         Conductor.songPosition = inst.time;
+        _song.song = UI_songTitle.text;
 
         var songPosPixelPos = (((Conductor.songPosition/Conductor.stepCrochet)%4)*gridSize);
         grid.x = -curDecStep*gridSize;
@@ -648,7 +648,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             {
                 daNote.wasGoodHit = true;
                 
-                var spr:StrumNoteType = null;
+                var spr:StrumNote = null;
                 if(!daNote.mustPress) {
                     spr = opponentStrums.members[daNote.noteData];
                 } else {
@@ -2052,6 +2052,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     var sliderRate:PsychUISlider;
     var songSlider:PsychUISlider;
     var saveExplainText:FlxText;
+    var UI_songTitle:PsychUIInputText;
     function setupEditorUI()
     {
         var tab_group = UI_box.getTab('Editor').menu;
@@ -2136,6 +2137,19 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
         if(hasAutoSave)
             tab_group.add(getAutosave);
+
+        UI_songTitle = new PsychUIInputText(20, 350, 150, _song.song, 8);
+		tab_group.add(UI_songTitle);
+        tab_group.add(makeLabel(UI_songTitle, 0, -15, "Song Name:"));
+
+        var curDifficulty:FlxText = new FlxText(20, 400, 160, 'Current Difficulty: ${Difficulty.getString()}', 8);
+        tab_group.add(curDifficulty);
+
+        var reloadSongJson:PsychUIButton = new PsychUIButton(200, UI_songTitle.y, "Reload Song", function()
+		{
+			loadJson(_song.song.toLowerCase());
+		});
+        tab_group.add(reloadSongJson);
         
         tab_group.add(sliderRate);
         tab_group.add(resetSpeed);
@@ -2196,6 +2210,50 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         _file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
         _file = null;
     }
+
+    var missingText:FlxText;
+	var missingTextTimer:FlxTimer;
+	function loadJson(song:String):Void
+	{
+		//shitty null fix, i fucking hate it when this happens
+		//make it look sexier if possible
+		try {
+			if (Difficulty.getString() != Difficulty.getDefault()) {
+				if(Difficulty.getString() == null){
+					PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+				}else{
+					PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + Difficulty.getString(), song.toLowerCase());
+				}
+			}
+			else PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+			MusicBeatState.resetState();
+		}
+		catch(e)
+		{
+			trace('ERROR! $e');
+
+			var errorStr:String = e.toString();
+			if(errorStr.startsWith('[file_contents,assets/data/')) errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length-1); //Missing chart
+			
+			if(missingText == null)
+			{
+				missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
+				missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				missingText.scrollFactor.set();
+				add(missingText);
+			}
+			else missingTextTimer.cancel();
+
+			missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+			missingText.screenCenter(Y);
+
+			missingTextTimer = new FlxTimer().start(5, function(tmr:FlxTimer) {
+				remove(missingText);
+				missingText.destroy();
+			});
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+		}
+	}
 
     function autosaveModchart(?instance:MusicBeatState = null):Void
     {

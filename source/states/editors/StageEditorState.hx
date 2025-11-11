@@ -578,7 +578,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	function editorUI()
 	{
-		UI_box = new PsychUIBox(FlxG.width - 225, 10, 200, 400, ['Meta', 'Data', 'Object']);
+		UI_box = new PsychUIBox(FlxG.width - 225, 10, 200, 430, ['Meta', 'Data', 'Object']);
 		UI_box.cameras = [camHUD];
 		UI_box.scrollFactor.set();
 		add(UI_box);
@@ -763,6 +763,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var scaleStepperY:PsychUINumericStepper;
 	var scrollStepperX:PsychUINumericStepper;
 	var scrollStepperY:PsychUINumericStepper;
+	var skewStepperX:PsychUINumericStepper;
+	var skewStepperY:PsychUINumericStepper;
 	var angleStepper:PsychUINumericStepper;
 	var alphaStepper:PsychUINumericStepper;
 
@@ -911,6 +913,22 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		scrollStepperX.onValueChange = scrollStepperY.onValueChange = updateScroll;
 		tab_group.add(scrollStepperX);
 		tab_group.add(scrollStepperY);
+
+		function updateSkew()
+		{
+			// scroll factor
+			var selected = getSelected();
+			if(selected != null)
+				selected.setSkewing(skewStepperX.value, skewStepperY.value);
+		}
+
+		objY += 40;
+		tab_group.add(new FlxText(objX, objY - 18, 150, 'Skewing (X/Y):'));
+		skewStepperX = new PsychUINumericStepper(objX, objY, 0.05, 1, -10, 10, 2);
+		skewStepperY = new PsychUINumericStepper(objX + 70, objY, 0.05, 1, -100, 100, 2);
+		skewStepperX.onValueChange = skewStepperY.onValueChange = updateSkew;
+		tab_group.add(skewStepperX);
+		tab_group.add(skewStepperY);
 		
 		objY += 40;
 		tab_group.add(new FlxText(objX, objY - 18, 80, 'Opacity:'));
@@ -1275,6 +1293,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		scaleStepperY.value = selected.scale[1];
 		scrollStepperX.value = selected.scroll[0];
 		scrollStepperY.value = selected.scroll[1];
+		skewStepperX.value = selected.scroll[0];
+		skewStepperY.value = selected.scroll[1];
 		angleStepper.value = selected.angle;
 		alphaStepper.value = selected.alpha;
 		zoomFactorStepper.value = selected.zoomFactor;
@@ -1957,6 +1977,7 @@ class StageEditorMetaSprite
 	}
 
 	public var scale:Array<Float> = [1, 1];
+	public var skewing:Array<Float> = [1, 1];
 	public var antialiasing(default, set):Bool = true;
 	function set_antialiasing(v:Bool)
 	{
@@ -1969,6 +1990,14 @@ class StageEditorMetaSprite
 		scale[0] = (wid != null ? wid : scale[0]);
 		scale[1] = (hei != null ? hei : scale[1]);
 		sprite.scale.set(scale[0], scale[1]);
+		sprite.updateHitbox();
+	}
+
+	public function setSkewing(wid:Null<Float> = null, hei:Null<Float> = null)
+	{
+		skewing[0] = (wid != null ? wid : skewing[0]);
+		skewing[1] = (hei != null ? hei : skewing[1]);
+		sprite.skewing.set(skewing[0], skewing[1]);
 		sprite.updateHitbox();
 	}
 	
@@ -1992,7 +2021,7 @@ class StageEditorMetaSprite
 		switch(this.type)
 		{
 			case 'sprite', 'square', 'animatedSprite':
-				for (v in ['name', 'image', 'scale', 'scroll', 'color', 'filters', 'antialiasing'])
+				for (v in ['name', 'image', 'scale', 'skewing', 'scroll', 'color', 'filters', 'antialiasing'])
 				{
 					var dat:Dynamic = Reflect.field(data, v);
 					if(dat != null) Reflect.setField(this, v, dat);
@@ -2016,6 +2045,7 @@ class StageEditorMetaSprite
 				obj.x = x;
 				obj.y = y;
 				obj.scale = scale;
+				obj.skewing = skewing;
 				obj.scroll = scroll;
 				obj.alpha = alpha;
 				obj.angle = angle;
