@@ -2,8 +2,15 @@ package states.stages;
 
 import states.stages.objects.*;
 
+import shaders.BarrelDistortionShader;
+import openfl.filters.BitmapFilter;
+import openfl.filters.ShaderFilter;
+
 class MallEvil extends BaseStage
 {
+	var barrelDistortionShader:BarrelDistortionShader;
+	var barrelDistortionFilter:BitmapFilter;
+	
 	override function create()
 	{
 		var bg:BGSprite = new BGSprite('christmas/evilBG', -400, -500, 0.2, 0.2);
@@ -17,6 +24,19 @@ class MallEvil extends BaseStage
 		var evilSnow:BGSprite = new BGSprite('christmas/evilSnow', -200, 700);
 		add(evilSnow);
 		setDefaultGF('gf-christmas');
+
+		barrelDistortionShader = new BarrelDistortionShader();
+		barrelDistortionFilter = new ShaderFilter(barrelDistortionShader);
+
+		if (ClientPrefs.data.shaders)
+		{
+			if (songName == "winter-horrorland")
+			{
+				camGame.setFilters([barrelDistortionFilter]);
+				camHUD.setFilters([barrelDistortionFilter]);
+				FlxTween.tween(barrelDistortionShader, {barrelDistortion1: -0.1, barrelDistortion2: -0.1}, 2.25, {ease: FlxEase.cubeInOut, type: PINGPONG});
+			}
+		}
 		
 		//Winter Horrorland cutscene
 		if (isStoryMode && !seenCutscene)

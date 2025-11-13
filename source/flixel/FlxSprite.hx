@@ -9,7 +9,6 @@ import flixel.graphics.frames.FlxTileFrames;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
-import openfl.geom.Matrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
@@ -158,25 +157,6 @@ class FlxSprite extends FlxObject
 	 * `framePixels` is used and defaults to `false` for performance reasons.
 	 */
 	public var useFramePixels(default, set):Bool = true;
-
-	public var skewing(default, null):FlxPoint = FlxPoint.get();
-
-	/**
-	 * Tranformation matrix for this sprite.
-	 * Used only when matrixExposed is set to true
-	 */
-	public var transformationMatrix(default, null):Matrix = new Matrix();
-
-	/**
-	 * Bool flag showing whether transformationMatrix is used for rendering or not.
-	 * False by default, which means that transformationMatrix isn't used for rendering
-	 */
-	public var isMatrixExposed:Bool = false;
-
-	/**
-	 * Internal helper matrix object. Used for rendering calculations when isMatrixExposed is set to false
-	 */
-	var _skewingMatrix:Matrix = new Matrix();
 
 	/**
 	 * Controls whether the object is smoothed when rotated, affects performance.
@@ -445,10 +425,6 @@ class FlxSprite extends FlxObject
 		_scaledOrigin = FlxDestroyUtil.put(_scaledOrigin);
 
 		framePixels = FlxDestroyUtil.dispose(framePixels);
-
-		skewing = FlxDestroyUtil.put(skewing);
-		_skewingMatrix = null;
-		transformationMatrix = null;
 
 		_flashPoint = null;
 		_flashRect = null;
@@ -862,25 +838,12 @@ class FlxSprite extends FlxObject
 		_matrix.translate(-origin.x, -origin.y);
 		_matrix.scale(scale.x, scale.y);
 
-		if (isMatrixExposed)
+		if (bakedRotationAngle <= 0)
 		{
-			_matrix.concat(transformationMatrix);
-		}
-		else
-		{
-			if (bakedRotationAngle <= 0)
-			{
-				updateTrig();
+			updateTrig();
 
-				if (angle != 0)
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-
-				updateSkewingMatrix();
-				_matrix.concat(_skewingMatrix);
-			}
-
-			updateSkewingMatrix();
-			_matrix.concat(_skewingMatrix);
+			if (angle != 0)
+				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 		}
 
 		getScreenPosition(_point, camera).subtractPoint(offset);
@@ -892,8 +855,6 @@ class FlxSprite extends FlxObject
 			_matrix.tx = Math.floor(_matrix.tx);
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
-
-		doAdditionalMatrixStuff(_matrix, camera);
 
 		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 	}
@@ -1291,31 +1252,16 @@ class FlxSprite extends FlxObject
 		}
 	}
 
-	function updateSkewingMatrix():Void
-	{
-		_skewingMatrix.identity();
-
-		if (skewing.x != 0 || skewing.y != 0)
-		{
-			_skewingMatrix.b = Math.tan(skewing.y * FlxAngle.TO_RAD);
-			_skewingMatrix.c = Math.tan(skewing.x * FlxAngle.TO_RAD);
-		}
-	}
-
 	/**
 	 * Returns the result of `isSimpleRenderBlit()` if `FlxG.renderBlit` is
 	 * `true`, or `false` if `FlxG.renderTile` is `true`.
 	 */
 	public function isSimpleRender(?camera:FlxCamera):Bool
 	{
-		if (FlxG.renderBlit)
-		{
-			return isSimpleRender(camera) && (skewing.x == 0) && (skewing.y == 0) && !isMatrixExposed;
-		}
-		else
-		{
+		if (FlxG.renderTile)
 			return false;
-		}
+
+		return isSimpleRenderBlit(camera);
 	}
 
 	/**

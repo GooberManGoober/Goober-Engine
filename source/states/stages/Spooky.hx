@@ -1,9 +1,17 @@
 package states.stages;
 
+import shaders.BarrelDistortionShader;
+import openfl.filters.BitmapFilter;
+import openfl.filters.ShaderFilter;
+
 class Spooky extends BaseStage
 {
 	var halloweenBG:BGSprite;
 	var halloweenWhite:BGSprite;
+
+	var barrelDistortionShader:BarrelDistortionShader;
+	var barrelDistortionFilter:BitmapFilter;
+
 	override function create()
 	{
 		if(!ClientPrefs.data.lowQuality) {
@@ -16,6 +24,19 @@ class Spooky extends BaseStage
 		//PRECACHE SOUNDS
 		Paths.sound('thunder_1');
 		Paths.sound('thunder_2');
+
+		barrelDistortionShader = new BarrelDistortionShader();
+		barrelDistortionFilter = new ShaderFilter(barrelDistortionShader);
+
+		if (ClientPrefs.data.shaders)
+		{
+			if (songName == "monster")
+			{
+				camGame.setFilters([barrelDistortionFilter]);
+				camHUD.setFilters([barrelDistortionFilter]);
+				FlxTween.tween(barrelDistortionShader, {barrelDistortion1: -0.1, barrelDistortion2: -0.1}, 2.25, {ease: FlxEase.cubeInOut, type: PINGPONG});
+			}
+		}
 
 		//Monster cutscene
 		if (isStoryMode && !seenCutscene)

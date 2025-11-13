@@ -43,7 +43,7 @@ import modcharting.PlayfieldRenderer;
 
 import objects.VideoSprite;
 import objects.Note.EventNote;
-import objects.StrumNote.SustainSplash;
+import objects.SustainSplash;
 import objects.*;
 import states.stages.*;
 import states.stages.objects.*;
@@ -1340,9 +1340,9 @@ class PlayState extends MusicBeatState
 		// NEW SHIT
 		noteData = songData.notes;
 
-		var file:String = Paths.json('songs/$songName/events');
+		var file:String = Paths.json('$songName/events');
 		#if MODS_ALLOWED
-		if (FileSystem.exists(Paths.modsJson('songs/$songName/events')) || FileSystem.exists(file))
+		if (FileSystem.exists(Paths.modsJson('$songName/events')) || FileSystem.exists(file))
 		#else
 		if (OpenFlAssets.exists(file))
 		#end
@@ -2621,11 +2621,12 @@ class PlayState extends MusicBeatState
 
 		var seperatedScore:Array<Int> = [];
 
-		if(combo >= 1000) {
+		if(combo >= 1000)
 			seperatedScore.push(Math.floor(combo / 1000) % 10);
-		}
-		seperatedScore.push(Math.floor(combo / 100) % 10);
-		seperatedScore.push(Math.floor(combo / 10) % 10);
+		if(combo >= 100)
+			seperatedScore.push(Math.floor(combo / 100) % 10);
+		if(combo >= 10)
+			seperatedScore.push(Math.floor(combo / 10) % 10);
 		seperatedScore.push(combo % 10);
 
 		var daLoop:Int = 0;
@@ -2971,11 +2972,14 @@ class PlayState extends MusicBeatState
 		if (songName != 'tutorial')
 			camZooming = true;
 
-		if(note.noteType == 'Hey!' && dad.animOffsets.exists('hey')) {
+		if(note.noteType == 'Hey!' && dad.hasAnimation('hey'))
+		{
 			dad.playAnim('hey', true);
 			dad.specialAnim = true;
 			dad.heyTimer = 0.6;
-		} else if(!note.noAnimation) {
+		}
+		else if(!note.noAnimation)
+		{
 			var altAnim:String = note.animSuffix;
 
 			if (SONG.notes[curSection] != null)
@@ -3058,8 +3062,10 @@ class PlayState extends MusicBeatState
 				char.playAnim(animToPlay + note.animSuffix, true);
 				char.holdTimer = 0;
 
-				if(note.noteType == 'Hey!') {
-					if(char.animOffsets.exists(animCheck)) {
+				if(note.noteType == 'Hey!')
+				{
+					if(char.hasAnimation(animCheck))
+					{
 						char.playAnim(animCheck, true);
 						char.specialAnim = true;
 						char.heyTimer = 0.6;

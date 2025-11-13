@@ -6,6 +6,7 @@ import backend.Rating;
 
 import objects.Note;
 import objects.NoteSplash;
+import objects.SustainSplash;
 import objects.StrumNote;
 
 import flixel.util.FlxSort;
@@ -39,6 +40,7 @@ class EditorPlayState extends MusicBeatSubstate
 	var opponentStrums:FlxTypedGroup<StrumNote>;
 	var playerStrums:FlxTypedGroup<StrumNote>;
 	var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
+	var grpSustainSplashes:FlxTypedGroup<SustainSplash>;
 	
 	var combo:Int = 0;
 	var lastRating:FlxSprite;
@@ -106,9 +108,12 @@ class EditorPlayState extends MusicBeatSubstate
 		/**** NOTES ****/
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
+		
+		grpSustainSplashes = new FlxTypedGroup<SustainSplash>();
+		add(grpSustainSplashes);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 		add(grpNoteSplashes);
-		
+
 		var splash:NoteSplash = new NoteSplash();
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.000001; //cant make it invisible or it won't allow precaching
@@ -203,6 +208,16 @@ class EditorPlayState extends MusicBeatSubstate
 
 				if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
+				if (daNote.isSustainNote && daNote.wasGoodHit && !strumGroup.members[daNote.noteData].sustainSplash.updatedThisFrame) {
+					if (daNote.animation.curAnim.name.endsWith("holdend")) {
+						if (Conductor.songPosition >= daNote.strumTime) {
+							strumGroup.members[daNote.noteData].sustainSplash.hide(!daNote.mustPress);
+						}
+					} else {
+						strumGroup.members[daNote.noteData].sustainSplash.show();
+					}
+				}
+
 				// Kill extremely late notes and cause misses
 				if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
 				{
@@ -213,6 +228,12 @@ class EditorPlayState extends MusicBeatSubstate
 					invalidateNote(daNote);
 				}
 			});
+		}
+
+		for (strum in strumLineNotes.members) {
+			if (!strum.sustainSplash.updatedThisFrame) {
+				strum.sustainSplash.hide(true);
+			}
 		}
 		
 		var time:Float = CoolUtil.floorDecimal((Conductor.songPosition - ClientPrefs.data.noteOffset) / 1000, 1);
@@ -273,7 +294,6 @@ class EditorPlayState extends MusicBeatSubstate
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 		FlxG.mouse.visible = true;
-		NoteSplash.configs.clear();
 		super.destroy();
 	}
 	
@@ -481,6 +501,8 @@ class EditorPlayState extends MusicBeatSubstate
 				opponentStrums.add(babyArrow);
 			}
 
+			grpSustainSplashes.add(babyArrow.sustainSplash);
+
 			strumLineNotes.add(babyArrow);
 			babyArrow.playerPosition();
 		}
@@ -594,11 +616,12 @@ class EditorPlayState extends MusicBeatSubstate
 
 		var seperatedScore:Array<Int> = [];
 
-		if(combo >= 1000) {
+		if(combo >= 1000)
 			seperatedScore.push(Math.floor(combo / 1000) % 10);
-		}
-		seperatedScore.push(Math.floor(combo / 100) % 10);
-		seperatedScore.push(Math.floor(combo / 10) % 10);
+		if(combo >= 100)
+			seperatedScore.push(Math.floor(combo / 100) % 10);
+		if(combo >= 10)
+			seperatedScore.push(Math.floor(combo / 10) % 10);
 		seperatedScore.push(combo % 10);
 
 		var daLoop:Int = 0;
@@ -839,8 +862,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 		if(note.hitCausesMiss) {
 			noteMiss(note);
-			if(!note.noteSplashData.disabled && !note.isSustainNote)
-				spawnNoteSplashOnNote(note);
+			if(!note.noteSplashData.disabled && !note.isSustainNote) spawnNoteSplashOnNote(note);
 
 			if (!note.isSustainNote)
 				invalidateNote(note);
@@ -916,7 +938,7 @@ class EditorPlayState extends MusicBeatSubstate
 		note.destroy();
 	}
 
-	function spawnNoteSplashOnNote(note:Note) {
+	public function spawnNoteSplashOnNote(note:Note) {
 		if(note != null) {
 			var strum:StrumNote = playerStrums.members[note.noteData];
 			if(strum != null)
@@ -924,10 +946,10 @@ class EditorPlayState extends MusicBeatSubstate
 		}
 	}
 
-	function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null, strum:StrumNote) {
-		var splash:NoteSplash = new NoteSplash();
+	public function spawnNoteSplash(x:Float = 0, y:Float = 0, ?data:Int = 0, ?note:Note, ?strum:StrumNote) {
+		var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
 		splash.babyArrow = strum;
-		splash.spawnSplashNote(note);
+		splash.spawnSplashNote(x, y, data, note);
 		grpNoteSplashes.add(splash);
 	}
 	
