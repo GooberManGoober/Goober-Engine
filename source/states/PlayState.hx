@@ -2126,7 +2126,7 @@ class PlayState extends MusicBeatState
 				if (camTwn[0] != null)
 					camTwn[0].cancel();
 
-				camTwn[0] = FlxTween.tween(camGame, {zoom: flValue1}, Std.parseFloat(triggerInfo[0]), {ease: LuaUtils.getTweenEaseByString(triggerInfo[1].trim()), onComplete: function(twn:FlxTween)
+				camTwn[0] = FlxTween.tween(camGame, {zoom: flValue1}, Conductor.stepCrochet * Std.parseFloat(triggerInfo[0]) / 1000, {ease: LuaUtils.getTweenEaseByString(triggerInfo[1].trim()), onComplete: function(twn:FlxTween)
 				{
 					defaultCamZoom = flValue1;
 					camTwn[0] = null;
@@ -2366,7 +2366,7 @@ class PlayState extends MusicBeatState
 					camTwn[1] = FlxTween.tween(camFollow, {
 						x: positionData.x, 
 						y: positionData.y
-					}, Time, {
+					}, Conductor.stepCrochet * Time / 1000, {
 						ease: LuaUtils.getTweenEaseByString(ease.trim().toLowerCase()), onComplete: function(twn:FlxTween)
 						{
 							camTwn[1] = null;
