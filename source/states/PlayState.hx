@@ -148,6 +148,8 @@ class PlayState extends MusicBeatState
 
 	public var spawnTime:Float = 2000;
 
+	var camTwn:Array<FlxTween> = [];
+
 	public var inst:FlxSound;
 	public var vocals:FlxSound;
 	public var opponentVocals:FlxSound;
@@ -2108,6 +2110,28 @@ class PlayState extends MusicBeatState
 					camHUD.zoom += flValue2;
 				}
 
+			case 'Focus Camera':	
+				var triggerInfo:Array<String> = value2.split(',');
+
+				var boolShit:Bool = false;
+		
+				if (triggerInfo[4].toLowerCase().trim() == "true")
+					boolShit = true;
+				
+				focusCamera(value1, Std.parseFloat(triggerInfo[0]), Std.parseFloat(triggerInfo[1]), Std.parseFloat(triggerInfo[2]), triggerInfo[3], boolShit);
+
+			case 'Zoom Camera':	
+				var triggerInfo:Array<String> = value2.split(',');
+
+				if (camTwn[0] != null)
+					camTwn[0].cancel();
+
+				camTwn[0] = FlxTween.tween(camGame, {zoom: flValue1}, Std.parseFloat(triggerInfo[0]), {ease: LuaUtils.getTweenEaseByString(triggerInfo[1].trim()), onComplete: function(twn:FlxTween)
+				{
+					defaultCamZoom = flValue1;
+					camTwn[0] = null;
+				}});
+			
 			case 'Play Animation':
 				//trace('Anim to play: ' + value1);
 				var char:Character = dad;
@@ -2301,6 +2325,74 @@ class PlayState extends MusicBeatState
 		callOnScripts('onEvent', [eventName, value1, value2, strumTime]);
 	}
 
+	var positionData:FlxPoint = FlxPoint.get(0, 0);
+	public function focusCamera(target:String = 'boyfriend', ?X:Float = 0, ?Y:Float = 0, ?Time:Float = 1, ?ease:String = 'linear', hasTween:Bool = false)
+	{
+		switch(target.toLowerCase().trim())
+		{
+			case 'bf' | 'boyfriend' | 'player':
+				positionData.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+				positionData.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
+				positionData.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
+
+			case 'gf' | 'girlfriend':
+				positionData.set(gf.getMidpoint().x, gf.getMidpoint().y);
+				positionData.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
+				positionData.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
+
+			case 'dad' | 'opponent':
+				positionData.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+				positionData.x += dad.cameraPosition[0] + opponentCameraOffset[0];
+				positionData.y += dad.cameraPosition[1] + opponentCameraOffset[1];
+
+			case 'position':
+				positionData.set(X, Y);
+			
+		}
+
+		if (hasTween)
+		{
+			if (camFollow != null)
+			{
+				if (camTwn[1] != null)
+					camTwn[1].cancel();
+
+				isCameraOnForcedPos = false;
+				if(X != null || Y != null)
+				{
+					isCameraOnForcedPos = true;
+					if(X == null) X = 0;
+					if(Y == null) Y = 0;
+					camTwn[1] = FlxTween.tween(camFollow, {
+						x: positionData.x, 
+						y: positionData.y
+					}, Time, {
+						ease: LuaUtils.getTweenEaseByString(ease.trim().toLowerCase()), onComplete: function(twn:FlxTween)
+						{
+							camTwn[1] = null;
+						}
+					});
+				}
+			}
+		}
+		else
+		{
+			if(camFollow != null)
+			{
+				isCameraOnForcedPos = false;
+				if(X != null || Y != null)
+				{
+					isCameraOnForcedPos = true;
+					if(X == null) X = 0;
+					if(Y == null) Y = 0;
+					camFollow.x = positionData.x;
+					camFollow.y = positionData.y;
+				}
+			}
+		}
+	}
+
+	//Classic Camera Controls
 	public function moveCameraSection(?sec:Null<Int>):Void {
 		if(sec == null) sec = curSection;
 		if(sec < 0) sec = 0;
