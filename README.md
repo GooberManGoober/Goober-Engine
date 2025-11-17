@@ -46,7 +46,7 @@ same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, 
 * superpowers04 - LUA JIT Fork
 _____________________________________
 
-# Features
+# Psych Engine Features
 
 ## Attractive animated dialogue boxes:
 
