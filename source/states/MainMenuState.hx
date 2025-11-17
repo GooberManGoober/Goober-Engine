@@ -25,7 +25,8 @@ import crowplexus.hscript.Printer;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var psychEngineVersion:String = '0.7.3'; // This is also used for Discord RPC
+	public static var gooberEngineVersion:String = '1.0'; // This is also used for Discord RPC
+	public static var psychEngineVersion:String = '0.7.3 + 1.0.4'; // This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
 	// Lua shit
@@ -122,6 +123,10 @@ class MainMenuState extends MusicBeatState
 			menuItem.screenCenter(X);
 		}
 
+		var goobVer:FlxText = new FlxText(12, FlxG.height - 64, 0, "Goober Engine v" + gooberEngineVersion, 12);
+		goobVer.scrollFactor.set();
+		goobVer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(goobVer);
 		var psychVer:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
 		psychVer.scrollFactor.set();
 		psychVer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
