@@ -1,5 +1,19 @@
-# Friday Night Funkin' - Psych Engine
-Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
+# Friday Night Funkin' - Goober Engine
+A new engine built off of Psych Engine, originally used on [Mind Games Mod](https://gamebanana.com/mods/301107). This engine was made for people who weren't happy with Psych Engine 1.0.x, and would prefer Psych 0.7.X, as this engine was built off of P.E 0.7.3.
+
+## Goober Engine Features:
+ * Psych 1.0 chart editor
+ * Psych 1.0 stage editor
+ * Psych 1.0 hscript support
+ * [Modchart system](https://github.com/EdwhakKB/FNF-Modcharting-Tools) by [EdwhakKB](https://github.com/EdwhakKB)
+ * Weekend 1
+ * Sustain Note Splashes
+ * V-Slice Event Triggers (Focus Camera, & Zoom Camera)
+ * Lil' Buddies from [FPS Plus](https://github.com/ThatRozebudDude/FPS-Plus-Public) (ONLY SEEN IN CHART EDITOR)
+ * New Zoom Factor Variables for sprites (accessible in the Stage Editor)
+ * New Shader seen in songs that feature Monster (NOT SEEN WHEN SHADERS ARE TURNED OFF)
+ * V-Slice Screenshot feature (Default key is F3)
+ * Scriptable Menus (Only applies to Freeplay, Story, Main, and Title menus.)
 
 ## Installation:
 
