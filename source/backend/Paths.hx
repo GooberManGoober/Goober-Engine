@@ -96,7 +96,7 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, ?type:AssetType = TEXT, ?library:Null<String> = null, ?modsAllowed:Bool = false):String
+	public static function getSoundPath(file:String, ?type:AssetType = TEXT, ?library:Null<String> = null, ?modsAllowed:Bool = false):String
 	{
 		#if MODS_ALLOWED
 		if(modsAllowed)
@@ -125,6 +125,37 @@ class Paths
 
 		return getSharedPath(file);
 	}
+
+	public static function getPath(file:String, ?type:AssetType = TEXT, ?parentfolder:String, ?modsAllowed:Bool = true):String
+	{
+		#if MODS_ALLOWED
+		if(modsAllowed)
+		{
+			var customFile:String = file;
+			if (parentfolder != null) customFile = '$parentfolder/$file';
+
+			var modded:String = modFolders(customFile);
+			if(FileSystem.exists(modded)) return modded;
+		}
+		#end
+
+		if (parentfolder != null)
+			return getFolderPath(file, parentfolder);
+
+		if (currentLevel != null && currentLevel != 'shared')
+		{
+			var levelPath:String = '';
+			if(currentLevel != 'shared') {
+				levelPath = getLibraryPathForce(file, 'week_assets', currentLevel);
+				if (OpenFlAssets.exists(levelPath, type))
+					return levelPath;
+			}
+		}
+		return getSharedPath(file);
+	}
+
+	inline static public function getFolderPath(file:String, folder = "shared")
+		return 'assets/$folder/$file';
 
 	static public function getLibraryPath(file:String, library = "shared")
 	{
@@ -452,13 +483,13 @@ class Paths
 		// I hate this so god damn much
 		var gottenPath:String = '$key.$SOUND_EXT';
 		if(path != null) gottenPath = '$path/$gottenPath';
-		gottenPath = getPath(gottenPath, SOUND, library);
+		gottenPath = getSoundPath(gottenPath, SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
 		// trace(gottenPath);
 		if(!currentTrackedSounds.exists(gottenPath))
 		{
 			var retKey:String = (path != null) ? '$path/$key' : key;
-			retKey = ((path == 'songs') ? 'songs:' : '') + getPath('$retKey.$SOUND_EXT', SOUND, library);
+			retKey = ((path == 'songs') ? 'songs:' : '') + getSoundPath('$retKey.$SOUND_EXT', SOUND, library);
 			if(OpenFlAssets.exists(retKey, SOUND))
 			{
 				currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(retKey));

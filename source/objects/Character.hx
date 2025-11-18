@@ -10,7 +10,6 @@ import openfl.utils.Assets;
 import haxe.Json;
 
 import backend.Song;
-import backend.Section;
 import states.stages.objects.TankmenBG;
 
 typedef CharacterFile = {
@@ -414,12 +413,12 @@ class Character extends FlxSprite
 	{
 		try
 		{
-			var noteData:Array<SwagSection> = Song.loadFromJson('picospeaker', Paths.formatToSongPath(PlayState.SONG.song)).notes;
-			for (section in noteData) {
-				for (songNotes in section.sectionNotes) {
-					animationNotes.push(songNotes);
-				}
-			}
+			var songData:SwagSong = Song.getChart('picospeaker', Paths.formatToSongPath(Song.loadedSongName));
+			if(songData != null)
+				for (section in songData.notes)
+					for (songNotes in section.sectionNotes)
+						animationNotes.push(songNotes);
+
 			TankmenBG.animationNotes = animationNotes;
 			animationNotes.sort(sortAnims);
 		}

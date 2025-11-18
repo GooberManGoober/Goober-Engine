@@ -1,54 +1,34 @@
 {
-	"song": {
-		"speed": 2.6,
-		"stage": "tank",
-		"player1": "bf-holding-gf",
-		"player2": "tankman",
-		"player3": null,
-		"events": [
+	"events": [
+		[
+			62022.4719101124,
 			[
-				62022.4719101124,
-				[
-					[
-						"Play Animation",
-						"singDOWN-alt",
-						"dad"
-					],
-					[
-						"Set Property",
-						"defaultCamZoom",
-						"1.08"
-					],
-					[
-						"Camera Follow Pos",
-						"320",
-						"504"
-					]
-				]
-			],
-			[
-				64719.1011235955,
-				[
-					[
-						"Camera Follow Pos",
-						"",
-						""
-					],
-					[
-						"Set Property",
-						"defaultCamZoom",
-						"0.9"
-					]
-				]
+				["Play Animation", "singDOWN-alt", "dad"],
+				["Set Property", "defaultCamZoom", "1.08"],
+				["Camera Follow Pos", "320", "504"],
+				["Subtitle Event", "Heh...", "255,255,255,vcr.ttf,32,0"]
 			]
 		],
-		"notes": [],
-		"splashSkin": null,
-		"validScore": false,
-		"gfVersion": "pico-speaker",
-		"bpm": 178,
-		"arrowSkin": null,
-		"needsVoices": true,
-		"song": "Stress"
-	}
+		[
+			62443.8202247191,
+			[
+				["Subtitle Event", "", "255,255,255,vcr.ttf,32,0"]
+			]
+		],
+		[
+			63707.8651685393,
+			[
+				["Subtitle Event", "Pretty Good!", "255,255,255,vcr.ttf,32,0"]
+			]
+		],
+		[
+			64719.1011235955,
+			[
+				["Camera Follow Pos", "", ""],
+				["Set Property", "defaultCamZoom", "0.9"],
+				["Subtitle Event", "", "255,255,vcr.ttf,32,0"]
+			]
+		]
+	],
+	"format": "psych_v1"
 }

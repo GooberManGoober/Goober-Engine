@@ -41,7 +41,7 @@ class MainMenuState extends MusicBeatState
 		#if MODS_ALLOWED 'mods', #end
 		#if ACHIEVEMENTS_ALLOWED 'awards', #end
 		'credits',
-		#if !switch 'donate', #end
+		#if !switch 'merch', #end
 		'options'
 	];
 
@@ -190,9 +190,9 @@ class MainMenuState extends MusicBeatState
 			if (controls.ACCEPT)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));
-				if (optionShit[curSelected] == 'donate')
+				if (optionShit[curSelected] == 'merch')
 				{
-					CoolUtil.browserLoad('https://ninja-muffin24.itch.io/funkin');
+					CoolUtil.browserLoad('https://needlejuicerecords.com/en-ca/pages/friday-night-funkin');
 				}
 				else
 				{

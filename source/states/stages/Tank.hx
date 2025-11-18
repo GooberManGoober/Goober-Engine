@@ -135,6 +135,7 @@ class Tank extends BaseStage
 	var tankman:FlxAnimate;
 	var pico:FlxAnimate;
 	var boyfriendCutscene:FlxSprite;
+	var audioPlaying:FlxSound;
 	function prepareCutscene()
 	{
 		cutsceneHandler = new CutsceneHandler();
@@ -170,6 +171,9 @@ class Tank extends BaseStage
 			gfGroup.alpha = 1;
 			boyfriendGroup.alpha = 1;
 			camHUD.visible = true;
+
+			if(audioPlaying != null)
+				audioPlaying.stop();
 
 			boyfriend.animation.finishCallback = null;
 			gf.animation.finishCallback = null;
@@ -210,6 +214,7 @@ class Tank extends BaseStage
 		cutsceneHandler.timer(0.1, function()
 		{
 			wellWellWell.play(true);
+			audioPlaying = wellWellWell;
 		});
 
 		// Move camera to BF
@@ -236,6 +241,7 @@ class Tank extends BaseStage
 			// We should just kill you but... what the hell, it's been a boring day... let's see what you've got!
 			tankman.anim.play('killYou', true);
 			killYou.play(true);
+			audioPlaying = killYou;
 		});
 	}
 	function gunsIntro()
@@ -255,6 +261,7 @@ class Tank extends BaseStage
 		cutsceneHandler.onStart = function()
 		{
 			tightBars.play(true);
+			audioPlaying = tightBars;
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 4, {ease: FlxEase.quadInOut});
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2 * 1.2}, 0.5, {ease: FlxEase.quadInOut, startDelay: 4});
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 1, {ease: FlxEase.quadInOut, startDelay: 4.5});
@@ -343,6 +350,7 @@ class Tank extends BaseStage
 		cutsceneHandler.onStart = function()
 		{
 			cutsceneSnd.play(true);
+			audioPlaying = cutsceneSnd;
 		};
 
 		cutsceneHandler.timer(15.2, function()

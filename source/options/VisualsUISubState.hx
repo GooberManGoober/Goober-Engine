@@ -93,6 +93,12 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
+
+		var option:Option = new Option('Subtitles',
+			"Show subtitles for the spoken dialogue",
+			'subtitles',
+			'bool');
+		addOption(option);
 		
 		#if !mobile
 		var option:Option = new Option('FPS Counter',
