@@ -285,12 +285,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		}
 		lilOpp.scrollFactor.set();
 		add(lilOpp);
-		lilBf.visible = lilOpp.visible = lilStage.visible = lilBuddiesEnabled;
 
 		if(chartEditorSave.data.autoSave != null) autoSaveCap = chartEditorSave.data.autoSave;
 		if(chartEditorSave.data.backupLimit != null) backupLimit = chartEditorSave.data.backupLimit;
 		if(chartEditorSave.data.vortex != null) vortexEnabled = chartEditorSave.data.vortex;
 		if(chartEditorSave.data.lilBuddies != null) lilBuddiesEnabled = chartEditorSave.data.lilBuddies;
+
+		lilBf.visible = lilOpp.visible = lilStage.visible = lilBuddiesEnabled;
 
 		if(chartEditorSave.data.customBgColor == null) chartEditorSave.data.customBgColor = '303030';
 		if(chartEditorSave.data.customGridColors == null || chartEditorSave.data.customGridColors.length < 2)
@@ -1390,6 +1391,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							else
 								events.remove(cast (closest, EventMetaNote));
 
+							FlxG.sound.play(Paths.sound('editorSounds/noteErase'), 0.4);
+
 							selectedNotes.remove(closest);
 							curRenderedNotes.remove(closest, true);
 							addUndoAction(DELETE_NOTE, !closest.isEvent ? {notes: [closest]} : {events: [closest]});
@@ -1404,6 +1407,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						{
 							trace('Added note at time: $strumTime');
 							var didAdd:Bool = false;
+							FlxG.sound.play(Paths.sound('editorSounds/noteLay'), 0.4);
 
 							var noteSetupData:Array<Dynamic> = [strumTime, noteData, 0];
 							var typeSelected:String = noteTypes[noteTypeDropDown.selectedIndex].trim();
@@ -1433,6 +1437,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						{
 							trace('Added event at time: $strumTime');
 							var didAdd:Bool = false;
+							FlxG.sound.play(Paths.sound('editorSounds/noteLay'), 0.4);
 
 							var eventAdded:EventMetaNote = createEvent([strumTime, [[eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text]]]);
 							for (num in sectionFirstEventID...events.length)
@@ -1700,7 +1705,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		selectionBox.updateHitbox();
 	}
 
-	function showOutput(message:String, isError:Bool = false)
+	function showOutput(message:String, isError:Bool = false, ?playSound:Bool = true)
 	{
 		trace(message);
 		outputTxt.text = message;
@@ -1708,12 +1713,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		outputAlpha = 4;
 		if(isError)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
+			if (playSound) FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			outputTxt.color = FlxColor.RED;
 		}
 		else
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			if (playSound) FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 			outputTxt.color = FlxColor.WHITE;
 		}
 	}
@@ -5069,8 +5074,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(lockedEvents) selectedNotes = selectedNotes.filter((note:MetaNote) -> !note.isEvent);
 				onSelectNote();
 		}
-		showOutput('Undo #${currentUndo+1}: ${action.action}');
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		showOutput('Undo #${currentUndo+1}: ${action.action}', false, false);
+		FlxG.sound.play(Paths.sound('editorSounds/undo'), 0.4);
 		currentUndo++;
 	}
 	function redo()
@@ -5102,8 +5107,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(lockedEvents) selectedNotes = selectedNotes.filter((note:MetaNote) -> !note.isEvent);
 				onSelectNote();
 		}
-		showOutput('Redo #${currentUndo+1}: ${action.action}');
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		showOutput('Redo #${currentUndo+1}: ${action.action}', false, false);
+		FlxG.sound.play(Paths.sound('editorSounds/exitWindow'), 0.4);
 	}
 
 	function actionPushNotes(dataNotes:Array<MetaNote>, dataEvents:Array<EventMetaNote>)

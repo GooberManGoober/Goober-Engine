@@ -66,7 +66,6 @@ class ModchartFile
     public var useUpScrollChart:Bool = false;
     public static var autosaveMod:String = null;
 
-
     public var emptyMod:String = 
     '{
         "modifiers": [],

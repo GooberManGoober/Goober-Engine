@@ -42,6 +42,8 @@ import backend.Song;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
+import objects.SustainSplash;
+
 import modcharting.*;
 import modcharting.Modifier;
 import modcharting.ModchartFile;
@@ -204,6 +206,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 	public var opponentStrums:FlxTypedGroup<StrumNote>;
 	public var playerStrums:FlxTypedGroup<StrumNote>;
 	public var unspawnNotes:Array<Note> = [];
+    public var grpSustainSplashes:FlxTypedGroup<SustainSplash>;
     public var loadedNotes:Array<Note> = []; //stored notes from the chart that unspawnNotes can copy from
     public var vocals:FlxSound;
     public var opponentVocals:FlxSound;
@@ -336,12 +339,16 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		opponentStrums = new FlxTypedGroup<StrumNote>();
 		playerStrums = new FlxTypedGroup<StrumNote>();
 
+        grpSustainSplashes = new FlxTypedGroup<SustainSplash>();
+        grpSustainSplashes.cameras = [camHUD];
+        
         generateSong(PlayState.SONG);
-
+        
 		playfieldRenderer = new PlayfieldRenderer(strumLineNotes, notes, this);
 		playfieldRenderer.cameras = [camHUD];
         playfieldRenderer.inEditor = true;
 		add(playfieldRenderer);
+		add(grpSustainSplashes);
 
         playfieldInstance = PlayState.instance;
         if (playfieldRenderer.modchart.data != null)
@@ -646,6 +653,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         var noteKillOffset = 350 / PlayState.SONG.speed;
 
         notes.forEachAlive(function(daNote:Note) {
+            var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
+			if(!daNote.mustPress) strumGroup = opponentStrums;
+
             if (Conductor.songPosition >= daNote.strumTime)
             {
                 daNote.wasGoodHit = true;
@@ -667,6 +677,16 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 }
             }
 
+            if (daNote.isSustainNote && daNote.wasGoodHit && !strumGroup.members[daNote.noteData].sustainSplash.updatedThisFrame) {
+                if (daNote.animation.curAnim.name.endsWith("holdend")) {
+                    if (Conductor.songPosition >= daNote.strumTime) {
+                        strumGroup.members[daNote.noteData].sustainSplash.hide(true);
+                    }
+                } else {
+                    strumGroup.members[daNote.noteData].sustainSplash.show();
+                }
+            }
+
             if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
             {
                 daNote.active = false;
@@ -677,6 +697,12 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 //daNote.destroy();
             }
         });
+
+        for (strum in strumLineNotes.members) {
+			if (!strum.sustainSplash.updatedThisFrame) {
+				strum.sustainSplash.hide(true);
+			}
+		}
 
         if (FlxG.mouse.y < grid.y+grid.height && FlxG.mouse.y > grid.y) //not using overlap because the grid would go out of world bounds
         {
@@ -1212,6 +1238,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 }
                 opponentStrums.add(babyArrow);
             }
+
+            grpSustainSplashes.add(babyArrow.sustainSplash);
 
             strumLineNotes.add(babyArrow);
             babyArrow.playerPosition();

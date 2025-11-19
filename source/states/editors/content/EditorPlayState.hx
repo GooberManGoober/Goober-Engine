@@ -6,6 +6,7 @@ import backend.Rating;
 import objects.Note;
 import objects.NoteSplash;
 import objects.StrumNote;
+import objects.SustainSplash;
 
 import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
@@ -35,6 +36,7 @@ class EditorPlayState extends MusicBeatSubstate
 	var opponentStrums:FlxTypedGroup<StrumNote>;
 	var playerStrums:FlxTypedGroup<StrumNote>;
 	var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
+	var grpSustainSplashes:FlxTypedGroup<SustainSplash>;
 	
 	var combo:Int = 0;
 	var lastRating:FlxSprite;
@@ -106,8 +108,9 @@ class EditorPlayState extends MusicBeatSubstate
 		add(comboGroup);
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
+
+		grpSustainSplashes = new FlxTypedGroup<SustainSplash>();
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
-		add(grpNoteSplashes);
 		
 		var splash:NoteSplash = new NoteSplash();
 		grpNoteSplashes.add(splash);
@@ -118,6 +121,9 @@ class EditorPlayState extends MusicBeatSubstate
 		
 		generateStaticArrows(0);
 		generateStaticArrows(1);
+
+		add(grpNoteSplashes);
+		add(grpSustainSplashes);
 		/***************/
 		
 		scoreTxt = new FlxText(10, FlxG.height - 50, FlxG.width - 20, "", 20);
@@ -219,6 +225,16 @@ class EditorPlayState extends MusicBeatSubstate
 
 				if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
+				if (daNote.isSustainNote && daNote.wasGoodHit && !strumGroup.members[daNote.noteData].sustainSplash.updatedThisFrame) {
+					if (daNote.animation.curAnim.name.endsWith("holdend")) {
+						if (Conductor.songPosition >= daNote.strumTime) {
+							strumGroup.members[daNote.noteData].sustainSplash.hide(!daNote.mustPress);
+						}
+					} else {
+						strumGroup.members[daNote.noteData].sustainSplash.show();
+					}
+				}
+
 				// Kill extremely late notes and cause misses
 				if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
 				{
@@ -229,6 +245,12 @@ class EditorPlayState extends MusicBeatSubstate
 					invalidateNote(daNote);
 				}
 			});
+		}
+
+		for (strum in strumLineNotes.members) {
+			if (!strum.sustainSplash.updatedThisFrame) {
+				strum.sustainSplash.hide(true);
+			}
 		}
 		
 		var time:Float = CoolUtil.floorDecimal((Conductor.songPosition - ClientPrefs.data.noteOffset) / 1000, 1);
@@ -471,6 +493,8 @@ class EditorPlayState extends MusicBeatSubstate
 				}
 				opponentStrums.add(babyArrow);
 			}
+
+			grpSustainSplashes.add(babyArrow.sustainSplash);
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.playerPosition();

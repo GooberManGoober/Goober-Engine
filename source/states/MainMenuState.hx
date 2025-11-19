@@ -25,8 +25,8 @@ import crowplexus.hscript.Printer;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var gooberEngineVersion:String = '1.0'; // This is also used for Discord RPC
-	public static var psychEngineVersion:String = '0.7.3 + 1.0.4'; // This is also used for Discord RPC
+	public static var gooberEngineVersion:String = '1.0.5'; // This is also used for Discord RPC
+	public static var psychEngineVersion:String = '1.0.4'; // This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
 	// Lua shit
