@@ -97,6 +97,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	public static var GRID_SIZE = 40;
 	final BACKUP_EXT = '.bkp';
 
+	var welcomeMusic:FlxSound = new FlxSound();
+
 	public var quantizations:Array<Int> = [
 		4,
 		8,
