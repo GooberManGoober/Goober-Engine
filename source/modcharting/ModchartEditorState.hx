@@ -280,21 +280,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		else
 		{
 			Difficulty.resetList();
-			_song = {
-				song: 'Test',
-                notes: [],
-                events: [],
-                bpm: 150,
-                needsVoices: true,
-                speed: 1,
-                offset: 0,
-
-                player1: 'bf',
-                player2: 'dad',
-                gfVersion: 'gf',
-                stage: 'stage',
-                format: 'psych_v1'
-			};
+			_song = Song.loadFromJson('test', 'test');
 			PlayState.SONG = _song;
 		}
 
