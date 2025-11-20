@@ -180,26 +180,6 @@ class HScript extends Iris
 		set('FlxAnimate', FlxAnimate);
 		#end
 
-		set('Math', Math);
-		set('ModchartEditorState', modcharting.ModchartEditorState);
-		set('ModchartEvent', modcharting.ModchartEvent);
-		set('ModchartEventManager', modcharting.ModchartEventManager);
-		set('ModchartFile', modcharting.ModchartFile);
-		set('ModchartFuncs', modcharting.ModchartFuncs);
-		set('ModchartUtil', modcharting.ModchartUtil);
-		for (i in ['mod', 'Modifier'])
-			set(i, modcharting.Modifier); //the game crashes without this???????? what??????????? -- fue glow
-		set('ModifierSubValue', modcharting.Modifier.ModifierSubValue);
-		set('ModTable', modcharting.ModTable);
-		set('NoteMovement', modcharting.NoteMovement);
-		set('NotePositionData', modcharting.NotePositionData);
-		set('Playfield', modcharting.Playfield);
-		set('PlayfieldRenderer', modcharting.PlayfieldRenderer);
-		set('SimpleQuaternion', modcharting.SimpleQuaternion);
-		set('SustainStrip', modcharting.SustainStrip);
-		
-		modcharting.ModchartFuncs.loadHScriptFunctions(this);
-
 		// Functions & Variables
 		set('setVar', function(name:String, value:Dynamic) {
 			MusicBeatState.getVariables().set(name, value);
