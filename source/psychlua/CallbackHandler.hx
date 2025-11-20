@@ -1,4 +1,3 @@
-
 #if LUA_ALLOWED
 package psychlua;
 
