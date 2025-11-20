@@ -1,3 +1,4 @@
+
 #if LUA_ALLOWED
 package psychlua;
 
@@ -50,11 +51,14 @@ class CallbackHandler
 				return 1;
 			}
 		}
-		catch(e:Dynamic)
+		catch(e:haxe.Exception)
 		{
-			if(Lua_helper.sendErrorsToLua) {LuaL.error(l, 'CALLBACK ERROR! ${if(e.message != null) e.message else e}');return 0;}
-			trace(e);
-			throw(e);
+			if(Lua_helper.sendErrorsToLua)
+			{
+				LuaL.error(l, 'CALLBACK ERROR! ${e.details()}');
+				return 0;
+			}
+			throw e;
 		}
 		return 0;
 	}
