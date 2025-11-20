@@ -1,4 +1,3 @@
-
 package psychlua;
 
 import flixel.FlxObject;
