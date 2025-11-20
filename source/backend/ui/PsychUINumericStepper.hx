@@ -71,6 +71,15 @@ class PsychUINumericStepper extends PsychUIInputText
 			if(buttonMinus != null && buttonMinus.exists && buttonMinus.animation.curAnim != null && buttonMinus.animation.curAnim.name != 'normal')
 				buttonMinus.animation.play('normal');
 		}
+
+		if (FlxG.mouse.justPressed && (buttonPlus != null && buttonPlus.exists && FlxG.mouse.overlaps(buttonPlus, camera) || 
+			buttonMinus != null && buttonMinus.exists && FlxG.mouse.overlaps(buttonMinus, camera)
+		))
+			FlxG.sound.play(Paths.sound('editorSounds/ClickUp'));
+		else if (FlxG.mouse.justReleased && (buttonPlus != null && buttonPlus.exists && FlxG.mouse.overlaps(buttonPlus, camera) || 
+			buttonMinus != null && buttonMinus.exists && FlxG.mouse.overlaps(buttonMinus, camera)
+		))
+			FlxG.sound.play(Paths.sound('editorSounds/ClickDown'));
 	}
 
 	function set_value(v:Float)

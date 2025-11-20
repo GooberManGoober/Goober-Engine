@@ -275,10 +275,19 @@ class PlayState extends MusicBeatState
 	var subtitleBG:FlxSprite;
 	var subtitleText:FlxText;
 
+	private static var _lastLoadedModDirectory:String = '';
+	public static var nextReloadAll:Bool = false;
 	override public function create()
 	{
 		//trace('Playback Rate: ' + playbackRate);
+		_lastLoadedModDirectory = Mods.currentModDirectory;
 		Paths.clearStoredMemory();
+		if(nextReloadAll)
+		{
+			Paths.clearUnusedMemory();
+			Language.reloadPhrases();
+		}
+		nextReloadAll = false;
 
 		startCallback = startCountdown;
 		endCallback = endSong;

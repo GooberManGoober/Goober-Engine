@@ -68,7 +68,7 @@ class PsychUISlider extends FlxSpriteGroup
 			forceNextUpdate = false;
 			if(FlxG.mouse.justPressed && (FlxG.mouse.overlaps(bar, camera) || FlxG.mouse.overlaps(handle, camera)))
 				movingHandle = true;
-			
+
 			if(movingHandle)
 			{
 				var point:FlxPoint = getScreenPosition(null, camera);

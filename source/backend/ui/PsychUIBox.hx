@@ -145,6 +145,7 @@ class PsychUIBox extends FlxSpriteGroup
 						_lastTab = selectedTab;
 						selectedTab = tab;
 						_lastClick = 0;
+						FlxG.sound.play(Paths.sound('editorSounds/openWindow'));
 						if(broadcastBoxEvents) PsychUIEventHandler.event(CLICK_EVENT, this);
 					}
 					else if(selectedTab != tab) continue;
@@ -291,6 +292,7 @@ class PsychUIBox extends FlxSpriteGroup
 		{
 			bg.scale.y = _originalHeight;
 			bg.updateHitbox();
+			FlxG.sound.play(Paths.sound('editorSounds/openWindow'));
 		}
 		else
 		{

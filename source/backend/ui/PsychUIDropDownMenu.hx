@@ -93,13 +93,19 @@ class PsychUIDropDownMenu extends PsychUIInputText
 			if(FlxG.mouse.overlaps(button, camera))
 			{
 				button.animation.play('pressed', true);
+				FlxG.sound.play(Paths.sound('editorSounds/ClickUp'));
 				if(lastFocus != this)
 					PsychUIInputText.focusOn = this;
 				else if(PsychUIInputText.focusOn == this)
 					PsychUIInputText.focusOn = null;
 			}
 		}
-		else if(FlxG.mouse.released && button.animation.curAnim != null && button.animation.curAnim.name != 'normal') button.animation.play('normal', true);
+		else if(FlxG.mouse.released && button.animation.curAnim != null && button.animation.curAnim.name != 'normal')
+		{
+			button.animation.play('normal', true);
+
+			FlxG.sound.play(Paths.sound('editorSounds/ClickDown'));
+		}
 
 		if(lastFocus != PsychUIInputText.focusOn)
 		{
@@ -262,7 +268,10 @@ class PsychUIDropDownItem extends FlxSpriteGroup
 			forceNextUpdate = false;
 
 			if(overlapped && FlxG.mouse.justPressed)
+			{
 				onClick();
+				FlxG.sound.play(Paths.sound('editorSounds/openWindow'));
+			}
 		}
 		
 		text.x = bg.x;

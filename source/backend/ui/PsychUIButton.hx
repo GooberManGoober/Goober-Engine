@@ -68,6 +68,8 @@ class PsychUIButton extends FlxSpriteGroup
 		{
 			forceCheckNext = true;
 			isClicked = false;
+
+			FlxG.sound.play(Paths.sound('editorSounds/ClickDown'));
 		}
 
 		if(forceCheckNext || FlxG.mouse.justMoved || FlxG.mouse.justPressed)
@@ -91,6 +93,7 @@ class PsychUIButton extends FlxSpriteGroup
 				bg.alpha = clickStyle.bgAlpha;
 				text.color = clickStyle.textColor;
 				if(onClick != null) onClick();
+				FlxG.sound.play(Paths.sound('editorSounds/ClickUp'));
 				if(broadcastButtonEvent) PsychUIEventHandler.event(CLICK_EVENT, this);
 			}
 		}
