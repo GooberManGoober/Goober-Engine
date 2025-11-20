@@ -38,6 +38,8 @@ import psychlua.HScript;
 import psychlua.DebugLuaText;
 import psychlua.ModchartSprite;
 
+import modcharting.ModchartFuncs;
+
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 
@@ -1560,6 +1562,7 @@ class FunkinLua {
 		#if TRANSLATIONS_ALLOWED Language.addLuaCallbacks(lua); #end
 		HScript.implement(this);
 		#if flxanimate FlxAnimateFunctions.implement(this); #end
+		ModchartFuncs.loadLuaFunctions(this);
 		ReflectionFunctions.implement(this);
 		TextFunctions.implement(this);
 		ExtraFunctions.implement(this);
