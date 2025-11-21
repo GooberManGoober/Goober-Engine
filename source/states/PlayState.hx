@@ -2411,7 +2411,7 @@ class PlayState extends MusicBeatState
 		callOnScripts('onEvent', [eventName, value1, value2, strumTime]);
 	}
 
-	function subtitleEvent(text:String = "", r:Int = 255, g:Int = 255, b:Int = 255, fontName:String = "vcr.ttf", size:Int = 32, width:Float = 0)
+	public function subtitleEvent(text:String = "", r:Int = 255, g:Int = 255, b:Int = 255, fontName:String = "vcr.ttf", size:Int = 32, width:Float = 0)
 	{
 		if (ClientPrefs.data.subtitles)
 			subtitleText.text = text;
