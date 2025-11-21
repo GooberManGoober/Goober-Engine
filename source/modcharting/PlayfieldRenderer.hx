@@ -491,15 +491,6 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
 
     override public function destroy()
     {
-        if (modchart != null)
-        {
-            #if hscript
-            for (customMod in modchart.customModifiers)
-            {
-                customMod.destroy(); //make sure the interps are dead
-            }
-            #end
-        }
         super.destroy();
     }
 
