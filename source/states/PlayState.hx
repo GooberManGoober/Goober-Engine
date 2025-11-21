@@ -39,6 +39,7 @@ import openfl.filters.ShaderFilter;
 
 import modcharting.NoteMovement;
 import modcharting.PlayfieldRenderer;
+import modcharting.ModchartEditorState;
 
 import objects.VideoSprite;
 import objects.Note.EventNote;
@@ -2042,7 +2043,7 @@ class PlayState extends MusicBeatState
 		if(FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
-		MusicBeatState.switchState(new modcharting.ModchartEditorState());
+		MusicBeatState.switchState(new ModchartEditorState());
 	}
 
 	public var isDead:Bool = false; //Don't mess with this on Lua!!!
