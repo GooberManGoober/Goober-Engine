@@ -10,6 +10,8 @@ import states.StoryMenuState;
 import states.FreeplayState;
 import options.OptionsState;
 
+import modcharting.ModchartFile;
+
 class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
@@ -33,9 +35,11 @@ class PauseSubState extends MusicBeatSubstate
 	override function create()
 	{
 		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
+		
 		if(PlayState.chartingMode)
 		{
 			menuItemsOG.insert(2, 'Leave Charting Mode');
+			
 			var num:Int = 0;
 			if(!PlayState.instance.startingSong)
 			{
@@ -45,8 +49,11 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(3 + num, 'End Song');
 			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
 			menuItemsOG.insert(5 + num, 'Toggle Botplay');
-		} else if(PlayState.instance.practiceMode && !PlayState.instance.startingSong)
-			menuItemsOG.insert(3, 'Skip Time');
+		}
+
+		if(PlayState.modchartingMode)
+			menuItemsOG.insert(2, 'Leave Modcharting Mode');
+
 		menuItems = menuItemsOG;
 
 		for (i in 0...Difficulty.list.length) {
@@ -234,6 +241,8 @@ class PauseSubState extends MusicBeatSubstate
 						FlxG.sound.music.volume = 0;
 						PlayState.changedDifficulty = true;
 						PlayState.chartingMode = false;
+						PlayState.modchartingMode = false;
+						ModchartFile.autosaveMod = null;
 						return;
 					}
 				}
@@ -277,6 +286,10 @@ class PauseSubState extends MusicBeatSubstate
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;
+				case "Leave Modcharting Mode":
+					restartSong();
+					ModchartFile.autosaveMod = null;
+					PlayState.modchartingMode = false;
 				case 'Skip Time':
 					if(curTime < Conductor.songPosition)
 					{
@@ -306,6 +319,7 @@ class PauseSubState extends MusicBeatSubstate
 				case 'Options':
 					PlayState.instance.paused = true; // For lua
 					PlayState.instance.vocals.volume = 0;
+					PlayState.instance.canResync = false;
 					MusicBeatState.switchState(new OptionsState());
 					if(ClientPrefs.data.pauseMusic != 'None')
 					{
@@ -319,6 +333,9 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.deathCounter = 0;
 					PlayState.seenCutscene = false;
 
+					ModchartFile.autosaveMod = null;
+
+					PlayState.instance.canResync = false;
 					Mods.loadTopMod();
 					if(PlayState.isStoryMode)
 						MusicBeatState.switchState(new StoryMenuState());
@@ -328,6 +345,7 @@ class PauseSubState extends MusicBeatSubstate
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;
+					PlayState.modchartingMode = false;
 					FlxG.camera.followLerp = 0;
 			}
 		}

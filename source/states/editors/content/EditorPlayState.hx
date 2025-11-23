@@ -108,9 +108,10 @@ class EditorPlayState extends MusicBeatSubstate
 		add(comboGroup);
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
-
 		grpSustainSplashes = new FlxTypedGroup<SustainSplash>();
+		add(grpSustainSplashes);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
+		add(grpNoteSplashes);
 		
 		var splash:NoteSplash = new NoteSplash();
 		grpNoteSplashes.add(splash);
@@ -121,9 +122,6 @@ class EditorPlayState extends MusicBeatSubstate
 		
 		generateStaticArrows(0);
 		generateStaticArrows(1);
-
-		add(grpNoteSplashes);
-		add(grpSustainSplashes);
 		/***************/
 		
 		scoreTxt = new FlxText(10, FlxG.height - 50, FlxG.width - 20, "", 20);
@@ -531,12 +529,16 @@ class EditorPlayState extends MusicBeatSubstate
 	
 	private function cachePopUpScore()
 	{
+		var uiFolder:String = "";
+		if (PlayState.stageUI != "normal")
+			uiFolder = PlayState.uiPrefix + "UI/";
+
 		for (rating in ratingsData)
-			Paths.image(rating.image);
-		
+			Paths.image(uiFolder + rating.image + PlayState.uiPostfix);
 		for (i in 0...10)
-			Paths.image('num' + i);
+			Paths.image(uiFolder + 'num' + i + PlayState.uiPostfix);
 	}
+
 	private function popUpScore(note:Note = null):Void
 	{
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset);
@@ -571,10 +573,15 @@ class EditorPlayState extends MusicBeatSubstate
 		if(!note.ratingDisabled)
 			songHits++;
 
-		var pixelShitPart1:String = "";
-		var pixelShitPart2:String = '';
+		var uiFolder:String = "";
+		var antialias:Bool = ClientPrefs.data.antialiasing;
+		if (PlayState.stageUI != "normal")
+		{
+			uiFolder = PlayState.uiPrefix + "UI/";
+			antialias = !PlayState.isPixelStage;
+		}
 
-		rating.loadGraphic(Paths.image(pixelShitPart1 + daRating.image + pixelShitPart2));
+		rating.loadGraphic(Paths.image(uiFolder + daRating.image + PlayState.uiPostfix));
 		rating.screenCenter();
 		rating.x = placement - 40;
 		rating.y -= 60;
@@ -584,8 +591,9 @@ class EditorPlayState extends MusicBeatSubstate
 		rating.visible = (!ClientPrefs.data.hideHud && showRating);
 		rating.x += ClientPrefs.data.comboOffset[0];
 		rating.y -= ClientPrefs.data.comboOffset[1];
+		rating.antialiasing = antialias;
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiFolder + 'combo' + PlayState.uiPostfix));
 		comboSpr.screenCenter();
 		comboSpr.x = placement;
 		comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
@@ -593,6 +601,7 @@ class EditorPlayState extends MusicBeatSubstate
 		comboSpr.visible = (!ClientPrefs.data.hideHud && showCombo);
 		comboSpr.x += ClientPrefs.data.comboOffset[0];
 		comboSpr.y -= ClientPrefs.data.comboOffset[1];
+		comboSpr.antialiasing = antialias;
 		comboSpr.y += 60;
 		comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
 		comboGroup.add(rating);
@@ -619,7 +628,7 @@ class EditorPlayState extends MusicBeatSubstate
 		var separatedScore:String = Std.string(combo).lpad('0', 3);
 		for (i in 0...separatedScore.length)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiFolder + 'num' + Std.parseInt(separatedScore.charAt(i)) + PlayState.uiPostfix));
 			numScore.screenCenter();
 			numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
 			numScore.y += 80 - ClientPrefs.data.comboOffset[3];
@@ -632,6 +641,7 @@ class EditorPlayState extends MusicBeatSubstate
 			numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
 			numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
 			numScore.visible = !ClientPrefs.data.hideHud;
+			numScore.antialiasing = antialias;
 
 			//if (combo >= 10 || combo == 0)
 			if(showComboNum)

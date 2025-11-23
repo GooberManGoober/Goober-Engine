@@ -3,17 +3,17 @@ package states;
 import backend.WeekData;
 import backend.Mods;
 
-import flixel.ui.FlxButton;
 import flixel.FlxBasic;
 import flixel.graphics.FlxGraphic;
 import flash.geom.Rectangle;
-import lime.utils.Assets;
 import haxe.Json;
 
 import flixel.util.FlxSpriteUtil;
 import objects.AttachedSprite;
 import options.ModSettingsSubState;
-import flixel.addons.transition.FlxTransitionableState;
+
+import openfl.display.BitmapData;
+import lime.utils.Assets;
 
 class ModsMenuState extends MusicBeatState
 {
@@ -60,7 +60,7 @@ class ModsMenuState extends MusicBeatState
 		persistentUpdate = false;
 
 		modsList = Mods.parseList();
-		Mods.currentModDirectory = modsList.all[0] != null ? modsList.all[0] : '';
+		Mods.loadTopMod();
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
@@ -216,13 +216,13 @@ class ModsMenuState extends MusicBeatState
 		button.icon.animation.play('icon', true);
 		add(button);
 		buttons.push(button);
-
+		
 		var button = new MenuButton(buttonsX + 100, buttonsY, 80, 80, Paths.image('modsMenuButtons'), function() moveModToPosition(curSelectedMod - 1), 54, 54); //Move up
 		button.icon.animation.add('icon', [1]);
 		button.icon.animation.play('icon', true);
 		add(button);
 		buttons.push(button);
-
+		
 		var button = new MenuButton(buttonsX + 200, buttonsY, 80, 80, Paths.image('modsMenuButtons'), function() moveModToPosition(curSelectedMod + 1), 54, 54); //Move down
 		button.icon.animation.add('icon', [2]);
 		button.icon.animation.play('icon', true);
@@ -309,9 +309,6 @@ class ModsMenuState extends MusicBeatState
 	{
 		if(controls.BACK && hoveringOnMods)
 		{
-			if(colorTween != null) {
-				colorTween.cancel();
-			}
 			saveTxt();
 
 			FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -321,7 +318,11 @@ class ModsMenuState extends MusicBeatState
 				TitleState.initialized = false;
 				TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
-				
+				if(FreeplayState.vocals != null)
+				{
+					FreeplayState.vocals.fadeOut(0.3);
+					FreeplayState.vocals = null;
+				}
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
 			}
 			else MusicBeatState.switchState(new MainMenuState());
@@ -660,18 +661,13 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
-	var colorTween:FlxTween = null;
 	function updateModDisplayData()
 	{
 		var curMod:ModItem = modsGroup.members[curSelectedMod];
 		if(curMod == null) return;
 
-		if(colorTween != null)
-		{
-			colorTween.cancel();
-			colorTween.destroy();
-		}
-		colorTween = FlxTween.color(bg, 1, bg.color, curMod.bgColor, {onComplete: function(twn:FlxTween) colorTween = null});
+		FlxTween.cancelTweensOf(bg);
+		FlxTween.color(bg, 1, bg.color, curMod.bgColor);
 
 		if(Math.abs(centerMod - curSelectedMod) > 2)
 		{
@@ -792,6 +788,8 @@ class ModsMenuState extends MusicBeatState
 
 		var path:String = 'modsList.txt';
 		File.saveContent(path, fileStr);
+		Mods.parseList();
+		Mods.loadTopMod();
 	}
 }
 
@@ -822,11 +820,10 @@ class ModItem extends FlxSpriteGroup
 		var path:String = Paths.mods('$folder/data/settings.json');
 		if(FileSystem.exists(path))
 		{
-			var data:String = File.getContent(path);
 			try
 			{
 				//trace('trying to load settings: $folder');
-				settings = tjson.TJSON.parse(data);
+				settings = tjson.TJSON.parse(File.getContent(path));
 			}
 			catch(e:Dynamic)
 			{
@@ -855,16 +852,20 @@ class ModItem extends FlxSpriteGroup
 		add(text);
 
 		var isPixel = false;
-		var bmp = Paths.cacheBitmap(Paths.mods('$folder/pack.png'));
-		if(bmp == null)
+		var file:String = Paths.mods('$folder/pack.png');
+		if (!FileSystem.exists(file))
 		{
-			bmp = Paths.cacheBitmap(Paths.mods('$folder/pack-pixel.png'));
+			file = Paths.mods('$folder/pack-pixel.png');
 			isPixel = true;
 		}
+		
+		var bmp:BitmapData = null;
+		if (FileSystem.exists(file)) bmp = BitmapData.fromFile(file);
+		else isPixel = false;
 
-		if(bmp != null)
+		if(FileSystem.exists(file))
 		{
-			icon.loadGraphic(bmp, true, 150, 150);
+			icon.loadGraphic(Paths.cacheBitmap(file, bmp), true, 150, 150);
 			if(isPixel) icon.antialiasing = false;
 		}
 		else icon.loadGraphic(Paths.image('unknownMod'), true, 150, 150);
@@ -959,9 +960,9 @@ class MenuButton extends FlxSpriteGroup
 			return;
 		}
 
-		if(!ignoreCheck && !Controls.instance.controllerMode && FlxG.mouse.justMoved && FlxG.mouse.visible)
+		if(!ignoreCheck && !Controls.instance.controllerMode && (FlxG.mouse.justPressed || FlxG.mouse.justMoved) && FlxG.mouse.visible)
 			onFocus = FlxG.mouse.overlaps(this);
-
+		
 		if(onFocus && onClick != null && FlxG.mouse.justPressed)
 			onClick();
 

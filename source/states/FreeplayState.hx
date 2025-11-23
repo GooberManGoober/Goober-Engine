@@ -7,9 +7,7 @@ import backend.Song;
 import objects.HealthIcon;
 import objects.MusicPlayer;
 
-import openfl.media.Sound;
-
-import substates.GameplayChangersSubstate;
+import options.GameplayChangersSubstate;
 import substates.ResetScoreSubState;
 
 import flixel.math.FlxMath;
@@ -74,6 +72,9 @@ class FreeplayState extends MusicBeatState
 
 	override function create()
 	{
+		//Paths.clearStoredMemory();
+		//Paths.clearUnusedMemory();
+		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
 		WeekData.reloadWeekFiles(false);
@@ -98,6 +99,9 @@ class FreeplayState extends MusicBeatState
 				if(file.toLowerCase().endsWith('.hx'))
 					initHScript(folder + file);
 				#end
+
+				startLuasNamed(folder + file + '.lua');
+				startHScriptsNamed(folder + file + '.hx');
 			}
 		#end
 
@@ -167,6 +171,10 @@ class FreeplayState extends MusicBeatState
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
 			add(icon);
+
+			// songText.x += 40;
+			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
+			// songText.screenCenter(X);
 		}
 		WeekData.setDirectoryFromWeek();
 
@@ -220,10 +228,12 @@ class FreeplayState extends MusicBeatState
 		changeSelection();
 		updateTexts();
 		super.create();
+
 		callOnScripts('onCreatePost');
 	}
 
-	override function closeSubState() {
+	override function closeSubState()
+	{
 		changeSelection(0, false);
 		persistentUpdate = true;
 		super.closeSubState();
@@ -242,7 +252,7 @@ class FreeplayState extends MusicBeatState
 
 	var instPlaying:Int = -1;
 	public static var vocals:FlxSound = null;
-	public static var vocalsOpp:FlxSound = null;
+	public static var opponentVocals:FlxSound = null;
 	var holdTime:Float = 0;
 
 	var stopMusicPlay:Bool = false;
@@ -371,44 +381,55 @@ class FreeplayState extends MusicBeatState
 
 				Mods.currentModDirectory = songs[curSelected].folder;
 				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
 				if (PlayState.SONG.needsVoices)
 				{
-					var file:Dynamic = Paths.voices(songs[curSelected].songName, 'Player');
-					var fileBackup:Dynamic = Paths.voices(songs[curSelected].songName);
-					if (Std.isOfType(file, Sound) || FileSystem.exists(file))
+					vocals = new FlxSound();
+					try
 					{
-						vocals = new FlxSound().loadEmbedded(file);
-						FlxG.sound.list.add(vocals);
-						vocals.persist = true;
-						vocals.looped = true;
+						var playerVocals:String = getVocalFromCharacter(PlayState.SONG.player1);
+						var loadedVocals = Paths.voices(PlayState.SONG.song, (playerVocals != null && playerVocals.length > 0) ? playerVocals : 'Player');
+						if(loadedVocals == null) loadedVocals = Paths.voices(PlayState.SONG.song);
+						
+						if(loadedVocals != null && loadedVocals.length > 0)
+						{
+							vocals.loadEmbedded(loadedVocals);
+							FlxG.sound.list.add(vocals);
+							vocals.persist = vocals.looped = true;
+							vocals.volume = 0.8;
+							vocals.play();
+							vocals.pause();
+						}
+						else vocals = FlxDestroyUtil.destroy(vocals);
 					}
-
-					if (Std.isOfType(fileBackup, Sound) || FileSystem.exists(fileBackup))
+					catch(e:Dynamic)
 					{
-						vocals = new FlxSound().loadEmbedded(fileBackup);
-						FlxG.sound.list.add(vocals);
-						vocals.persist = true;
-						vocals.looped = true;
+						vocals = FlxDestroyUtil.destroy(vocals);
 					}
-
-					var file2:Dynamic = Paths.voices(songs[curSelected].songName, 'Opponent');
-					if (Std.isOfType(file2, Sound) || FileSystem.exists(file2))
+					
+					opponentVocals = new FlxSound();
+					try
 					{
-						vocalsOpp = new FlxSound().loadEmbedded(file2);
-						FlxG.sound.list.add(vocalsOpp);
-						vocalsOpp.persist = true;
-						vocalsOpp.looped = true;
+						//trace('please work...');
+						var oppVocals:String = getVocalFromCharacter(PlayState.SONG.player2);
+						var loadedVocals = Paths.voices(PlayState.SONG.song, (oppVocals != null && oppVocals.length > 0) ? oppVocals : 'Opponent');
+						
+						if(loadedVocals != null && loadedVocals.length > 0)
+						{
+							opponentVocals.loadEmbedded(loadedVocals);
+							FlxG.sound.list.add(opponentVocals);
+							opponentVocals.persist = opponentVocals.looped = true;
+							opponentVocals.volume = 0.8;
+							opponentVocals.play();
+							opponentVocals.pause();
+							//trace('yaaay!!');
+						}
+						else opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 					}
-
-					if(vocals != null) //Sync vocals to Inst
+					catch(e:Dynamic)
 					{
-						vocals.play();
-					}
-
-					if (vocalsOpp != null)
-					{
-						vocalsOpp.play();
+						//trace('FUUUCK');
+						opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 					}
 				}
 
@@ -434,7 +455,7 @@ class FreeplayState extends MusicBeatState
 
 			try
 			{
-				PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+				Song.loadFromJson(poop, songLowercase);
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
 
@@ -459,6 +480,13 @@ class FreeplayState extends MusicBeatState
 				return;
 			}
 
+			@:privateAccess
+			if(PlayState._lastLoadedModDirectory != Mods.currentModDirectory)
+			{
+				trace('CHANGED MOD DIRECTORY, RELOADING STUFF');
+				Paths.freeGraphicsFromMemory();
+			}
+			LoadingState.prepareToSong();
 			LoadingState.loadAndSwitchState(new PlayState());
 			#if !SHOW_LOADING_SCREEN FlxG.sound.music.stop(); #end
 			stopMusicPlay = true;
@@ -499,21 +527,11 @@ class FreeplayState extends MusicBeatState
 	}
 
 	public static function destroyFreeplayVocals() {
-		if(vocals != null) //Sync vocals to Inst
-		{
-			vocals.stop();
-			vocals.volume = 0;
-			vocals.destroy();
-			vocals = null;
-		}
+		if(vocals != null) vocals.stop();
+		vocals = FlxDestroyUtil.destroy(vocals);
 
-		if (vocalsOpp != null)
-		{
-			vocalsOpp.stop();
-			vocalsOpp.volume = 0;
-			vocalsOpp.destroy();
-			vocalsOpp = null;
-		}
+		if(opponentVocals != null) opponentVocals.stop();
+		opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 	}
 
 	function changeDiff(change:Int = 0)
@@ -842,7 +860,7 @@ class FreeplayState extends MusicBeatState
 			script.set(variable, arg);
 		}
 		#end
-	}
+	}	
 }
 
 class SongMetadata

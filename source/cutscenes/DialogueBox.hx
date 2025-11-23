@@ -25,6 +25,7 @@ class DialogueBox extends FlxSpriteGroup
 	var bgFade:FlxSprite;
 	var skipText:FlxText;
 
+	var songName:String = Paths.formatToSongPath(Song.loadedSongName);
 	public function new(talkingRight:Bool = true, ?dialogueList:Array<String>)
 	{
 		super();
@@ -44,7 +45,7 @@ class DialogueBox extends FlxSpriteGroup
 		box = new FlxSprite(-20, 45);
 		
 		var hasDialog = true;
-		switch (PlayState.SONG.song.toLowerCase())
+		switch (songName)
 		{
 			case 'senpai':
 				box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-pixel');
@@ -104,7 +105,7 @@ class DialogueBox extends FlxSpriteGroup
 		add(handSelect);
 
 		swagDialogue = new FlxTypeText(240, 500, Std.int(FlxG.width * 0.6), '', 32);
-		swagDialogue.font = Paths.font('pixel.otf');
+		swagDialogue.font = Paths.font('pixel-latin.ttf');
 		swagDialogue.color = 0xFF3F2021;
 		swagDialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
 		swagDialogue.borderStyle = SHADOW;
@@ -112,7 +113,7 @@ class DialogueBox extends FlxSpriteGroup
 		swagDialogue.shadowOffset.set(2, 2);
 		add(swagDialogue);
 
-		skipText = new FlxText(FlxG.width - 320, FlxG.height - 30, 300, 'Press BACK to Skip', 16);
+		skipText = new FlxText(FlxG.width - 320, FlxG.height - 30, 300, Language.getPhrase('dialogue_skip', 'Press BACK to Skip'), 16);
 		skipText.setFormat(null, 16, FlxColor.WHITE, RIGHT, OUTLINE_FAST, FlxColor.BLACK);
 		skipText.borderSize = 2;
 		add(skipText);
@@ -127,7 +128,7 @@ class DialogueBox extends FlxSpriteGroup
 		// HARD CODING CUZ IM STUPDI
 		super.update(elapsed);
 
-		switch(PlayState.SONG.song.toLowerCase())
+		switch(songName)
 		{
 			case 'roses':
 				portraitLeft.visible = false;
@@ -191,7 +192,7 @@ class DialogueBox extends FlxSpriteGroup
 		isEnding = true;
 		FlxG.sound.play(Paths.sound('clickText'), 0.8);	
 
-		if (PlayState.SONG.song.toLowerCase() == 'senpai' || PlayState.SONG.song.toLowerCase() == 'thorns')
+		if (songName == 'senpai' || songName == 'thorns')
 			FlxG.sound.music.fadeOut(1.5, 0, (_) -> FlxG.sound.music.stop());
 
 		new FlxTimer().start(0.2, function(tmr:FlxTimer)
@@ -236,7 +237,7 @@ class DialogueBox extends FlxSpriteGroup
 				portraitRight.visible = false;
 				if (!portraitLeft.visible)
 				{
-					if (PlayState.SONG.song.toLowerCase() == 'senpai') portraitLeft.visible = true;
+					if (songName == 'senpai') portraitLeft.visible = true;
 					portraitLeft.animation.play('enter');
 				}
 			case 'bf':

@@ -68,7 +68,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 {
 	public static final defaultEvents:Array<Array<String>> =
 	[
-		['', "Nothing. Yep, that's right."],
+		['', "Nothing. Yep, that's right."], //Always leave this one empty pls
 		['Dadbattle Spotlight', "Used in Dad Battle,\nValue 1: 0/1 = ON/OFF,\n2 = Target Dad\n3 = Target BF"],
 		['Hey!', "Plays the \"Hey!\" animation from Bopeebo,\nValue 1: BF = Only Boyfriend, GF = Only Girlfriend,\nSomething else = Both.\nValue 2: Custom animation duration,\nleave it blank for 0.6s"],
 		['Set GF Speed', "Sets GF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\nUsed on Fresh during the beatbox parts.\n\nWarning: Value must be integer!"],
@@ -77,12 +77,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Add Camera Zoom', "Used on MILF on that one \"hard\" part\nValue 1: Camera zoom add (Default: 0.015)\nValue 2: UI zoom add (Default: 0.03)\nLeave the values blank if you want to use Default."],
 		['BG Freaks Expression', "Should be used only in \"school\" Stage!"],
 		['Trigger BG Ghouls', "Should be used only in \"schoolEvil\" Stage!"],
-		['Focus Camera', "Changes the camera target\n\nValue 1: Target (Player, Opponent, Girlfriend, Position)\nValue 2: X, Y, Time, Ease, Tweening Toggle\n\nX, and Y Values will be ignored if the target isn't 'Position'\nTime & Ease will be ignored if the Tweening Bool is false."],
+		['Focus Camera', "Changes the camera target\n\nValue 1: Target (Player, Opponent, Girlfriend, Position)\nValue 2: X, Y, Time, Ease, Tweening Toggle\n\nX, and Y Values will act an offset if the target isn't 'Position'\nTime & Ease will be ignored if the Tweening Bool is false."],
 		['Zoom Camera', "Changes the camera zoom\n\nValue 1: New Zoom Value\nValue 2: Time, Ease."],
 		['Subtitle Event', "Shows subtitles for when a character speaks\n\nValue 1: What the text should say\nValue 2: R, G, B, font name, text size, text width."],
 		['Play Animation', "Plays an animation on a Character,\nonce the animation is completed,\nthe animation changes to Idle\n\nValue 1: Animation to play.\nValue 2: Character (Dad, BF, GF)"],
 		['Camera Follow Pos', "Value 1: X\nValue 2: Y\n\nThe camera won't change the follow point\nafter using this, for getting it back\nto normal, leave both values blank."],
-		['Alt Idle Animation', "Sets a specified suffix after the idle animation name.\nYou can use this to trigger 'idle-alt' if you set\nValue 2 to -alt\n\nValue 1: Character to set (Dad, BF or GF)\nValue 2: New suffix (Leave it blank to disable)"],
+		['Alt Idle Animation', "Sets a specified postfix after the idle animation name.\nYou can use this to trigger 'idle-alt' if you set\nValue 2 to -alt\n\nValue 1: Character to set (Dad, BF or GF)\nValue 2: New postfix (Leave it blank to disable)"],
 		['Screen Shake', "Value 1: Camera shake\nValue 2: HUD shake\n\nEvery value works as the following example: \"1, 0.05\".\nThe first number (1) is the duration.\nThe second number (0.05) is the intensity."],
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
 		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."],
@@ -370,7 +370,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var iconY:Float = 50;
 		if(SHOW_EVENT_COLUMN)
 		{
-			eventIcon = new FlxSprite(0, iconY).loadGraphic(Paths.image('editors/eventArrow'));
+			eventIcon = new FlxSprite(0, iconY).loadGraphic(Paths.image('editors/eventIcon'));
 			eventIcon.antialiasing = ClientPrefs.data.antialiasing;
 			eventIcon.alpha = 0.6;
 			eventIcon.setGraphicSize(30, 30);
@@ -1391,8 +1391,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							else
 								events.remove(cast (closest, EventMetaNote));
 
-							FlxG.sound.play(Paths.sound('editorSounds/noteErase'), 0.4);
-
 							selectedNotes.remove(closest);
 							curRenderedNotes.remove(closest, true);
 							addUndoAction(DELETE_NOTE, !closest.isEvent ? {notes: [closest]} : {events: [closest]});
@@ -1407,7 +1405,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						{
 							trace('Added note at time: $strumTime');
 							var didAdd:Bool = false;
-							FlxG.sound.play(Paths.sound('editorSounds/noteLay'), 0.4);
 
 							var noteSetupData:Array<Dynamic> = [strumTime, noteData, 0];
 							var typeSelected:String = noteTypes[noteTypeDropDown.selectedIndex].trim();
@@ -1437,7 +1434,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						{
 							trace('Added event at time: $strumTime');
 							var didAdd:Bool = false;
-							FlxG.sound.play(Paths.sound('editorSounds/noteLay'), 0.4);
 
 							var eventAdded:EventMetaNote = createEvent([strumTime, [[eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text]]]);
 							for (num in sectionFirstEventID...events.length)
@@ -1705,7 +1701,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		selectionBox.updateHitbox();
 	}
 
-	function showOutput(message:String, isError:Bool = false, ?playSound:Bool = true)
+	function showOutput(message:String, isError:Bool = false)
 	{
 		trace(message);
 		outputTxt.text = message;
@@ -1713,12 +1709,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		outputAlpha = 4;
 		if(isError)
 		{
-			if (playSound) FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
+			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			outputTxt.color = FlxColor.RED;
 		}
 		else
 		{
-			if (playSound) FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 			outputTxt.color = FlxColor.WHITE;
 		}
 	}
@@ -5074,8 +5070,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(lockedEvents) selectedNotes = selectedNotes.filter((note:MetaNote) -> !note.isEvent);
 				onSelectNote();
 		}
-		showOutput('Undo #${currentUndo+1}: ${action.action}', false, false);
-		FlxG.sound.play(Paths.sound('editorSounds/undo'), 0.4);
+		showOutput('Undo #${currentUndo+1}: ${action.action}');
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		currentUndo++;
 	}
 	function redo()
@@ -5107,8 +5103,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(lockedEvents) selectedNotes = selectedNotes.filter((note:MetaNote) -> !note.isEvent);
 				onSelectNote();
 		}
-		showOutput('Redo #${currentUndo+1}: ${action.action}', false, false);
-		FlxG.sound.play(Paths.sound('editorSounds/exitWindow'), 0.4);
+		showOutput('Redo #${currentUndo+1}: ${action.action}');
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 	}
 
 	function actionPushNotes(dataNotes:Array<MetaNote>, dataEvents:Array<EventMetaNote>)

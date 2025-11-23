@@ -33,6 +33,8 @@ import flixel.addons.transition.FlxTransitionableState;
 
 import flixel.util.FlxStringUtil;
 
+import states.editors.content.*;
+
 import flixel.util.FlxSave;
 
 import backend.MusicBeatSubstate;
@@ -49,6 +51,8 @@ import modcharting.Modifier;
 import modcharting.ModchartFile;
 import modcharting.ModchartFile.ModchartJson;
 
+import backend.StageData;
+import haxe.Exception;
 import states.editors.content.Prompt;
 
 using StringTools;
@@ -212,6 +216,8 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     public var opponentVocals:FlxSound;
     var generatedMusic:Bool = false;
 
+    var fileDialog:FileDialogHandler = new FileDialogHandler();
+
     var _song:SwagSong;
     var _modchart:ModchartJson;
 
@@ -280,7 +286,21 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		else
 		{
 			Difficulty.resetList();
-			_song = Song.loadFromJson('test', 'test');
+			_song = {
+				song: 'Test',
+                notes: [],
+                events: [],
+                bpm: 150,
+                needsVoices: true,
+                speed: 1,
+                offset: 0,
+
+                player1: 'bf',
+                player2: 'dad',
+                gfVersion: 'gf',
+                stage: 'stage',
+                format: 'psych_v1'
+			};
 			PlayState.SONG = _song;
 		}
 
@@ -400,8 +420,16 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		UI_box.scrollFactor.set();
         add(UI_box);
 
-        debugText = new FlxText(10, 640, FlxG.width - 20, "", 16);
-		add(debugText);
+        debugText = new FlxText(0, gridSize*2, 0, "", 16);
+        debugText.alignment = FlxTextAlign.LEFT;
+        add(debugText);
+
+        outputTxt = new FlxText(25, FlxG.height - 50, FlxG.width - 50, '', 20);
+		outputTxt.borderSize = 2;
+		outputTxt.borderStyle = OUTLINE_FAST;
+		outputTxt.scrollFactor.set();
+		outputTxt.alpha = 0;
+		add(outputTxt);
 
         UI_box.selectedName = 'Editor';
 
@@ -414,6 +442,26 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         setupEventUI();
         setupPlayfieldUI();
     }
+
+    var outputTxt:FlxText;
+    var outputAlpha:Float = 0;
+    function showOutput(message:String, isError:Bool = false, ?playSound:Bool = true)
+	{
+		trace(message);
+		outputTxt.text = message;
+		outputTxt.y = FlxG.height - outputTxt.height - 30;
+		outputAlpha = 4;
+		if(isError)
+		{
+			if (playSound) FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
+			outputTxt.color = FlxColor.RED;
+		}
+		else
+		{
+			if (playSound) FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			outputTxt.color = FlxColor.WHITE;
+		}
+	}
 
     function addHelpScreen()
 	{
@@ -473,6 +521,13 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     var totalElapsed:Float = 0;
     override public function update(elapsed:Float)
     {
+        if(!fileDialog.completed)
+		{
+			return;
+		}
+
+        outputAlpha = Math.max(0, outputAlpha - elapsed);
+        
         totalElapsed += elapsed;
         highlight.alpha = 0.8+FlxMath.fastSin(totalElapsed*5)*0.15;
         super.update(elapsed);
@@ -485,7 +540,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 			inst.time = 0;
 		}
         Conductor.songPosition = inst.time;
-        _song.song = UI_songTitle.text;
 
         var songPosPixelPos = (((Conductor.songPosition/Conductor.stepCrochet)%4)*gridSize);
         grid.x = -curDecStep*gridSize;
@@ -579,7 +633,10 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
             // OTHER CONTROLS
 		    if(FlxG.keys.justPressed.F2)
+            {
 			    playfieldRenderer.visible = !playfieldRenderer.visible;
+                grpSustainSplashes.visible = !grpSustainSplashes.visible;
+            }
     
             if (FlxG.keys.justPressed.D || FlxG.keys.justPressed.RIGHT)
             {
@@ -768,48 +825,52 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             playfieldRenderer.modchart.loadPlayfields();
         }
 
-        if (FlxG.keys.justPressed.ENTER)
+        if (!blockInput)
         {
-            ClientPrefs.toggleVolumeKeys(true);
-            FlxG.mouse.visible = false;
-            inst.stop();
-            if(vocals != null) vocals.stop();
-            if(opponentVocals != null) opponentVocals.stop();
-            backend.StageData.loadDirectory(PlayState.SONG);
-            
-            if (hasUnsavedChanges)
-                autosaveModchart(this);
-            LoadingState.loadAndSwitchState(new PlayState());
-        }
-
-        if(FlxG.keys.justPressed.F1 || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
-        {
-            helpBg.visible = !helpBg.visible;
-            helpTexts.visible = helpBg.visible;
-        }
-        else if(FlxG.keys.justPressed.ESCAPE)
-        {
-            var exitFunc = function()
+            if (FlxG.keys.justPressed.ENTER)
             {
                 ClientPrefs.toggleVolumeKeys(true);
-                
+                FlxG.mouse.visible = false;
                 inst.stop();
                 if(vocals != null) vocals.stop();
                 if(opponentVocals != null) opponentVocals.stop();
-
+                StageData.loadDirectory(PlayState.SONG);
+                
                 if (hasUnsavedChanges)
                     autosaveModchart(this);
-                MusicBeatState.switchState(new states.editors.MasterEditorMenu());
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				FlxG.mouse.visible = false;
-                ModchartFile.autosaveMod = null; //makes it so it won't interfere with anything else upon leaving the editor
-            };
-            persistentUpdate = false;
-            openSubState(new Prompt('This action will clear all unsaved progress or data here.\n\nProceed?', function() 
-            {
-                exitFunc();
-            }));
+                
+                LoadingState.loadAndSwitchState(new PlayState());
+            }
 
+            if(FlxG.keys.justPressed.F1 || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
+            {
+                helpBg.visible = !helpBg.visible;
+                helpTexts.visible = helpBg.visible;
+            }
+            else if(FlxG.keys.justPressed.ESCAPE)
+            {
+                var exitFunc = function()
+                {
+                    ClientPrefs.toggleVolumeKeys(true);
+                    
+                    inst.stop();
+                    if(vocals != null) vocals.stop();
+                    if(opponentVocals != null) opponentVocals.stop();
+
+                    if (hasUnsavedChanges)
+                        autosaveModchart(this);
+                    MusicBeatState.switchState(new states.editors.MasterEditorMenu());
+                    FlxG.sound.playMusic(Paths.music('freakyMenu'));
+                    FlxG.mouse.visible = false;
+                    ModchartFile.autosaveMod = null; //makes it so it won't interfere with anything else upon leaving the editor
+                };
+                persistentUpdate = false;
+                openSubState(new Prompt('This action will clear all unsaved progress or data here.\n\nProceed?', function() 
+                {
+                    exitFunc();
+                }));
+
+            }
         }
 
         var curBpmChange = getBPMFromSeconds(Conductor.songPosition);
@@ -823,10 +884,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             Conductor.bpm = curBpmChange.bpm;
         }
 
-        var curTime:String = FlxStringUtil.formatTime(Conductor.songPosition / 1000, true);
-		var songLength:String = (FlxG.sound.music != null) ? FlxStringUtil.formatTime(FlxG.sound.music.length / 1000, true) : '???';
-
-        debugText.text = '$curTime / $songLength' +
+        debugText.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(inst.length / 1000, 2)) +
 		"\nBeat: " + Std.string(curDecBeat).substring(0,4) +
 		"\nStep: " + curStep + "\n";
 
@@ -843,6 +901,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 leText += "\n";
             }
         }
+
+        outputTxt.alpha = outputAlpha;
+		outputTxt.visible = (outputAlpha > 0);
 
         activeModifiersText.text = leText;
     }
@@ -2117,7 +2178,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     var sliderRate:PsychUISlider;
     var songSlider:PsychUISlider;
     var saveExplainText:FlxText;
-    var UI_songTitle:PsychUIInputText;
+
     function setupEditorUI()
     {
         var tab_group = UI_box.getTab('Editor').menu;
@@ -2183,8 +2244,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		});
 		tab_group.add(saveJson);
         
-		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 160, '', 8);
-        saveExplainText.text = ("When saving your modchart, put the .json file in a folder called 'modchartData' located inside your songs's data folder (\"songName\"/modchartData/)/\nLook at the list of what you would call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown");
+		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 320, '');
+        saveExplainText.text = "When saving your modchart,\nput the .json file in a folder\ncalled 'modchartData' located\ninside your songs's data folder\n(\"songName\"/modchartData/)\nLook at the list of what you\nwould call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown";
+        saveExplainText.alignment = LEFT;
         
         var getAutosave:PsychUIButton = new PsychUIButton(200, 300, 'Load Autosave', function ()
         {
@@ -2203,16 +2265,39 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         if(hasAutoSave)
             tab_group.add(getAutosave);
 
-        UI_songTitle = new PsychUIInputText(20, 350, 150, _song.song, 8);
-		tab_group.add(UI_songTitle);
-        tab_group.add(makeLabel(UI_songTitle, 0, -15, "Song Name:"));
-
-        var curDifficulty:FlxText = new FlxText(20, 400, 160, 'Current Difficulty: ${Difficulty.getString()}', 8);
-        tab_group.add(curDifficulty);
-
-        var reloadSongJson:PsychUIButton = new PsychUIButton(200, UI_songTitle.y, "Reload Song", function()
+        var reloadSongJson:PsychUIButton = new PsychUIButton(20, 350, "Open Chart", function()
 		{
-			loadJson(_song.song.toLowerCase());
+			if(!fileDialog.completed) return;
+
+			fileDialog.open(function()
+			{
+				try
+				{
+					var filePath:String = fileDialog.path.replace('\\', '/');
+					var loadedChart:SwagSong = Song.parseJSON(fileDialog.data, filePath.substr(filePath.lastIndexOf('/')));
+					if(loadedChart == null || !Reflect.hasField(loadedChart, 'song')) //Check if chart is ACTUALLY a chart and valid
+					{
+						showOutput('Error: File loaded is not a Psych Engine/FNF 0.2.x.x chart.', true);
+						return;
+					}
+
+					var func:Void->Void = function()
+					{
+						PlayState.SONG = loadedChart;
+                        StageData.loadDirectory(PlayState.SONG);
+                        Conductor.bpm = PlayState.SONG.bpm;
+						Song.chartPath = fileDialog.path;
+						MusicBeatState.resetState();
+					}
+					
+					openSubState(new Prompt('Warning: Any unsaved progress\nwill be lost.', func));
+				}
+				catch(e:Exception)
+				{
+					showOutput('Error: ${e.message}', true);
+					trace(e.stack);
+				}
+			});
 		});
         tab_group.add(reloadSongJson);
         
@@ -2276,51 +2361,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         _file = null;
     }
 
-    var missingText:FlxText;
-	var missingTextTimer:FlxTimer;
-	function loadJson(song:String):Void
-	{
-		//shitty null fix, i fucking hate it when this happens
-		//make it look sexier if possible
-		try {
-			if (Difficulty.getString() != Difficulty.getDefault()) {
-				if(Difficulty.getString() == null){
-					PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
-				}else{
-					PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + Difficulty.getString(), song.toLowerCase());
-				}
-			}
-			else PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
-			MusicBeatState.resetState();
-		}
-		catch(e)
-		{
-			trace('ERROR! $e');
-
-			var errorStr:String = e.toString();
-			if(errorStr.startsWith('[file_contents,assets/data/')) errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length-1); //Missing chart
-			
-			if(missingText == null)
-			{
-				missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
-				missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-				missingText.scrollFactor.set();
-				add(missingText);
-			}
-			else missingTextTimer.cancel();
-
-			missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
-			missingText.screenCenter(Y);
-
-			missingTextTimer = new FlxTimer().start(5, function(tmr:FlxTimer) {
-				remove(missingText);
-				missingText.destroy();
-			});
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-		}
-	}
-
-    function autosaveModchart(?instance:MusicBeatState = null):Void
+	function autosaveModchart(?instance:MusicBeatState = null):Void
     {
         if (instance == null)
             instance = PlayState.instance;

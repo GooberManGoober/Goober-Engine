@@ -141,7 +141,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			"Arrow Keys/Mouse & Right Click - Move Object",
 			"",
 			'$btn - Toggle HUD',
-			"F4 - Reset Editor UI Positions",
 			"F12 - Toggle Selection Rectangle",
 			"Hold Shift - Move Objects and Camera 4x faster",
 			"Hold Control - Move Objects pixel-by-pixel and Camera 4x slower"
@@ -578,7 +577,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	function editorUI()
 	{
-		UI_box = new PsychUIBox(FlxG.width - 225, 10, 200, 430, ['Meta', 'Data', 'Object']);
+		UI_box = new PsychUIBox(FlxG.width - 225, 10, 200, 400, ['Meta', 'Data', 'Object']);
 		UI_box.cameras = [camHUD];
 		UI_box.scrollFactor.set();
 		add(UI_box);
@@ -727,9 +726,9 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		cameraSpeedStepper = new PsychUINumericStepper(objX + 80, objY, 0.1, stageJson.camera_speed != null ? stageJson.camera_speed : 1, 0, 10, 2);
 		cameraSpeedStepper.onValueChange = function() {
 			stageJson.camera_speed = cameraSpeedStepper.value;
-			FlxG.camera.followLerp = 2.4 * stageJson.camera_speed;
+			FlxG.camera.followLerp = 0.04 * stageJson.camera_speed;
 		};
-		FlxG.camera.followLerp = 2.4 * cameraSpeedStepper.value;
+		FlxG.camera.followLerp = 0.04 * cameraSpeedStepper.value;
 
 		tab_group.add(hideGirlfriendCheckbox);
 		tab_group.add(camDadStepperX);
@@ -911,7 +910,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		scrollStepperX.onValueChange = scrollStepperY.onValueChange = updateScroll;
 		tab_group.add(scrollStepperX);
 		tab_group.add(scrollStepperY);
-
+		
 		objY += 40;
 		tab_group.add(new FlxText(objX, objY - 18, 80, 'Opacity:'));
 		alphaStepper = new PsychUINumericStepper(objX, objY, 0.1, 1, 0, 1, 2, true);
@@ -1197,7 +1196,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		
 		if(stageJson.camera_speed != null) cameraSpeedStepper.value = stageJson.camera_speed;
 		else cameraSpeedStepper.value = 1;
-		FlxG.camera.followLerp = 2.4 * cameraSpeedStepper.value;
+		FlxG.camera.followLerp = 0.04 * cameraSpeedStepper.value;
 
 		if(stageJson.camera_opponent != null && stageJson.camera_opponent.length > 1)
 		{
@@ -1386,15 +1385,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			return;
 		}
 
-		if(FlxG.keys.justPressed.F4)
-		{
-			UI_box.setPosition(FlxG.width - 225, 10);
-			UI_stagebox.setPosition(FlxG.width - 275, 25);
-			spriteList_box.setPosition(25, 40);
-
-			UI_box.y += UI_stagebox.y + UI_stagebox.height;
-		}
-
 		if(FlxG.keys.justPressed.W)
 		{
 			spriteListRadioGroup.checked = FlxMath.wrap(spriteListRadioGroup.checked - 1, 0, spriteListRadioGroup.labels.length-1);
@@ -1466,7 +1456,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			FlxG.camera.zoom = Math.min(maxZoom, FlxG.camera.zoom + elapsed * FlxG.camera.zoom * shiftMult * ctrlMult);
 		else if (FlxG.keys.pressed.Q && FlxG.camera.zoom > minZoom)
 			FlxG.camera.zoom = Math.max(minZoom, FlxG.camera.zoom - elapsed * FlxG.camera.zoom * shiftMult * ctrlMult);
-
+		
 		// SPRITE X/Y
 		var shiftMult:Float = 1;
 		var ctrlMult:Float = 1;
@@ -1971,7 +1961,7 @@ class StageEditorMetaSprite
 		sprite.scale.set(scale[0], scale[1]);
 		sprite.updateHitbox();
 	}
-
+	
 	public var flipX(get, set):Bool;
 	public var flipY(get, set):Bool;
 	function get_flipX() return sprite.flipX;

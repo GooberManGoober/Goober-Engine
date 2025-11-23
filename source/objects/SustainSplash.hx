@@ -6,6 +6,8 @@ import shaders.RGBPalette.RGBShaderReference;
 class SustainSplash extends FlxSprite {
 	public var rgbShader:RGBShaderReference;
 	public var strum:StrumNote;
+
+	var splashAlpha = 0.7;
 	override public function new(strum:StrumNote) {
 		super();
 		this.strum = strum;
@@ -31,6 +33,7 @@ class SustainSplash extends FlxSprite {
 		visible = true;
 		if (animation.curAnim.name != "loop") {
 			animation.play("cover");
+			splashAlpha = 1 * strum.alpha;
 			center();
 		}
 	}
@@ -41,6 +44,7 @@ class SustainSplash extends FlxSprite {
 		if (miss) visible = false;
 		if (animation.curAnim.name != "splash") {
 			animation.play("splash");
+			splashAlpha = 0.7 * strum.alpha;
 			center();
 		}
 	}
@@ -57,14 +61,22 @@ class SustainSplash extends FlxSprite {
 			if (animation.curAnim.name == "splash") visible = false;
 		}
 
-		alpha = strum.alpha;
+		alpha = splashAlpha;
 		
 		center();
 	}
 
 	public function center() {
 		centerOffsets();
-		setPosition(strum.x, strum.y);
-		offset.set(PlayState.isPixelStage ? -185 : 106.25, PlayState.isPixelStage ? -25 : 100);
+		if (PlayState.isPixelStage)
+		{
+			setPosition(strum.x, strum.y);
+			offset.set(PlayState.isPixelStage ? -185 : 106.25, PlayState.isPixelStage ? -25 : 100);
+		}
+		else
+		{
+			x = strum.x + (strum.width/2) - (width/2);
+			y = strum.y + (strum.height/2) - (height/2);
+		}
 	}
 }

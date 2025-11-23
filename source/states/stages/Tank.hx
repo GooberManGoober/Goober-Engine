@@ -119,7 +119,14 @@ class Tank extends BaseStage
 		}
 	}
 
-	override function countdownTick(count:Countdown, num:Int) if(num % 2 == 0) everyoneDance();
+	override function countdownTick(count:Countdown, num:Int) 
+	{
+		if(num % 2 == 0) 
+			everyoneDance();
+
+		game.subtitleEvent("", 255, 255, 255, "vcr.ttf", 32, 0);
+	}
+
 	override function beatHit() everyoneDance();
 	function everyoneDance()
 	{
@@ -135,7 +142,6 @@ class Tank extends BaseStage
 	var tankman:FlxAnimate;
 	var pico:FlxAnimate;
 	var boyfriendCutscene:FlxSprite;
-	var audioPlaying:FlxSound;
 	function prepareCutscene()
 	{
 		cutsceneHandler = new CutsceneHandler();
@@ -171,9 +177,6 @@ class Tank extends BaseStage
 			gfGroup.alpha = 1;
 			boyfriendGroup.alpha = 1;
 			camHUD.visible = true;
-
-			if(audioPlaying != null)
-				audioPlaying.stop();
 
 			boyfriend.animation.finishCallback = null;
 			gf.animation.finishCallback = null;
@@ -214,7 +217,11 @@ class Tank extends BaseStage
 		cutsceneHandler.timer(0.1, function()
 		{
 			wellWellWell.play(true);
-			audioPlaying = wellWellWell;
+			game.subtitleEvent("Well well well, what do we got here?", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+		cutsceneHandler.timer(2.75, function()
+		{
+			game.subtitleEvent("", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 
 		// Move camera to BF
@@ -230,6 +237,12 @@ class Tank extends BaseStage
 			boyfriend.playAnim('singUP', true);
 			boyfriend.specialAnim = true;
 			FlxG.sound.play(Paths.sound('bfBeep'));
+			game.subtitleEvent("Beep!", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(4.85, function()
+		{
+			game.subtitleEvent("", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 
 		// Move camera to Tankman
@@ -241,7 +254,16 @@ class Tank extends BaseStage
 			// We should just kill you but... what the hell, it's been a boring day... let's see what you've got!
 			tankman.anim.play('killYou', true);
 			killYou.play(true);
-			audioPlaying = killYou;
+			game.subtitleEvent("We should just KILL you but", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(8.145, function()
+		{
+			game.subtitleEvent("What the hell, it's been a boring day.", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+		cutsceneHandler.timer(10.43, function()
+		{
+			game.subtitleEvent("Let's see what you got!", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 	}
 	function gunsIntro()
@@ -261,10 +283,10 @@ class Tank extends BaseStage
 		cutsceneHandler.onStart = function()
 		{
 			tightBars.play(true);
-			audioPlaying = tightBars;
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 4, {ease: FlxEase.quadInOut});
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2 * 1.2}, 0.5, {ease: FlxEase.quadInOut, startDelay: 4});
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 1, {ease: FlxEase.quadInOut, startDelay: 4.5});
+			game.subtitleEvent("Heh, pretty tight bars for a little dude who's simping over an...", 255, 255, 255, "vcr.ttf", 32, 0);
 		};
 
 		cutsceneHandler.timer(4, function()
@@ -274,6 +296,12 @@ class Tank extends BaseStage
 			{
 				gf.playAnim('sad', true);
 			};
+			game.subtitleEvent("Ugly, boring little teenager who wears her mom's clothes! Haah!", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(9.2, function()
+		{
+			game.subtitleEvent("*laughter*", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 	}
 	var dualWieldAnimPlayed = 0;
@@ -350,14 +378,44 @@ class Tank extends BaseStage
 		cutsceneHandler.onStart = function()
 		{
 			cutsceneSnd.play(true);
-			audioPlaying = cutsceneSnd;
+			game.subtitleEvent("God effing dammit! ", 255, 255, 255, "vcr.ttf", 32, 0);
 		};
+
+		cutsceneHandler.timer(2.835, function()
+		{
+			game.subtitleEvent("*tsk*", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(3.2, function()
+		{
+			game.subtitleEvent("Well played, you little shit!", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(5.56, function()
+		{
+			game.subtitleEvent("But this is WAR! And in war... people DIE!", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(9.67, function()
+		{
+			game.subtitleEvent("Men, get ready to fire!", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(11.835, function()
+		{
+			game.subtitleEvent("Sorry, no prom for you this year, ha ha ha!", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
 
 		cutsceneHandler.timer(15.2, function()
 		{
 			FlxTween.tween(camFollow, {x: 650, y: 300}, 1, {ease: FlxEase.sineOut});
 			FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2 * 1.2}, 2.25, {ease: FlxEase.quadInOut});
 			pico.anim.play('dieBitch', true);
+		});
+
+		cutsceneHandler.timer(15.68, function()
+		{
+			game.subtitleEvent("", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 
 		cutsceneHandler.timer(17.5, function()
@@ -368,11 +426,27 @@ class Tank extends BaseStage
 		cutsceneHandler.timer(19.5, function()
 		{
 			tankman.anim.play('lookWhoItIs', true);
+			game.subtitleEvent("Aaah, look who it is, your sexually ambiguous, angry little friend.", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 
 		cutsceneHandler.timer(20, function()
 		{
 			camFollow.setPosition(dad.x + 500, dad.y + 170);
+		});
+
+		cutsceneHandler.timer(24.25, function()
+		{
+			game.subtitleEvent("Don't you have a school to shoot up?", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(26.98, function()
+		{
+			game.subtitleEvent("There's one way to settle this...", 255, 255, 255, "vcr.ttf", 32, 0);
+		});
+
+		cutsceneHandler.timer(29, function()
+		{
+			game.subtitleEvent("Let's rock! You little cunt!", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 
 		cutsceneHandler.timer(31.2, function()
@@ -391,6 +465,11 @@ class Tank extends BaseStage
 			FlxG.camera.snapToTarget();
 			game.cameraSpeed = 12;
 			FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2 * 1.2}, 0.25, {ease: FlxEase.elasticOut});
+		});
+
+		cutsceneHandler.timer(31.4, function()
+		{
+			game.subtitleEvent("*laughter* Ya little cunts!", 255, 255, 255, "vcr.ttf", 32, 0);
 		});
 
 		cutsceneHandler.timer(32.2, function()

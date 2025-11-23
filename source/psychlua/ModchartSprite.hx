@@ -1,4 +1,3 @@
-
 package psychlua;
 
 class ModchartSprite extends FlxSprite

@@ -36,8 +36,6 @@ import backend.Language;
 
 import backend.ui.*; //Psych-UI
 
-import flixel.addons.transition.FlxTransitionableState;
-
 import objects.Alphabet;
 import objects.BGSprite;
 
@@ -63,6 +61,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.group.FlxSpriteGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.addons.transition.FlxTransitionableState;
 
 using StringTools;
 #end

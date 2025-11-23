@@ -10,7 +10,7 @@ class MallEvil extends BaseStage
 {
 	var barrelDistortionShader:BarrelDistortionShader;
 	var barrelDistortionFilter:BitmapFilter;
-	
+
 	override function create()
 	{
 		var bg:BGSprite = new BGSprite('christmas/evilBG', -400, -500, 0.2, 0.2);
@@ -33,8 +33,7 @@ class MallEvil extends BaseStage
 			if (songName == "winter-horrorland")
 			{
 				camGame.setFilters([barrelDistortionFilter]);
-				camHUD.setFilters([barrelDistortionFilter]);
-				FlxTween.tween(barrelDistortionShader, {barrelDistortion1: -0.1, barrelDistortion2: -0.1}, 2.25, {ease: FlxEase.cubeInOut, type: PINGPONG});
+				FlxTween.tween(barrelDistortionShader, {barrelDistortion1: -0.1, barrelDistortion2: -0.1}, 2.25, {type: PINGPONG});
 			}
 		}
 		

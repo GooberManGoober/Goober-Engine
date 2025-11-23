@@ -193,11 +193,11 @@ class MusicPlayer extends FlxGroup
 		{
 			if(FreeplayState.vocals != null)
 				FreeplayState.vocals.volume = (FreeplayState.vocals.length > FlxG.sound.music.time) ? 0.8 : 0;
-			if(FreeplayState.vocalsOpp != null)
-				FreeplayState.vocalsOpp.volume = (FreeplayState.vocalsOpp.length > FlxG.sound.music.time) ? 0.8 : 0;
+			if(FreeplayState.opponentVocals != null)
+				FreeplayState.opponentVocals.volume = (FreeplayState.opponentVocals.length > FlxG.sound.music.time) ? 0.8 : 0;
 
 			if((FreeplayState.vocals != null && FreeplayState.vocals.length > FlxG.sound.music.time && Math.abs(FlxG.sound.music.time - FreeplayState.vocals.time) >= 25) ||
-			(FreeplayState.vocalsOpp != null && FreeplayState.vocalsOpp.length > FlxG.sound.music.time && Math.abs(FlxG.sound.music.time - FreeplayState.vocalsOpp.time) >= 25))
+			(FreeplayState.opponentVocals != null && FreeplayState.opponentVocals.length > FlxG.sound.music.time && Math.abs(FlxG.sound.music.time - FreeplayState.opponentVocals.time) >= 25))
 			{
 				pauseOrResume();
 				setVocalsTime(FlxG.sound.music.time);
@@ -214,8 +214,8 @@ class MusicPlayer extends FlxGroup
 	{
 		if (FreeplayState.vocals != null && FreeplayState.vocals.length > time)
 			FreeplayState.vocals.time = time;
-		if (FreeplayState.vocalsOpp != null && FreeplayState.vocalsOpp.length > time)
-			FreeplayState.vocalsOpp.time = time;
+		if (FreeplayState.opponentVocals != null && FreeplayState.opponentVocals.length > time)
+			FreeplayState.opponentVocals.time = time;
 	}
 
 	public function pauseOrResume(resume:Bool = false) 
@@ -227,8 +227,8 @@ class MusicPlayer extends FlxGroup
 
 			if (FreeplayState.vocals != null && FreeplayState.vocals.length > FlxG.sound.music.time && !FreeplayState.vocals.playing)
 				FreeplayState.vocals.resume();
-			if (FreeplayState.vocalsOpp != null && FreeplayState.vocalsOpp.length > FlxG.sound.music.time && !FreeplayState.vocalsOpp.playing)
-				FreeplayState.vocalsOpp.resume();
+			if (FreeplayState.opponentVocals != null && FreeplayState.opponentVocals.length > FlxG.sound.music.time && !FreeplayState.opponentVocals.playing)
+				FreeplayState.opponentVocals.resume();
 		}
 		else 
 		{
@@ -236,8 +236,8 @@ class MusicPlayer extends FlxGroup
 
 			if (FreeplayState.vocals != null)
 				FreeplayState.vocals.pause();
-			if (FreeplayState.vocalsOpp != null)
-				FreeplayState.vocalsOpp.pause();
+			if (FreeplayState.opponentVocals != null)
+				FreeplayState.opponentVocals.pause();
 		}
 	}
 
@@ -352,8 +352,8 @@ class MusicPlayer extends FlxGroup
 		FlxG.sound.music.pitch = playbackRate;
 		if (FreeplayState.vocals != null)
 			FreeplayState.vocals.pitch = playbackRate;
-		if (FreeplayState.vocalsOpp != null)
-			FreeplayState.vocalsOpp.pitch = playbackRate;
+		if (FreeplayState.opponentVocals != null)
+			FreeplayState.opponentVocals.pitch = playbackRate;
 	}
 
 	function get_playing():Bool 

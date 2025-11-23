@@ -14,11 +14,10 @@ class StrumNote extends FlxSkewedSprite
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
 	private var noteData:Int = 0;
-	public var direction:Float = 90;//plan on doing scroll directions soon -bb
-	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
+	public var direction:Float = 90;
+	public var downScroll:Bool = false;
 	public var sustainReduce:Bool = true;
 	public var inEditor:Bool = false;
-
 	private var player:Int;
 	
 	public var texture(default, set):String = null;
@@ -182,16 +181,11 @@ class StrumNote extends FlxSkewedSprite
 
 	public function playAnim(anim:String, ?force:Bool = false) {
 		animation.play(anim, force);
-		centerOffsets();
-		centerOrigin();
-		if(animation.curAnim == null || animation.curAnim.name == 'static') {
-		
-		} else {
-			if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
-				centerOrigin();
-			}
+		if(animation.curAnim != null)
+		{
+			centerOffsets();
+			centerOrigin();
 		}
-		if(useRGBShader) 
-			rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
 	}
 }

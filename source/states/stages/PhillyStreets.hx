@@ -131,9 +131,7 @@ class PhillyStreets extends BaseStage
 			darkenable.push(picoFade);
 		}
 
-		game.gfGroup.x += 50;
-
-		abot = new ABotSpeaker(game.gfGroup.x - 50, game.gfGroup.y + 550 - 30);
+		abot = new ABotSpeaker(gfGroup.x, gfGroup.y + 550);
 		updateABotEye(true);
 		add(abot);
 		
@@ -791,15 +789,19 @@ class PhillyStreets extends BaseStage
 
 	override function goodNoteHit(note:Note)
 	{
-		switch(game.combo)
+		// 10% chance of playing combo50/combo100 animations for Nene
+		if(FlxG.random.bool(10))
 		{
-			case 50, 100:
-				var animToPlay:String = 'combo${game.combo}';
-				if(gf.animation.exists(animToPlay))
-				{
-					gf.playAnim(animToPlay);
-					gf.specialAnim = true;
-				}
+			switch(game.combo)
+			{
+				case 50, 100:
+					var animToPlay:String = 'combo${game.combo}';
+					if(gf.animation.exists(animToPlay))
+					{
+						gf.playAnim(animToPlay);
+						gf.specialAnim = true;
+					}
+			}
 		}
 
 		switch(note.noteType)

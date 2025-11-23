@@ -77,6 +77,9 @@ class MainMenuState extends MusicBeatState
 				if(file.toLowerCase().endsWith('.hx'))
 					initHScript(folder + file);
 				#end
+
+				startLuasNamed(folder + file + '.lua');
+				startHScriptsNamed(folder + file + '.hx');
 			}
 		#end
 
@@ -152,7 +155,7 @@ class MainMenuState extends MusicBeatState
 
 		callOnScripts('onCreatePost');
 
-		FlxG.camera.follow(camFollow, null, 9);
+		FlxG.camera.follow(camFollow, null, 0.15);
 	}
 
 	var selectedSomethin:Bool = false;

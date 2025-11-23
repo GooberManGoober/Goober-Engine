@@ -33,8 +33,7 @@ class Spooky extends BaseStage
 			if (songName == "monster")
 			{
 				camGame.setFilters([barrelDistortionFilter]);
-				camHUD.setFilters([barrelDistortionFilter]);
-				FlxTween.tween(barrelDistortionShader, {barrelDistortion1: -0.1, barrelDistortion2: -0.1}, 2.25, {ease: FlxEase.cubeInOut, type: PINGPONG});
+				FlxTween.tween(barrelDistortionShader, {barrelDistortion1: -0.1, barrelDistortion2: -0.1}, 2.25, {type: PINGPONG});
 			}
 		}
 
@@ -75,17 +74,14 @@ class Spooky extends BaseStage
 		lightningStrikeBeat = curBeat;
 		lightningOffset = FlxG.random.int(8, 24);
 
-		if(boyfriend.animOffsets.exists('scared')) {
+		if(boyfriend.hasAnimation('scared'))
 			boyfriend.playAnim('scared', true);
-		}
 
-		if(dad.animOffsets.exists('scared')) {
+		if(dad.hasAnimation('scared'))
 			dad.playAnim('scared', true);
-		}
 
-		if(gf != null && gf.animOffsets.exists('scared')) {
+		if(gf != null && gf.hasAnimation('scared'))
 			gf.playAnim('scared', true);
-		}
 
 		if(ClientPrefs.data.camZooms) {
 			FlxG.camera.zoom += 0.015;
