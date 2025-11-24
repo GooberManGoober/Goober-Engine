@@ -73,14 +73,13 @@ class ModchartFile
         "events": []
     }';
     public static var instance:ModchartFile;
-    var autosave:FlxSave;
     
     public function new(renderer:PlayfieldRenderer)
     {
-        autosave = new FlxSave();
-        autosave.bind("dataAutosave", CoolUtil.getSavePath());
-        
-        data = loadFromJson(PlayState.SONG.song.toLowerCase());
+		if (autosaveMod != null)
+			data = parseModchartBullshit(autosaveMod);
+		else
+			data = loadFromJson(PlayState.SONG.song.toLowerCase());
 	    this.renderer = renderer;
         renderer.modchart = this;
         instance = this;
@@ -379,8 +378,6 @@ class ModchartFile
             if (autosaveMod != null)
             {
                 json = autosaveMod;
-                autosave.data.autosaveModchart = autosaveMod;
-                autosave.flush();
             }
             else
                 json = emptyMod;
