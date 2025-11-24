@@ -35,8 +35,6 @@ import flixel.util.FlxStringUtil;
 
 import states.editors.content.*;
 
-import flixel.util.FlxSave;
-
 import backend.MusicBeatSubstate;
 import objects.Note;
 import objects.StrumNote;
