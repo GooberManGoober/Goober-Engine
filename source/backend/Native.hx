@@ -19,12 +19,8 @@ import flixel.util.FlxColor;
 #include <winuser.h>
 #include <wingdi.h>
 
-#define attributeDarkMode 20
-#define attributeDarkModeFallback 19
-
-#define attributeCaptionColor 34
-#define attributeTextColor 35
-#define attributeBorderColor 36
+const DWMWINDOWATTRIBUTE darkModeAttribute = (DWMWINDOWATTRIBUTE)20;
+const DWMWINDOWATTRIBUTE darkModeAttributeFallback = (DWMWINDOWATTRIBUTE)19; // Pre-20H1
 
 struct HandleData {
 	DWORD pid = 0;
@@ -61,24 +57,18 @@ class Native
 	{
 		registerDPIAware();
 	}
-
+		
 	public static function registerDPIAware():Void
 	{
 		#if (cpp && windows)
 		// DPI Scaling fix for windows 
 		// this shouldn't be needed for other systems
 		// Credit to YoshiCrafter29 for finding this function
-		untyped __cpp__('
-			SetProcessDPIAware();	
-			#ifdef DPI_AWARENESS_CONTEXT
-			SetProcessDpiAwarenessContext(
-				#ifdef DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
-				DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
-				#else
-				DPI_AWARENESS_CONTEXT_SYSTEM_AWARE
-				#endif
-			);
-			#endif
+			untyped __cpp__('
+		BOOL success = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		if (!success) success = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+		if (!success) success = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+		if (!success) SetProcessDPIAware();
 		');
 		#end
 	}
@@ -94,11 +84,11 @@ class Native
 		if (display != null)
 		{
 			final dpiScale:Float = display.dpi / 96;
-			@:privateAccess Application.current.window.width = Std.int(Main.game.width * dpiScale);
-			@:privateAccess Application.current.window.height = Std.int(Main.game.height * dpiScale);
+			Application.current.window.width = Std.int(Main.game.width * dpiScale);
+			Application.current.window.height = Std.int(Main.game.height * dpiScale);
 
-			Application.current.window.x = Std.int((Application.current.window.display.bounds.width - Application.current.window.width) / 2);
-			Application.current.window.y = Std.int((Application.current.window.display.bounds.height - Application.current.window.height) / 2);
+			Application.current.window.x = Std.int((Application.current.window.display.bounds.width - Application.current.window.width) * .5);
+			Application.current.window.y = Std.int((Application.current.window.display.bounds.height - Application.current.window.height) * .5);
 		}
 
 		untyped __cpp__('
@@ -112,5 +102,30 @@ class Native
 			}
 		');
 		#end
+	}
+
+	public static function enableDarkMode():Void
+	{
+		#if (cpp && windows)
+		var success:Bool = false;
+
+		untyped __cpp__('
+			getHandle();
+			if (curHandle != (HWND)0) {
+				const BOOL darkMode = TRUE;
+				if (
+					S_OK == DwmSetWindowAttribute(curHandle, darkModeAttribute, (LPCVOID)&darkMode, (DWORD)sizeof(darkMode)) ||
+					S_OK == DwmSetWindowAttribute(curHandle, darkModeAttributeFallback, (LPCVOID)&darkMode, (DWORD)sizeof(darkMode))
+				) {
+					success = true;
+				}
+
+				UpdateWindow(curHandle);
+			}
+		');
+		#end
+
+		if (success)
+			flixel.FlxG.stage.window.borderless = true; flixel.FlxG.stage.window.borderless = false;
 	}
 }

@@ -248,11 +248,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
     var inst:FlxSound;
 
-    var hasAutoSave:Bool = false;
-
     public var opponentMode:Bool = false;
 
     var backupGpu:Bool;
+
+    var autoSaveIcon:FlxSprite;
 
     override public function new()
     {
@@ -369,15 +369,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             };
         }
 
-        var autosave:FlxSave = new FlxSave();
-        autosave.bind("dataAutosave", CoolUtil.getSavePath());
-        if (autosave.data.autosaveModchart != null)
-        {
-            ModchartFile.autosaveMod = autosave.data.autosaveModchart;
-            trace('FOUND LAST SAVED MODCHART DATA: ${ModchartFile.autosaveMod}');
-            hasAutoSave = true;
-        }
-
         #if ("flixel-addons" >= "3.0.0")
         grid = new FlxBackdrop(FlxGraphic.fromBitmapData(createGrid(gridSize, gridSize, FlxG.width, gridSize)), FlxAxes.X, 0, 0);
         #else 
@@ -423,6 +414,14 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         debugText = new FlxText(0, gridSize*2, 0, "", 16);
         debugText.alignment = FlxTextAlign.LEFT;
         add(debugText);
+
+        autoSaveIcon = new FlxSprite(50).loadGraphic(Paths.image('editors/autosave'));
+		autoSaveIcon.screenCenter(Y);
+		autoSaveIcon.scale.set(0.6, 0.6);
+		autoSaveIcon.antialiasing = ClientPrefs.data.antialiasing;
+		autoSaveIcon.scrollFactor.set();
+		autoSaveIcon.alpha = 0;
+		add(autoSaveIcon);
 
         outputTxt = new FlxText(25, FlxG.height - 50, FlxG.width - 50, '', 20);
 		outputTxt.borderSize = 2;
@@ -476,7 +475,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             "ALT + Left Bracket / Right Bracket - Reset Song Playback Rate",
             #end
             "",
-            "ENTER - Play your Modchart",
             "Space - Stop/Resume song",
             "ESC - Leave",
         ];
@@ -519,6 +517,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     var dirtyUpdateEvents:Bool = false;
     var dirtyUpdateModifiers:Bool = false;
     var totalElapsed:Float = 0;
+
+    final BACKUP_EXT = '.bkp';
+    var autoSaveTime:Float = 0;
+	var autoSaveCap:Float = 0.30; //in minutes
+	var backupLimit:Int = 10;
     override public function update(elapsed:Float)
     {
         if(!fileDialog.completed)
@@ -565,6 +568,81 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                     
         }
         selectedEventBox.visible = eventIsSelected;
+
+        if(autoSaveCap > 0)
+		{
+			autoSaveTime += elapsed / 60.0;
+			//trace(autoSaveTime);
+			//#if debug if(FlxG.keys.justPressed.J) autoSaveTime += 20/60.0; #end
+			if(autoSaveTime >= autoSaveCap #if debug || FlxG.keys.justPressed.NUMPADMULTIPLY #end)
+			{
+				FlxTween.cancelTweensOf(autoSaveIcon);
+				autoSaveTime = 0;
+				autoSaveIcon.alpha = 0;
+				var chartName:String = 'modchart-${PlayState.SONG.song}';
+
+                chartName += DateTools.format(Date.now(), '_%Y-%m-%d_%H-%M-%S');
+
+				var songCopy:ModchartJson; 
+                if (playfieldInstance != null)
+                    songCopy = Reflect.copy(playfieldInstance.playfieldRenderer.modchart.data);
+                else
+                    songCopy = Reflect.copy(playfieldRenderer.modchart.data);
+				var dataToSave:String = haxe.Json.stringify(songCopy);
+				if(!FileSystem.isDirectory('modchartBackups')) FileSystem.createDirectory('modchartBackups');
+				File.saveContent('modchartBackups/$chartName.$BACKUP_EXT', dataToSave);
+
+				if(backupLimit > 0)
+				{
+					var files:Array<String> = FileSystem.readDirectory('modchartBackups/').filter((file:String) -> file.endsWith('.$BACKUP_EXT'));
+					if(files.length > backupLimit)
+					{
+						var incorrect:Array<String> = [];
+						var map:Map<String, Float> = [];
+						for(file in files)
+						{
+							var split:Array<String> = file.split('_');
+							if(split.length > 2) //is properly formatted
+							{
+								try
+								{
+									var timeStr:String = split[split.length-1].replace('-', ':');
+									timeStr = timeStr.substr(0, timeStr.indexOf('.'));
+
+									var fileJoin:String = split[split.length-2] + ' ' + timeStr;
+									var date:Date = Date.fromString(fileJoin);
+									//trace(fileJoin, date.getTime());
+									map.set(file, date.getTime());
+								}
+								catch(e:Exception)
+								{
+									incorrect.push(file);
+								}
+							}
+							else incorrect.push(file);
+						}
+
+						if(incorrect.length > 0) files = files.filter((file:String) -> !incorrect.contains(file));
+						files.sort(function(a:String, b:String) return map.get(a) > map.get(b) ? 1 : -1);
+
+						while(files.length > backupLimit)
+						{
+							var file = files.shift();
+							//trace('removed $file');
+							try
+							{
+								FileSystem.deleteFile('modchartBackups/$file');
+							}
+							catch(e:Exception) {}
+						}
+					}
+				}
+
+				FlxTween.tween(autoSaveIcon, {alpha: 1}, 0.5, {onComplete: function(_)
+					FlxTween.tween(autoSaveIcon, {alpha: 0}, 0.5, {startDelay: 2})
+				});
+			}
+		}
 
         var blockInput:Bool = PsychUIInputText.focusOn != null;
 
@@ -827,6 +905,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 
         if (!blockInput)
         {
+            /* doesn't work with the autosave system overhaul
             if (FlxG.keys.justPressed.ENTER)
             {
                 ClientPrefs.toggleVolumeKeys(true);
@@ -836,11 +915,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 if(opponentVocals != null) opponentVocals.stop();
                 StageData.loadDirectory(PlayState.SONG);
                 
-                if (hasUnsavedChanges)
-                    autosaveModchart(this);
-                
                 LoadingState.loadAndSwitchState(new PlayState());
             }
+            */
 
             if(FlxG.keys.justPressed.F1 || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
             {
@@ -857,8 +934,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                     if(vocals != null) vocals.stop();
                     if(opponentVocals != null) opponentVocals.stop();
 
-                    if (hasUnsavedChanges)
-                        autosaveModchart(this);
                     MusicBeatState.switchState(new states.editors.MasterEditorMenu());
                     FlxG.sound.playMusic(Paths.music('freakyMenu'));
                     FlxG.mouse.visible = false;
@@ -1430,7 +1505,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             dirtyUpdateModifiers = true;
             updateModList();
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         });
 
         var removeModifier:PsychUIButton = new PsychUIButton(saveModifier.x, saveModifier.y+saveModifier.height+20, 'Remove Modifier', function ()
@@ -1443,7 +1517,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             dirtyUpdateModifiers = true;
             updateModList();
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         });
         removeModifier.resize(80, 30);
 
@@ -1869,7 +1942,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventDataInputText.text = highlightedEvent[EVENT_DATA][EVENT_EASEDATA];
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
-                autosaveModchart(this);
             }
         };
         eventValueInputText = new PsychUIInputText(25 + 200, 50, 160, '', 8);
@@ -1883,7 +1955,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventDataInputText.text = highlightedEvent[EVENT_DATA][EVENT_EASEDATA];
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
-                autosaveModchart(this);
             }
         };
 
@@ -1928,7 +1999,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
             dirtyUpdateEvents = true;
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         });
         eventEaseInputText = new PsychUIInputText(25 + 650, 50+100, 160, '', 8);
         eventTimeInputText = new PsychUIInputText(25 + 650, 50, 160, '', 8);
@@ -1942,7 +2012,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
             dirtyUpdateEvents = true;
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         }
         eventTimeInputText.onChange = function(str:String, str2:String)
         {
@@ -1954,7 +2023,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             }
             dirtyUpdateEvents = true;
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         }
 
         easeDropDown = new PsychUIDropDownMenu(25, eventEaseInputText.y+30, easeList, function(id:Int, ease:String)
@@ -1963,7 +2031,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             eventEaseInputText.text = easeStr;
             eventEaseInputText.onChange("", ""); //make sure it updates
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         });
         centerXToObject(eventEaseInputText, easeDropDown);
 
@@ -1975,7 +2042,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             updateSubModList(modName);
             eventModInputText.onChange("", ""); //make sure it updates
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         });
         centerXToObject(eventModInputText, eventModifierDropDown);
         
@@ -1995,7 +2061,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             
             eventModInputText.onChange("", ""); //make sure it updates
             hasUnsavedChanges = true;
-            autosaveModchart(this);
         });
         centerXToObject(eventModInputText, subModDropDown);
 
@@ -2010,7 +2075,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 highlightedEvent = data; 
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
-                autosaveModchart(this);
             }
         };
 
@@ -2026,7 +2090,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventValueInputText.text = getEventModData(false);
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
-                autosaveModchart(this);
             }
         });
         var remove:PsychUIButton = new PsychUIButton(0, selectedEventDataStepper.y+55, 'Remove', function ()
@@ -2041,7 +2104,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                 eventValueInputText.text = getEventModData(false);
                 dirtyUpdateEvents = true;
                 hasUnsavedChanges = true;
-                autosaveModchart(this);
             }
         });
         centerXToObject(selectedEventDataStepper, add);
@@ -2247,23 +2309,88 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 320, '');
         saveExplainText.text = "When saving your modchart,\nput the .json file in a folder\ncalled 'modchartData' located\ninside your songs's data folder\n(\"songName\"/modchartData/)\nLook at the list of what you\nwould call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown";
         saveExplainText.alignment = LEFT;
-        
+
         var getAutosave:PsychUIButton = new PsychUIButton(200, 300, 'Load Autosave', function ()
         {
-            var autosave:FlxSave = new FlxSave();
-            autosave.bind("dataAutosave", CoolUtil.getSavePath());
+            if(!fileDialog.completed) return;
 
-            if (playfieldInstance != null)
-                playfieldInstance.playfieldRenderer.modchart.data = ModchartFile.parseModchartBullshit(autosave.data.autosaveModchart);
-            else
-                playfieldRenderer.modchart.data = ModchartFile.parseModchartBullshit(autosave.data.autosaveModchart);
-            MusicBeatState.resetState();
+			if(!FileSystem.exists('modchartBackups/'))
+			{
+				showOutput('The "modchartBackups" folder does not exist.', true);
+				return;
+			}
+			
+			var fileList:Array<String> = FileSystem.readDirectory('modchartBackups/').filter((file:String) -> file.endsWith('.$BACKUP_EXT'));
+			if(fileList.length < 1)
+			{
+				showOutput('No autosave files found.', true);
+				return;
+			}
+
+			fileList.sort((a:String, b:String) -> (a.toUpperCase() < b.toUpperCase()) ? 1 : -1); //Sort alphabetically descending
+			var maxItems:Int = Std.int(Math.min(5, fileList.length));
+			var radioGrp:PsychUIRadioGroup = new PsychUIRadioGroup(0, 0, fileList, 25, maxItems, false, 240);
+			radioGrp.checked = 0;
+
+			var hei:Float = radioGrp.height + 160;
+			openSubState(new BasePrompt(420, hei, 'Choose an Autosave',
+				function(state:BasePrompt) {
+
+					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					radioGrp.screenCenter(X);
+					radioGrp.y = state.bg.y + 80;
+					radioGrp.cameras = state.cameras;
+					state.add(radioGrp);
+
+					var btn:PsychUIButton = new PsychUIButton(0, radioGrp.y + radioGrp.height + 20, 'Load', function()
+					{
+						var autosaveName:String = fileList[radioGrp.checked];
+						var path:String = 'modchartBackups/$autosaveName';
+						state.close();
+
+						if(FileSystem.exists(path))
+						{
+							try
+							{
+								var loadedChart:ModchartJson = ModchartFile.parseModchartBullshit(File.getContent(path));
+								if(loadedChart == null)
+								{
+									showOutput('Error: File loaded is not a valid Modchart autosave.', true);
+									return;
+								}
+	
+								var func:Void->Void = function()
+								{
+									if (playfieldInstance != null)
+                                        playfieldInstance.playfieldRenderer.modchart.data = loadedChart;
+                                    else
+                                        playfieldRenderer.modchart.data = loadedChart;
+
+                                    MusicBeatState.resetState();
+                                    ModchartFile.autosaveMod = File.getContent(path);
+								}
+								
+								openSubState(new Prompt('Warning: Any unsaved progress\nwill be lost.', func));
+							}
+							catch(e:Exception)
+							{
+								showOutput('Error on loading autosave: ${e.message}', true);
+							}
+						}
+						else showOutput('Error! Autosave file selected could not be found, huh??', true);
+					});
+					btn.cameras = state.cameras;
+					btn.screenCenter(X);
+					state.add(btn);
+				}
+			));
         });
         getAutosave.normalStyle.bgColor = 0xFF12172C;
 		getAutosave.normalStyle.textColor = FlxColor.WHITE;
-
-        if(hasAutoSave)
-            tab_group.add(getAutosave);
+        tab_group.add(getAutosave);
 
         var reloadSongJson:PsychUIButton = new PsychUIButton(20, 350, "Open Chart", function()
 		{
@@ -2361,24 +2488,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         _file = null;
     }
 
-	function autosaveModchart(?instance:MusicBeatState = null):Void
-    {
-        if (instance == null)
-            instance = PlayState.instance;
-
-        trace("saving modchart...");
-
-        var autosave:FlxSave = new FlxSave();
-        autosave.bind("dataAutosave", CoolUtil.getSavePath());
-        autosave.data.autosaveModchart = haxe.Json.stringify({
-			instance.playfieldRenderer.modchart.data;
-		});
-
-        autosave.flush();
-        ModchartFile.autosaveMod = autosave.data.autosaveModchart;
-    }
-
-    /**
+	/**
      * Called when the save file dialog is cancelled.
      */
     function onSaveCancel(_):Void
@@ -2421,7 +2531,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                     highlightedEvent = data;
                     hasUnsavedChanges = true;
                     dirtyUpdateEvents = true;
-                    autosaveModchart(this);
                 }
 			}
             else if (sender == repeatCountStepper)
@@ -2433,7 +2542,6 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
                     highlightedEvent = data;
                     hasUnsavedChanges = true;
                     dirtyUpdateEvents = true;
-                    autosaveModchart(this);
                 }
 			}
             else if (sender == stackedEventStepper)

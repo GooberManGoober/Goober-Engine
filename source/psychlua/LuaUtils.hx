@@ -4,6 +4,8 @@ import backend.WeekData;
 import objects.Character;
 import backend.StageData;
 
+import flixel.effects.particles.FlxEmitter;
+
 import openfl.display.BlendMode;
 import Type.ValueType;
 
@@ -433,6 +435,18 @@ class LuaUtils
 		return FlxTweenType.ONESHOT;
 	}
 
+	public static function getFlxEmitterModeByString(type:String = ''):FlxEmitterMode
+	{
+		switch (type.toLowerCase())
+		{
+			case 'circle':
+				return FlxEmitterMode.CIRCLE;
+			case 'square':
+				return FlxEmitterMode.SQUARE;
+		}
+		return FlxEmitterMode.SQUARE;
+	}
+
 	public static function getTweenEaseByString(?ease:String = '') {
 		switch(ease.toLowerCase().trim()) {
 			case 'backin': return FlxEase.backIn;
@@ -473,6 +487,18 @@ class LuaUtils
 			case 'smootherstepout': return FlxEase.smootherStepOut;
 		}
 		return FlxEase.linear;
+	}
+
+	public static function setBorderStyleFromString(str:String = ''):FlxTextBorderStyle
+	{
+		return switch (str)
+		{
+			case "none": FlxTextBorderStyle.NONE;
+			case "outline": FlxTextBorderStyle.OUTLINE;
+			case "outline_fast": FlxTextBorderStyle.OUTLINE_FAST;
+			case "shadow": FlxTextBorderStyle.SHADOW;
+			case _: FlxTextBorderStyle.OUTLINE;
+		}
 	}
 
 	public static function blendModeFromString(blend:String):BlendMode {
