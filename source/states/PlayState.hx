@@ -41,7 +41,7 @@ import shaders.ErrorHandledShader;
 
 import objects.VideoSprite;
 import objects.Note.EventNote;
-import objects.SustainSplash;
+import objects.StrumNote.SustainSplash;
 import objects.*;
 import states.stages.*;
 import states.stages.objects.*;

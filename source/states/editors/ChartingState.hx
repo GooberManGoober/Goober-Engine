@@ -95,7 +95,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	public static var GRID_COLUMNS_PER_PLAYER = 4;
 	public static var GRID_PLAYERS = 2;
 	public static var GRID_SIZE = 40;
-	final BACKUP_EXT = '.bkp';
+	final BACKUP_EXT = '.fnfc';
 
 	public var quantizations:Array<Int> = [
 		4,
@@ -747,12 +747,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				Reflect.setField(songCopy, '__original_path', Song.chartPath);
 				var dataToSave:String = haxe.Json.stringify(songCopy);
 				//trace(chartName, dataToSave);
-				if(!FileSystem.isDirectory('backups')) FileSystem.createDirectory('backups');
-				File.saveContent('backups/$chartName.$BACKUP_EXT', dataToSave);
+				if(!FileSystem.isDirectory('backups/charts')) FileSystem.createDirectory('backups/charts');
+				File.saveContent('backups/charts/$chartName.$BACKUP_EXT', dataToSave);
 
 				if(backupLimit > 0)
 				{
-					var files:Array<String> = FileSystem.readDirectory('backups/').filter((file:String) -> file.endsWith('.$BACKUP_EXT'));
+					var files:Array<String> = FileSystem.readDirectory('backups/charts/').filter((file:String) -> file.endsWith('.$BACKUP_EXT'));
 					if(files.length > backupLimit)
 					{
 						var incorrect:Array<String> = [];
@@ -789,7 +789,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							//trace('removed $file');
 							try
 							{
-								FileSystem.deleteFile('backups/$file');
+								FileSystem.deleteFile('backups/charts/$file');
 							}
 							catch(e:Exception) {}
 						}
@@ -1391,6 +1391,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							else
 								events.remove(cast (closest, EventMetaNote));
 
+							FlxG.sound.play(Paths.sound('editorSounds/noteErase'));
+
 							selectedNotes.remove(closest);
 							curRenderedNotes.remove(closest, true);
 							addUndoAction(DELETE_NOTE, !closest.isEvent ? {notes: [closest]} : {events: [closest]});
@@ -1405,6 +1407,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						{
 							trace('Added note at time: $strumTime');
 							var didAdd:Bool = false;
+							FlxG.sound.play(Paths.sound('editorSounds/noteLay'));
 
 							var noteSetupData:Array<Dynamic> = [strumTime, noteData, 0];
 							var typeSelected:String = noteTypes[noteTypeDropDown.selectedIndex].trim();
@@ -1434,6 +1437,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						{
 							trace('Added event at time: $strumTime');
 							var didAdd:Bool = false;
+							FlxG.sound.play(Paths.sound('editorSounds/noteLay'));
 
 							var eventAdded:EventMetaNote = createEvent([strumTime, [[eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text]]]);
 							for (num in sectionFirstEventID...events.length)
@@ -1701,7 +1705,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		selectionBox.updateHitbox();
 	}
 
-	function showOutput(message:String, isError:Bool = false)
+	function showOutput(message:String, isError:Bool = false, ?playSound:Bool = true)
 	{
 		trace(message);
 		outputTxt.text = message;
@@ -1709,12 +1713,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		outputAlpha = 4;
 		if(isError)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
+			if (playSound) FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			outputTxt.color = FlxColor.RED;
 		}
 		else
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			if (playSound) FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			outputTxt.color = FlxColor.WHITE;
 		}
 	}
@@ -3450,13 +3454,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			upperBox.isMinimized = true;
 			upperBox.bg.visible = false;
 
-			if(!FileSystem.exists('backups/'))
+			if(!FileSystem.exists('backups/charts/'))
 			{
-				showOutput('The "backups" folder does not exist.', true);
+				showOutput('The "backups/charts" folder does not exist.', true);
 				return;
 			}
 			
-			var fileList:Array<String> = FileSystem.readDirectory('backups/').filter((file:String) -> file.endsWith('.$BACKUP_EXT'));
+			var fileList:Array<String> = FileSystem.readDirectory('backups/charts/').filter((file:String) -> file.endsWith('.$BACKUP_EXT'));
 			if(fileList.length < 1)
 			{
 				showOutput('No autosave files found.', true);
@@ -3486,7 +3490,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					var btn:PsychUIButton = new PsychUIButton(0, radioGrp.y + radioGrp.height + 20, 'Load', function()
 					{
 						var autosaveName:String = fileList[radioGrp.checked];
-						var path:String = 'backups/$autosaveName';
+						var path:String = 'backups/charts/$autosaveName';
 						state.close();
 
 						if(FileSystem.exists(path))
@@ -5070,8 +5074,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(lockedEvents) selectedNotes = selectedNotes.filter((note:MetaNote) -> !note.isEvent);
 				onSelectNote();
 		}
-		showOutput('Undo #${currentUndo+1}: ${action.action}');
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		showOutput('Undo #${currentUndo+1}: ${action.action}', false, false);
+		FlxG.sound.play(Paths.sound('editorSounds/undo'));
 		currentUndo++;
 	}
 	function redo()
@@ -5103,8 +5107,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(lockedEvents) selectedNotes = selectedNotes.filter((note:MetaNote) -> !note.isEvent);
 				onSelectNote();
 		}
-		showOutput('Redo #${currentUndo+1}: ${action.action}');
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		showOutput('Redo #${currentUndo+1}: ${action.action}', false, false);
+		FlxG.sound.play(Paths.sound('editorSounds/exitWindow'));
 	}
 
 	function actionPushNotes(dataNotes:Array<MetaNote>, dataEvents:Array<EventMetaNote>)

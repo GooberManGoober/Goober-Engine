@@ -6,7 +6,7 @@ import backend.Rating;
 import objects.Note;
 import objects.NoteSplash;
 import objects.StrumNote;
-import objects.SustainSplash;
+import objects.StrumNote.SustainSplash;
 
 import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
