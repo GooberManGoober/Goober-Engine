@@ -57,6 +57,15 @@ import states.editors.content.Prompt;
 
 using StringTools;
 
+enum abstract ThemeDataFromChartEditorCuzImLazy(String)
+{
+	var LIGHT = 'light';
+	var DARK = 'dark';
+	var DEFAULT = 'default';
+	var VSLICE = 'vslice';
+	var CUSTOM = 'custom';
+}
+
 class ModchartEditorEvent extends FlxSprite
 {
     public var data:Array<Dynamic>;
@@ -217,6 +226,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
     var generatedMusic:Bool = false;
 
     var bg:FlxSprite;
+    var theme:ThemeDataFromChartEditorCuzImLazy = DEFAULT;
     var modchartEditorSave:FlxSave;
 
     var fileDialog:FileDialogHandler = new FileDialogHandler();
@@ -326,7 +336,11 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         if(modchartEditorSave.data.autoSave != null) autoSaveCap = modchartEditorSave.data.autoSave;
 		if(modchartEditorSave.data.backupLimit != null) backupLimit = modchartEditorSave.data.backupLimit;
 
-        #if DISCORD_ALLOWED
+        if(modchartEditorSave.data.customBgColor == null) modchartEditorSave.data.customBgColor = '222222';
+		if(modchartEditorSave.data.customGridColors == null || modchartEditorSave.data.customGridColors.length < 2)
+			modchartEditorSave.data.customGridColors = ['808080', 'FFFFFF'];
+		
+		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Modchart Editor", StringTools.replace(PlayState.SONG.song, '-', ' '));
 		#end
@@ -375,8 +389,10 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             };
         }
 
-        grid = new FlxBackdrop(FlxGraphic.fromBitmapData(createGrid(gridSize, gridSize, FlxG.width, gridSize)), FlxAxes.X, 0, 0);
+        grid = new FlxBackdrop(FlxGraphic.fromBitmapData(createGrid(gridSize, gridSize, FlxG.width, gridSize, CoolUtil.colorFromString(modchartEditorSave.data.customGridColors[0]), CoolUtil.colorFromString(modchartEditorSave.data.customGridColors[1]))), FlxAxes.X, 0, 0);
         add(grid);
+        
+        changeTheme(modchartEditorSave.data.theme != null ? modchartEditorSave.data.theme : DEFAULT, false);
         
         for (i in 0...12)
         {
@@ -440,6 +456,40 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         setupEventUI();
         setupPlayfieldUI();
     }
+
+    var gridColors:Array<FlxColor>;
+	function changeTheme(changeTo:ThemeDataFromChartEditorCuzImLazy, ?doSave:Bool = true)
+	{
+		var oldTheme:ThemeDataFromChartEditorCuzImLazy = theme;
+		theme = changeTo;
+		modchartEditorSave.data.theme = changeTo;
+		if(doSave) modchartEditorSave.flush();
+
+		switch(theme)
+		{
+			case LIGHT:
+				bg.color = 0xFFA0A0A0;
+				gridColors = [0xFFBFBFBF, 0xFFDFDFDF];
+			case DARK:
+				bg.color = 0xFF222222;
+				gridColors = [0xFF2F2F2F, 0xFF3F3F3F];
+			case VSLICE:
+				bg.color = 0xFF673AB7;
+				gridColors = [0xFFAFAFAF, 0xFFD0D0D0];
+			case CUSTOM:
+				bg.color = CoolUtil.colorFromString(modchartEditorSave.data.customBgColor);
+				gridColors = [CoolUtil.colorFromString(modchartEditorSave.data.customGridColors[0]), CoolUtil.colorFromString(modchartEditorSave.data.customGridColors[1])];
+			default:
+				bg.color = 0xFF222222;
+				gridColors = [0xFF808080, 0xFFFFFFFF];
+		}
+
+        if (grid != null)
+            remove(grid);
+
+        grid = new FlxBackdrop(FlxGraphic.fromBitmapData(createGrid(gridSize, gridSize, FlxG.width, gridSize, gridColors[0], gridColors[1])), FlxAxes.X, 0, 0);
+        insert(members.indexOf(eventSprites), grid);
+	}
 
     var outputTxt:FlxText;
     var outputAlpha:Float = 0;
@@ -1347,11 +1397,9 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		return null;
 	}
 
-    public static function createGrid(CellWidth:Int, CellHeight:Int, Width:Int, Height:Int):BitmapData
+    public static function createGrid(CellWidth:Int, CellHeight:Int, Width:Int, Height:Int, Color1:FlxColor = FlxColor.GRAY, Color2:FlxColor = FlxColor.WHITE):BitmapData
     {
         // How many cells can we fit into the width/height? (round it UP if not even, then trim back)
-        var Color1 = FlxColor.GRAY; //quant colors!!!
-        var Color2 = FlxColor.WHITE;
         var rowColor:Int = Color1;
         var lastColor:Int = Color1;
         var grid:BitmapData = new BitmapData(Width, Height, true);
@@ -2268,6 +2316,111 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 			saveModchartJson(this);
 		});
 		tab_group.add(saveJson);
+
+        var btn:PsychUIButton = new PsychUIButton(saveJson.x, saveJson.y + 50, 'Change Theme', function()
+		{
+			if(!fileDialog.completed) return;
+
+			openSubState(new BasePrompt(500, 260, 'Modchart Editor Theme',
+				function(state:BasePrompt)
+				{
+					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					var btnY = 320;
+					var btn:PsychUIButton = new PsychUIButton(0, btnY, 'Light', changeTheme.bind(LIGHT));
+					btn.screenCenter(X);
+					btn.x -= 180;
+					btn.cameras = state.cameras;
+					state.add(btn);
+			
+					var btn:PsychUIButton = new PsychUIButton(0, btnY, 'Dark', changeTheme.bind(DARK));
+					btn.screenCenter(X);
+					btn.x -= 60;
+					btn.cameras = state.cameras;
+					state.add(btn);
+					
+					var btn:PsychUIButton = new PsychUIButton(0, btnY, 'Default', changeTheme.bind(DEFAULT));
+					btn.screenCenter(X);
+					btn.cameras = state.cameras;
+					btn.x += 60;
+					state.add(btn);
+			
+					var btn:PsychUIButton = new PsychUIButton(0, btnY, 'V-Slice', changeTheme.bind(VSLICE));
+					btn.screenCenter(X);
+					btn.x += 180;
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					btnY += 60;
+					var btn:PsychUIButton = new PsychUIButton(0, btnY, 'Custom', changeTheme.bind(CUSTOM));
+					btn.screenCenter(X);
+					btn.x -= 180;
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					var customBgC:String = '303030';
+					if(modchartEditorSave.data.customBgColor != null)
+						customBgC = modchartEditorSave.data.customBgColor;
+
+					var input:PsychUIInputText = new PsychUIInputText(0, btnY, 80, customBgC, 10);
+					input.maxLength = 6;
+					input.filterMode = ONLY_HEXADECIMAL;
+					input.forceCase = UPPER_CASE;
+					input.screenCenter(X);
+					input.x -= 60;
+					input.cameras = state.cameras;
+					input.onChange = function(old:String, cur:String)
+					{
+						modchartEditorSave.data.customBgColor = cur;
+						changeTheme(CUSTOM);
+					}
+
+					var txt:FlxText = new FlxText(input.x, input.y - 15, 120, 'BG Color:');
+					txt.cameras = state.cameras;
+					state.add(txt);
+					state.add(input);
+
+					var customGridC:Array<String> = ['DFDFDF', 'BFBFBF'];
+					if(modchartEditorSave.data.customGridColors != null && modchartEditorSave.data.customGridColors.length > 1)
+						customGridC = modchartEditorSave.data.customGridColors;
+
+					var input:PsychUIInputText = new PsychUIInputText(0, btnY, 80, customGridC[0], 10);
+					input.maxLength = 6;
+					input.filterMode = ONLY_HEXADECIMAL;
+					input.forceCase = UPPER_CASE;
+					input.screenCenter(X);
+					input.x += 60;
+					input.cameras = state.cameras;
+					input.onChange = function(old:String, cur:String)
+					{
+						modchartEditorSave.data.customGridColors[0] = cur;
+						changeTheme(CUSTOM);
+					}
+
+					var txt:FlxText = new FlxText(input.x, input.y - 15, 120, 'Grid Colors:');
+					txt.cameras = state.cameras;
+					state.add(txt);
+					state.add(input);
+
+					var input:PsychUIInputText = new PsychUIInputText(0, btnY + 30, 80, customGridC[1], 10);
+					input.maxLength = 6;
+					input.filterMode = ONLY_HEXADECIMAL;
+					input.forceCase = UPPER_CASE;
+					input.screenCenter(X);
+					input.x += 60;
+					input.cameras = state.cameras;
+					input.onChange = function(old:String, cur:String)
+					{
+						modchartEditorSave.data.customGridColors[1] = cur;
+						changeTheme(CUSTOM);
+					}
+					state.add(input);
+				}
+			));
+		});
+		tab_group.add(btn);
         
 		saveExplainText = new FlxText(resetSpeed.x + 100, resetSpeed.y, 320, '');
         saveExplainText.text = "When saving your modchart,\nput the .json file in a folder\ncalled 'modchartData' located\ninside your songs's data folder\n(\"songName\"/modchartData/)\nLook at the list of what you\nwould call your modcharts\n\nUpscroll: modchart-upscroll\nDownscroll: modchart-downscroll\nMiddlescroll + Upscroll: modchart-middleUp\nMiddlescroll + Downscroll: modchart-middleDown";
