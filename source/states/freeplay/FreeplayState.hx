@@ -3,7 +3,6 @@ package states.freeplay;
 import lime.app.Future;
 import haxe.Exception;
 import openfl.media.Sound;
-import funkin.util.flixel.sound.FlxPartialSound;
 import flixel.graphics.FlxGraphic;
 import backend.funkin.Scoring;
 import backend.funkin.AtlasText;
