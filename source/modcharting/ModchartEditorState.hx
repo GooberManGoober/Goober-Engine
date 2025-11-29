@@ -2248,9 +2248,14 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         tab_group.add(makeLabel(playfieldCountStepper, 0, -15, "Playfield Count"));
         tab_group.add(makeLabel(playfieldCountStepper, 55, 25, "Don't add too many or the game will lag!!!"));
     }
+
     var sliderRate:PsychUISlider;
     var songSlider:PsychUISlider;
     var saveExplainText:FlxText;
+
+    var instVolumeStepper:PsychUINumericStepper;
+    var playerVolumeStepper:PsychUINumericStepper;
+    var opponentVolumeStepper:PsychUINumericStepper;
 
     function setupEditorUI()
     {
@@ -2273,39 +2278,23 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
 		}, 0, 0, inst.length, 250);
         songSlider.label = 'Song Time';
 
-        var check_mute_inst = new PsychUICheckBox(10, 20, "Mute Instrumental (in editor)", 100);
-		check_mute_inst.checked = false;
-		check_mute_inst.onClick = function()
+        instVolumeStepper = new PsychUINumericStepper(10, 20, 0.1, 1, 0, 1, 1, true);
+		instVolumeStepper.onValueChange = function()
 		{
-			var vol:Float = 1;
-
-			if (check_mute_inst.checked)
-				vol = 0;
-
-			inst.volume = vol;
-		};
-        var check_mute_vocals = new PsychUICheckBox(check_mute_inst.x + 120, check_mute_inst.y, "Mute Main Vocals (in editor)", 100);
-		check_mute_vocals.checked = false;
-		check_mute_vocals.onClick = function()
-		{
-			var vol:Float = 1;
-			if (check_mute_vocals.checked)
-				vol = 0;
-
-			if (vocals != null) vocals.volume = vol;
-		};
-        
-        var check_mute_opponent_vocals = new PsychUICheckBox(check_mute_vocals.x + 120, check_mute_inst.y, "Mute Opp. Vocals (in editor)", 100);
-		check_mute_opponent_vocals.checked = false;
-		check_mute_opponent_vocals.onClick = function()
-		{
-			var vol:Float = 1;
-			if (check_mute_opponent_vocals.checked)
-				vol = 0;
-
-			if (opponentVocals != null) opponentVocals.volume = vol;
+			inst.volume = instVolumeStepper.value;
 		};
 
+		playerVolumeStepper = new PsychUINumericStepper(instVolumeStepper.x + 120, instVolumeStepper.y, 0.1, 1, 0, 1, 1, true);
+		playerVolumeStepper.onValueChange = function()
+		{
+			if (vocals != null) vocals.volume = playerVolumeStepper.value;
+		};
+
+		opponentVolumeStepper = new PsychUINumericStepper(playerVolumeStepper.x + 120, playerVolumeStepper.y, 0.1, 1, 0, 1, 1, true);
+		opponentVolumeStepper.onValueChange = function()
+		{
+			if (opponentVocals != null) opponentVocals.volume = opponentVolumeStepper.value;
+		};
 
         var resetSpeed:PsychUIButton = new PsychUIButton(sliderRate.x+300, sliderRate.y, 'Reset', function ()
         {
@@ -2600,9 +2589,12 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
         tab_group.add(songSlider);
         tab_group.add(saveExplainText);
 
-        tab_group.add(check_mute_inst);
-        tab_group.add(check_mute_vocals);
-        tab_group.add(check_mute_opponent_vocals);
+        tab_group.add(new FlxText(instVolumeStepper.x, instVolumeStepper.y - 15, 100, 'Inst. Volume:'));
+		tab_group.add(new FlxText(playerVolumeStepper.x, playerVolumeStepper.y - 15, 100, 'Main Vocals:'));
+		tab_group.add(new FlxText(opponentVolumeStepper.x, opponentVolumeStepper.y - 15, 100, 'Opp. Vocals:'));
+		tab_group.add(instVolumeStepper);
+        tab_group.add(playerVolumeStepper);
+        tab_group.add(opponentVolumeStepper);
             
         tab_group.add(makeLabel(saveExplainText, 0, -15, "TIP FOR SAVING MODCHARTS:"));
     }
@@ -2745,11 +2737,6 @@ class ModchartEditorHelpSubState extends MusicBeatSubstate
             "Click on an arrow to select it",
             "BACKSPACE - Delete an Event",
             "F2 - Show/Hide The Notes",
-            #if FLX_PITCH
-            "",
-            "Left Bracket / Right Bracket - Change Song Playback Rate",
-            "ALT + Left Bracket / Right Bracket - Reset Song Playback Rate",
-            #end
             "",
             "ENTER - Play your Modchart",
             "Space - Stop/Resume song",

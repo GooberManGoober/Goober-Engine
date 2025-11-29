@@ -12,6 +12,7 @@ import objects.MenuCharacter;
 
 import options.GameplayChangersSubstate;
 import substates.ResetScoreSubState;
+import substates.StickerSubState;
 
 #if LUA_ALLOWED
 import psychlua.*;
@@ -61,10 +62,31 @@ class StoryMenuState extends MusicBeatState
 	#if LUA_ALLOWED public var luaArray:Array<FunkinLua> = []; #end
 	#if HSCRIPT_ALLOWED public var hscriptArray:Array<HScript> = []; #end
 
+	var stickerSubState:StickerSubState;
+	public function new(?stickers:StickerSubState = null)
+	{
+		super();
+	  
+		if (stickers != null)
+		{
+			stickerSubState = stickers;
+		}
+	}
+
 	override function create()
 	{
-		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
+
+		if (stickerSubState != null)
+		{
+			//this.persistentUpdate = true;
+			//this.persistentDraw = true;
+	
+			openSubState(stickerSubState);
+			stickerSubState.degenStickers();
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		}
+		else Paths.clearStoredMemory();
 
 		persistentUpdate = persistentDraw = true;
 		PlayState.isStoryMode = true;
@@ -408,7 +430,6 @@ class StoryMenuState extends MusicBeatState
 			{
 				#if !SHOW_LOADING_SCREEN FlxG.sound.music.stop(); #end
 				LoadingState.loadAndSwitchState(new PlayState(), true);
-				FreeplayState.destroyFreeplayVocals();
 			});
 			
 			#if (MODS_ALLOWED && DISCORD_ALLOWED)

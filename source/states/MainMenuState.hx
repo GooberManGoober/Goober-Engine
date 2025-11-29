@@ -47,7 +47,12 @@ class MainMenuState extends MusicBeatState
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
+	
+	public function new(isDisplayingRank:Bool = false) {
 
+		//TODO
+		super();
+	}
 	override function create()
 	{
 		#if MODS_ALLOWED
@@ -193,6 +198,8 @@ class MainMenuState extends MusicBeatState
 			if (controls.ACCEPT)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));
+				FlxTransitionableState.skipNextTransIn = false;
+				FlxTransitionableState.skipNextTransOut = false;
 				if (optionShit[curSelected] == 'merch')
 				{
 					CoolUtil.browserLoad('https://needlejuicerecords.com/en-ca/pages/friday-night-funkin');
@@ -210,8 +217,25 @@ class MainMenuState extends MusicBeatState
 						{
 							case 'story_mode':
 								MusicBeatState.switchState(new StoryMenuState());
-							case 'freeplay':
-								MusicBeatState.switchState(new FreeplayState());
+							case 'freeplay':{
+								persistentDraw = true;
+								persistentUpdate = false;
+								// Freeplay has its own custom transition
+								FlxTransitionableState.skipNextTransIn = true;
+								FlxTransitionableState.skipNextTransOut = true;
+
+								openSubState(new states.freeplay.FreeplayState());
+								subStateOpened.addOnce(state -> {
+									for (i in 0...menuItems.members.length) {
+										menuItems.members[i].revive();
+										menuItems.members[i].alpha = 1;
+										menuItems.members[i].visible = true;
+										selectedSomethin = false;
+									}
+									changeItem(0);
+								});
+								
+							}
 
 							#if MODS_ALLOWED
 							case 'mods':
@@ -254,6 +278,8 @@ class MainMenuState extends MusicBeatState
 			#if desktop
 			if (controls.justPressed('debug_1'))
 			{
+				FlxTransitionableState.skipNextTransIn = false;
+				FlxTransitionableState.skipNextTransOut = false;
 				selectedSomethin = true;
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}

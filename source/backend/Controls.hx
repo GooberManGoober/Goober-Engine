@@ -74,11 +74,17 @@ class Controls
 
 	// Pressed buttons (others)
 	public var ACCEPT(get, never):Bool;
+	public var FAVORITE(get, never):Bool;
+	public var BAR_LEFT(get, never):Bool;
+	public var BAR_RIGHT(get, never):Bool;
 	public var BACK(get, never):Bool;
 	public var PAUSE(get, never):Bool;
 	public var SCREENSHOT(get, never):Bool;
 	public var RESET(get, never):Bool;
 	private function get_ACCEPT() return justPressed('accept');
+	private function get_FAVORITE() return justPressed('favorite');
+	private function get_BAR_LEFT() return justPressed('bar_left');
+	private function get_BAR_RIGHT() return justPressed('bar_right');
 	private function get_BACK() return justPressed('back');
 	private function get_PAUSE() return justPressed('pause');
 	private function get_SCREENSHOT() return justPressed('screenshot');
