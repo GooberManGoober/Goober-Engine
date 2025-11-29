@@ -24,8 +24,8 @@ class PixelatedIcon extends FlxFilteredSprite
     //trace(char);
     if(char.startsWith("icon-")) char = char.replace("icon-","");
     var type = IconType.LEGACY;
-    if(Paths.fileExists('images/freeplay/icons/${char}pixel.png' ,TEXT)){
-      if(Paths.fileExists('images/freeplay/icons/${char}pixel.xml' ,TEXT)) type = ANIMATED;
+    if(Paths.fileExists('images/freeplay/icons/${char}pixel.png', TEXT)){
+      if(Paths.fileExists('images/freeplay/icons/${char}pixel.xml', TEXT)) type = ANIMATED;
       else type = PIXEL;
     }
     switch (type){

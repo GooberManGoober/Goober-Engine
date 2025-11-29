@@ -1,10 +1,7 @@
 package states.editors;
 
 import backend.WeekData;
-import states.results.ResultState;
-
 import objects.Character;
-
 import states.MainMenuState;
 
 class MasterEditorMenu extends MusicBeatState
@@ -14,12 +11,11 @@ class MasterEditorMenu extends MusicBeatState
 		'Modchart Editor',
 		'Character Editor',
 		'Stage Editor',
-		'Week Editor',
+		'Week Editor', 
 		'Menu Character Editor',
 		'Dialogue Editor',
 		'Dialogue Portrait Editor',
-		'Note Splash Editor',
-		'Preview results state'
+		'Note Splash Editor'
 	];
 	private var grpTexts:FlxTypedGroup<Alphabet>;
 	private var directories:Array<String> = [null];
@@ -125,35 +121,6 @@ class MasterEditorMenu extends MusicBeatState
 					LoadingState.loadAndSwitchState(new DialogueCharacterEditorState(), false);
 				case 'Note Splash Editor':
 					MusicBeatState.switchState(new NoteSplashEditorState());
-				case 'Preview results state':{
-					PlayState.storyDifficultyColor = 0xFFFF0000;
-					Difficulty.resetList();
-					PlayState.storyDifficulty = 2;
-					MusicBeatState.switchState(new ResultState(
-					{
-						storyMode: true,
-						prevScoreRank: EXCELLENT,
-						title: "Cum Song Erect by Kawai Sprite",
-						songId: "cum",
-						difficultyId: "nightmare",
-						isNewHighscore: true,
-						scoreData:
-						{
-
-							score: 1_234_567,
-							accPoints: ((200 + 0 - 0) / 200) * 200,
-							sick: 200,
-							good: 0,
-							bad: 0,
-							shit: 0,
-							missed: 0,
-							combo: 200,
-							maxCombo: 200,
-							totalNotesHit: 200,
-							totalNotes: 200 // 0,
-						},
-					}));
-				}
 			}
 			FlxG.sound.music.volume = 0;
 		}
