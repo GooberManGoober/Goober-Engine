@@ -79,6 +79,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Trigger BG Ghouls', "Should be used only in \"schoolEvil\" Stage!"],
 		['Focus Camera', "Changes the camera target\n\nValue 1: Target (Player, Opponent, Girlfriend, Position)\nValue 2: X, Y, Time, Ease, Tweening Toggle\n\nX, and Y Values will act an offset if the target isn't 'Position'\nTime & Ease will be ignored if the Tweening Bool is false."],
 		['Zoom Camera', "Changes the camera zoom\n\nValue 1: New Zoom Value\nValue 2: Time, Ease."],
+		['Set Camera Bop', "Value 1: Rate of bops per beat\nValue 2: Intensity of bops (How much zoom does it do)"],
 		['Subtitle Event', "Shows subtitles for when a character speaks\n\nValue 1: What the text should say\nValue 2: R, G, B, font name, text size, text width."],
 		['Play Animation', "Plays an animation on a Character,\nonce the animation is completed,\nthe animation changes to Idle\n\nValue 1: Animation to play.\nValue 2: Character (Dad, BF, GF)"],
 		['Camera Follow Pos', "Value 1: X\nValue 2: Y\n\nThe camera won't change the follow point\nafter using this, for getting it back\nto normal, leave both values blank."],

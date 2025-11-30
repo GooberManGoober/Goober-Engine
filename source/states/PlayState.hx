@@ -186,6 +186,7 @@ class PlayState extends MusicBeatState
 
 	public var camZooming:Bool = false;
 	public var camZoomingMult:Float = 1;
+	public var zoomRate:Int = 4;
 	public var camZoomingDecay:Float = 1;
 	private var curSong:String = "";
 
@@ -2205,6 +2206,15 @@ class PlayState extends MusicBeatState
 				var triggerInfo:Array<String> = value2.split(',');
 
 				tweenCameraZoom(flValue1, Std.parseFloat(triggerInfo[0]), triggerInfo[1].trim());
+
+			case 'Set Camera Bop':
+				if(ClientPrefs.data.camZooms) {
+					if(flValue1 == null) flValue1 = 4;
+					if(flValue2 == null) flValue2 = 1;
+
+					zoomRate = Std.parseInt(value1);
+					camZoomingMult = flValue2;
+				}
 			
 			case "Subtitle Event":
 				var triggerInfo:Array<String> = value2.split(',');
@@ -2512,10 +2522,12 @@ class PlayState extends MusicBeatState
 		if (camTwn[0] != null)
 			camTwn[0].cancel();
 
-		camTwn[0] = FlxTween.tween(FlxG.camera, {zoom: zoom}, Conductor.stepCrochet * duration / 1000, {ease: LuaUtils.getTweenEaseByString(ease), 
+		var stageData:StageFile = StageData.getStageFile(curStage);
+
+		camTwn[0] = FlxTween.tween(FlxG.camera, {zoom: stageData.defaultZoom * zoom}, Conductor.stepCrochet * duration / 1000, {ease: LuaUtils.getTweenEaseByString(ease), 
 			onComplete: function(twn:FlxTween)
 			{
-				defaultCamZoom = zoom;
+				defaultCamZoom = FlxG.camera.zoom;
 				camTwn[0] = null;
 			}
 		});
@@ -3577,7 +3589,6 @@ class PlayState extends MusicBeatState
 	}
 
 	var lastBeatHit:Int = -1;
-
 	override function beatHit()
 	{
 		if(lastBeatHit >= curBeat) {
@@ -3595,6 +3606,12 @@ class PlayState extends MusicBeatState
 		iconP2.updateHitbox();
 
 		characterBopper(curBeat);
+
+		if ((curBeat % zoomRate == 0) && camZooming && ClientPrefs.data.camZooms) 
+		{
+			if (camTwn[0] == null) FlxG.camera.zoom += 0.015 * camZoomingMult;
+			camHUD.zoom += 0.03 * camZoomingMult;
+		}
 
 		super.beatHit();
 		lastBeatHit = curBeat;
@@ -3626,12 +3643,6 @@ class PlayState extends MusicBeatState
 		{
 			if (generatedMusic && !endingSong && !isCameraOnForcedPos)
 				moveCameraSection();
-
-			if (camZooming && FlxG.camera.zoom < 1.35 && ClientPrefs.data.camZooms)
-			{
-				FlxG.camera.zoom += 0.015 * camZoomingMult;
-				camHUD.zoom += 0.03 * camZoomingMult;
-			}
 
 			if (SONG.notes[curSection].changeBPM)
 			{
