@@ -7,7 +7,7 @@ import backend.Song;
 import flixel.util.FlxStringUtil;
 
 import states.StoryMenuState;
-import substates.StickerSubState;
+import states.FreeplayState;
 import options.OptionsState;
 
 import modcharting.ModchartFile;
@@ -337,17 +337,12 @@ class PauseSubState extends MusicBeatSubstate
 
 					PlayState.instance.canResync = false;
 					Mods.loadTopMod();
-					if (PlayState.isStoryMode)
-					{
-						PlayState.storyPlaylist = [];
-						openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
-					}
-					else
-					{
-						openSubState(new StickerSubState(null, (sticker) -> states.freeplay.FreeplayState.build(null, sticker)));
-					}
+					if(PlayState.isStoryMode)
+						MusicBeatState.switchState(new StoryMenuState());
+					else 
+						MusicBeatState.switchState(new FreeplayState());
 
-					//FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;
 					PlayState.modchartingMode = false;

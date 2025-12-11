@@ -25,9 +25,9 @@ import objects.Character;
 
 import states.MainMenuState;
 import states.StoryMenuState;
+import states.FreeplayState;
 
 import substates.PauseSubState;
-import substates.StickerSubState;
 import substates.GameOverSubstate;
 
 import psychlua.LuaUtils;
@@ -753,15 +753,10 @@ class FunkinLua {
 				FlxTransitionableState.skipNextTransOut = true;
 			}
 
-			if (PlayState.isStoryMode)
-			{
-				PlayState.storyPlaylist = [];
-				game.openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
-			}
+			if(PlayState.isStoryMode)
+				MusicBeatState.switchState(new StoryMenuState());
 			else
-			{
-				game.openSubState(new StickerSubState(null, (sticker) -> states.freeplay.FreeplayState.build(null, sticker)));
-			}
+				MusicBeatState.switchState(new FreeplayState());
 
 			#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 

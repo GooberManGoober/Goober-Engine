@@ -319,6 +319,7 @@ class LoadingState extends MusicBeatState
 		if (stopMusic && FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
+		FlxG.camera.visible = false;
 		MusicBeatState.switchState(target);
 		transitioning = true;
 		finishedLoading = true;
@@ -331,6 +332,7 @@ class LoadingState extends MusicBeatState
 		initialThreadCompleted = true;
 		isIntrusive = false;
 
+		FlxTransitionableState.skipNextTransIn = true;
 		if (threadPool != null) threadPool.shutdown(); // kill all workers safely
 		threadPool = null;
 		mutex = null;

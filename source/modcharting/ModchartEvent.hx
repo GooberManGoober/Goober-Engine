@@ -11,8 +11,4 @@ class ModchartEvent
         this.func = func;
         this.args = args;
     }
-    /*public function call()
-    {
-        Reflect.callMethod(null, func, args);
-    }*/
 }

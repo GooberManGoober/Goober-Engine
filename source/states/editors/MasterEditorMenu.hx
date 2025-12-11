@@ -1,6 +1,7 @@
 package states.editors;
 
 import backend.WeekData;
+
 import objects.Character;
 import states.MainMenuState;
 
@@ -106,7 +107,7 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Chart Editor'://felt it would be cool maybe
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Modchart Editor':
-					LoadingState.loadAndSwitchState(new modcharting.ModchartEditorState(), false);
+					LoadingState.loadAndSwitchState(new ModchartEditorState(), false);
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
 				case 'Stage Editor':

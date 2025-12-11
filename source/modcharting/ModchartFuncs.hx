@@ -70,36 +70,6 @@ class ModchartFuncs
         Lua_helper.add_callback(funkin.lua, 'ease', function(beat:Float, time:Float, easeStr:String, argsAsString:String, ?tag:String = null){
             ease(beat, time, easeStr, argsAsString, null, tag);                
         });
-        
-        loadHaxeFunctions(funkin);
-    }
-    
-    public static function loadHaxeFunctions(funkin:FunkinLua)
-    {
-        #if HSCRIPT_ALLOWED
-        FunkinHScript.initHaxeModule(funkin);
-
-        if (funkin.hscript != null)
-        {
-            #if (SScript >= "6.1.80")
-                funkin.hscript.setClass(Math);
-                funkin.hscript.setClass(PlayfieldRenderer);
-                funkin.hscript.setClass(ModchartUtil);
-                funkin.hscript.setClass(Modifier);
-                funkin.hscript.setClass(NoteMovement);
-                funkin.hscript.setClass(NotePositionData);
-                funkin.hscript.setClass(ModchartFile);
-            #else
-                funkin.hscript.set('Math', Math);
-                funkin.hscript.set('PlayfieldRenderer', PlayfieldRenderer);
-                funkin.hscript.set('ModchartUtil', ModchartUtil);
-                funkin.hscript.set('Modifier', Modifier);
-                funkin.hscript.set('NoteMovement', NoteMovement);
-                funkin.hscript.set('NotePositionData', NotePositionData);
-                funkin.hscript.set('ModchartFile', ModchartFile);
-            #end
-        }
-        #end
     }
     #end
         

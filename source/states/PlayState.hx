@@ -6,11 +6,6 @@ import backend.WeekData;
 import backend.Song;
 import backend.Rating;
 
-import backend.funkin.Scoring;
-import backend.funkin.FunkinTools;
-import states.results.Tallies;
-import states.results.ResultState;
-
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
@@ -27,9 +22,10 @@ import haxe.Json;
 import cutscenes.DialogueBoxPsych;
 
 import states.StoryMenuState;
-
+import states.FreeplayState;
 import states.editors.ChartingState;
 import states.editors.CharacterEditorState;
+import states.editors.ModchartEditorState;
 
 import substates.PauseSubState;
 import substates.GameOverSubstate;
@@ -40,7 +36,6 @@ import openfl.filters.ShaderFilter;
 
 import modcharting.NoteMovement;
 import modcharting.PlayfieldRenderer;
-import modcharting.ModchartEditorState;
 
 import shaders.ErrorHandledShader;
 
@@ -155,10 +150,6 @@ class PlayState extends MusicBeatState
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
 
-	//! new shit
-	public static var storyCampaignTitle = "";
-	public static var storyDifficultyColor = FlxColor.GRAY;
-
 	public var spawnTime:Float = 2000;
 
 	var camTwn:Array<FlxTween> = [];
@@ -194,7 +185,6 @@ class PlayState extends MusicBeatState
 	public var health(default, set):Float = 1;
 	public var healthLerp:Float = 1;
 	public var combo:Int = 0;
-	public var maxCombo:Int = 0;
 
 	public var healthBar:Bar;
 	public var timeBar:Bar;
@@ -241,7 +231,6 @@ class PlayState extends MusicBeatState
 	public static var campaignMisses:Int = 0;
 	public static var seenCutscene:Bool = false;
 	public static var deathCounter:Int = 0;
-	public static var campaignSaveData:SaveScoreData = FunkinTools.newTali();
 
 	public var defaultCamZoom:Float = 1.05;
 
@@ -2458,17 +2447,17 @@ class PlayState extends MusicBeatState
 			case 'bf' | 'boyfriend' | 'player':
 				positionData.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
 				positionData.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0] + X;
-				positionData.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1] - Y;
+				positionData.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1] + Y;
 
 			case 'gf' | 'girlfriend':
 				positionData.set(gf.getMidpoint().x, gf.getMidpoint().y);
 				positionData.x += gf.cameraPosition[0] + girlfriendCameraOffset[0] + X;
-				positionData.y += gf.cameraPosition[1] + girlfriendCameraOffset[1] - Y;
+				positionData.y += gf.cameraPosition[1] + girlfriendCameraOffset[1] + Y;
 
 			case 'dad' | 'opponent':
 				positionData.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 				positionData.x += dad.cameraPosition[0] + opponentCameraOffset[0] + X;
-				positionData.y += dad.cameraPosition[1] + opponentCameraOffset[1] - Y;
+				positionData.y += dad.cameraPosition[1] + opponentCameraOffset[1] + Y;
 
 			case 'position':
 				positionData.set(X, Y);
@@ -2662,25 +2651,13 @@ class PlayState extends MusicBeatState
 		#end
 
 		var ret:Dynamic = callOnScripts('onEndSong', null, true);
-		var accPts = ratingPercent * totalPlayed;
 		if(ret != LuaUtils.Function_Stop && !transitioning)
 		{
-			var tempActiveTallises =
-			{
-          		score: songScore,
-		  		accPoints: accPts,
-				
-          		sick: ratingsData[0].hits,
-            	good: ratingsData[1].hits,
-              	bad: ratingsData[2].hits,
-          		shit: ratingsData[3].hits,
-          		missed: songMisses,
-          		combo: combo,
-            	maxCombo: maxCombo,
-              	totalNotesHit: totalPlayed,
-              	totalNotes: 69,
-            		
-        	};
+			#if !switch
+			var percent:Float = ratingPercent;
+			if(Math.isNaN(percent)) percent = 0;
+			Highscore.saveScore(Song.loadedSongName, songScore, storyDifficulty, percent);
+			#end
 
 			playbackRate = 1;
 
@@ -2696,35 +2673,25 @@ class PlayState extends MusicBeatState
 				campaignMisses += songMisses;
 
 				storyPlaylist.remove(storyPlaylist[0]);
-				campaignSaveData = FunkinTools.combineTallies(campaignSaveData,tempActiveTallises);
 
 				if (storyPlaylist.length <= 0)
 				{
 					Mods.loadTopMod();
 
-					var prevScore =Highscore.getWeekScore(WeekData.weeksList[storyWeek],storyDifficulty);
-					var wasFC = Highscore.getWeekFC(WeekData.weeksList[storyWeek],storyDifficulty);
-					var prevAcc = Highscore.getWeekAccuracy(WeekData.weeksList[storyWeek],storyDifficulty);
-
-					var prevRank = Scoring.calculateRankFromData(prevScore,prevAcc,wasFC);
-					
-					//FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 
 					canResync = false;
+					MusicBeatState.switchState(new StoryMenuState());
 					
 					// if ()
 					if(!ClientPrefs.getGameplaySetting('practice') && !ClientPrefs.getGameplaySetting('botplay')) {
 						StoryMenuState.weekCompleted.set(WeekData.weeksList[storyWeek], true);
-
-						var weekAccuracy = FlxMath.bound(campaignSaveData.accPoints/campaignSaveData.totalNotesHit,0,1);
 						Highscore.saveWeekScore(WeekData.getWeekFileName(), campaignScore, storyDifficulty);
 
 						FlxG.save.data.weekCompleted = StoryMenuState.weekCompleted;
 						FlxG.save.flush();
 					}
-					zoomIntoResultsScreen(prevScore<campaignSaveData.score,campaignSaveData,prevRank);
-					campaignSaveData = FunkinTools.newTali();
 					changedDifficulty = false;
 				}
 				else
@@ -2752,118 +2719,15 @@ class PlayState extends MusicBeatState
 				Mods.loadTopMod();
 				#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 
-				var wasFC = Highscore.getFCState(curSong,PlayState.storyDifficulty);
-				var prevScore = Highscore.getScore(curSong,PlayState.storyDifficulty);
-				var prevAcc = Highscore.getRating(curSong,PlayState.storyDifficulty);
-
-				var prevRank = Scoring.calculateRankFromData(prevScore,prevAcc,wasFC);
-
 				canResync = false;
-				zoomIntoResultsScreen(prevScore<tempActiveTallises.score,tempActiveTallises,prevRank);
+				MusicBeatState.switchState(new FreeplayState());
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				changedDifficulty = false;
 			}
 
-			#if !switch
-			var percent:Float = ratingPercent;
-			if(Math.isNaN(percent)) percent = 0;
-			Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent,songMisses == 0);
-			#end
-			
 			transitioning = true;
 		}
 		return true;
-	}
-
-	/**
-	* Play the camera zoom animation and then move to the results screen once it's done.
-	*/
-	function zoomIntoResultsScreen(isNewHighscore:Bool,scoreData:SaveScoreData,prevScoreRank:ScoringRank):Void
-	{
-		trace('WENT TO RESULTS SCREEN!');
-
-		var targetDad:Bool = dad != null && dad.curCharacter == 'gf';
-		var targetBF:Bool = gf == null && !targetDad;
-
-		if (targetBF)
-		{
-			FlxG.camera.follow(boyfriend, null, 0.05);
-		}
-		else if (targetDad)
-		{
-			FlxG.camera.follow(dad, null, 0.05);
-		}
-		else
-		{
-			FlxG.camera.follow(gf, null, 0.05);
-		}
-
-		// TODO: Make target offset configurable.
-		// In the meantime, we have to replace the zoom animation with a fade out.
-		FlxG.camera.targetOffset.y -= 350;
-		FlxG.camera.targetOffset.x += 20;
-
-		// Replace zoom animation with a fade out for now.
-		FlxG.camera.fade(FlxColor.BLACK, 0.6);
-
-		FlxTween.tween(camHUD, {alpha: 0}, 0.6,
-		{
-			onComplete: function(_) {
-				moveToResultsScreen(isNewHighscore, scoreData,prevScoreRank);
-			}
-		});
-
-		// Zoom in on Girlfriend (or BF if no GF)
-		new FlxTimer().start(0.8, function(_) {
-			if (targetBF)
-			{
-				boyfriend.animation.play('hey');
-			}
-			else if (targetDad)
-			{
-				dad.animation.play('cheer');
-			}
-			else
-			{
-				gf.animation.play('cheer');
-			}
-
-			// Zoom over to the Results screen.
-			// TODO: Re-enable this.
-			/*
-			FlxTween.tween(FlxG.camera, {zoom: 1200}, 1.1,
-			{
-				ease: FlxEase.expoIn,
-			});
-			*/
-		});
-	}
-
-	/**
-	* Move to the results screen right goddamn now.
-	*/
-	function moveToResultsScreen(isNewHighscore:Bool,scoreData:SaveScoreData,prevScoreRank:ScoringRank):Void
-	{
-		persistentUpdate = false;
-
-		var modManifest = Mods.getPack();
-		var modName = modManifest != null ? modManifest.name : "unknown mod";
-		Mods.loadTopMod();
-
-		vocals.stop();
-		camHUD.alpha = 1;
-
-		var res:ResultState = new ResultState(
-		{
-			storyMode: isStoryMode,
-			songId: curSong,
-			difficultyId: Difficulty.getString(),
-			title: isStoryMode ? ('${storyCampaignTitle}') : ('${curSong} from ${modName}'),
-			scoreData:scoreData,
-			prevScoreRank: prevScoreRank,
-			isNewHighscore: isNewHighscore
-		});
-		this.persistentDraw = false;
-		openSubState(res);
 	}
 
 	public function KillNotes() {
@@ -3460,7 +3324,6 @@ class PlayState extends MusicBeatState
 			if (!note.isSustainNote)
 			{
 				combo++;
-				maxCombo = FlxMath.maxInt(maxCombo,combo);
 				if(combo > 9999) combo = 9999;
 				popUpScore(note);
 			}
