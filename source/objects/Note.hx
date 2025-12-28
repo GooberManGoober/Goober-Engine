@@ -9,7 +9,7 @@ import shaders.RGBPalette.RGBShaderReference;
 import objects.StrumNote;
 
 import flixel.math.FlxRect;
-
+import flixel.FlxStrip;
 import flixel.addons.effects.FlxSkewedSprite;
 
 using StringTools;
@@ -53,7 +53,7 @@ class Note extends FlxSkewedSprite
 
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
 
-	public var mesh:modcharting.SustainStrip = null;
+	public var mesh:FlxStrip = null;
   	public var z:Float = 0;
 
 	public var strumTime:Float = 0;

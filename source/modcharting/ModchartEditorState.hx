@@ -1,4 +1,4 @@
-package states.editors;
+package modcharting;
 
 
 import lime.utils.Assets;
@@ -1541,7 +1541,7 @@ class ModchartEditorState extends MusicBeatState implements PsychUIEventHandler.
             modClassInputText.text = modClassList[id];
             if (modClassInputText.text != '')
                 explainText.text = ('Current Modifier: ${modClassInputText.text}, Explaination: ' + modifierExplain(modClassInputText.text));
-        });
+        }, 140);
         centerXToObject(modClassInputText, modClassDropDown);
         var modTypeList = ["All", "Player", "Opponent", "Lane"];
         var modTypeDropDown = new PsychUIDropDownMenu(modTypeInputText.x, modClassInputText.y+30, modTypeList, function(id:Int, mod:String)

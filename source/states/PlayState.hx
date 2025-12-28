@@ -25,7 +25,8 @@ import states.StoryMenuState;
 import states.FreeplayState;
 import states.editors.ChartingState;
 import states.editors.CharacterEditorState;
-import states.editors.ModchartEditorState;
+import modcharting.ModchartEditorState;
+import states.editors.StageEditorState;
 
 import substates.PauseSubState;
 import substates.GameOverSubstate;
@@ -1758,6 +1759,8 @@ class PlayState extends MusicBeatState
 				openCharacterEditor();
 			else if (controls.justPressed('debug_3'))
 				openModchartEditor(); 
+			else if (controls.justPressed('debug_4'))
+				openStageEditor(); 
 		}
 
 		if (healthBar.bounds.max != null && health > healthBar.bounds.max)
@@ -2052,6 +2055,18 @@ class PlayState extends MusicBeatState
 		MusicBeatState.switchState(new ModchartEditorState());
 	}
 
+	function openStageEditor()
+	{
+		FlxG.camera.followLerp = 0;
+		persistentUpdate = false;
+		paused = true;
+		if(FlxG.sound.music != null)
+			FlxG.sound.music.stop();
+		
+		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
+		MusicBeatState.switchState(new StageEditorState(curStage, StageData.getStageFile(curStage)));
+	}
+
 	public var isDead:Bool = false; //Don't mess with this on Lua!!!
 	public var gameOverTimer:FlxTimer;
 	function doDeathCheck(?skipHealthCheck:Bool = false) {
@@ -2251,6 +2266,11 @@ class PlayState extends MusicBeatState
 						if(flValue2 == null) flValue2 = 0;
 						camFollow.x = flValue1;
 						camFollow.y = flValue2;
+						var stageData:StageFile = StageData.getStageFile(curStage);
+						if(stageData.camera_speed != null)
+							cameraSpeed = stageData.camera_speed;
+						else
+							cameraSpeed = 1;
 					}
 				}
 
@@ -2475,6 +2495,7 @@ class PlayState extends MusicBeatState
 				if(X != null || Y != null)
 				{
 					isCameraOnForcedPos = true;
+					cameraSpeed = 3000 * 3000; // makes it so the camera is able to keep track with the position data and not fall behind.
 					if(X == null) X = 0;
 					if(Y == null) Y = 0;
 					camTwn[1] = FlxTween.tween(camFollow, {
@@ -2484,6 +2505,11 @@ class PlayState extends MusicBeatState
 						ease: LuaUtils.getTweenEaseByString(ease.trim().toLowerCase()), onComplete: function(twn:FlxTween)
 						{
 							camTwn[1] = null;
+							var stageData:StageFile = StageData.getStageFile(curStage);
+							if(stageData.camera_speed != null)
+								cameraSpeed = stageData.camera_speed;
+							else
+								cameraSpeed = 1;
 						}
 					});
 				}
@@ -2497,6 +2523,11 @@ class PlayState extends MusicBeatState
 				if(X != null || Y != null)
 				{
 					isCameraOnForcedPos = true;
+					var stageData:StageFile = StageData.getStageFile(curStage);
+					if(stageData.camera_speed != null)
+						cameraSpeed = stageData.camera_speed;
+					else
+						cameraSpeed = 1; // Just in case
 					if(X == null) X = 0;
 					if(Y == null) Y = 0;
 					camFollow.x = positionData.x;
@@ -2664,6 +2695,11 @@ class PlayState extends MusicBeatState
 			if (chartingMode)
 			{
 				openChartEditor();
+				return false;
+			}
+			else if (modchartingMode)
+			{
+				openModchartEditor();
 				return false;
 			}
 

@@ -201,7 +201,6 @@ class HScript extends Iris
 		set('ModchartUtil', modcharting.ModchartUtil);
 		set('Modifier', modcharting.Modifier);
 		set('SimpleQuaternion', modcharting.SimpleQuaternion);
-		set('SustainStrip', modcharting.SustainStrip);
 		
 		modcharting.ModchartFuncs.loadHScriptFunctions(this);
 

@@ -114,6 +114,7 @@ class ClientPrefs {
 		'debug_1'		=> [SEVEN],
 		'debug_2'		=> [EIGHT],
 		'debug_3'		=> [NINE],
+		'debug_4'		=> [SIX],
 
 		'screenshot'    => [F3]
 	];

@@ -45,7 +45,7 @@ class NoteMovement
         }
         totalKeyCount = keyCount + playerKeyCount;
     }
-    public static function getDefaultStrumPosEditor(game:states.editors.ModchartEditorState)
+    public static function getDefaultStrumPosEditor(game:modcharting.ModchartEditorState)
     {
         defaultStrumX = []; //reset
         defaultStrumY = [];

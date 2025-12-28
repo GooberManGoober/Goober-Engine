@@ -43,6 +43,19 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
     public var modifierTable:ModTable;
     public var tweenManager:FlxTweenManager;
 
+    private static final noteUV:Array<Float> = [
+        0,0, //top left
+        1,0, //top right
+        0,0.5, //half left
+        1,0.5, //half right    
+        0,1, //bottom left
+        1,1, //bottom right 
+    ];
+    private static final noteIndices:Array<Int> = [
+        0,1,2,1,3,2, 2,3,4,3,4,5
+        //makes 4 triangles
+    ];
+
     public var modchart:ModchartFile;
     public var inEditor:Bool = false;
     public var editorPaused:Bool = false;
@@ -383,52 +396,104 @@ class PlayfieldRenderer extends FlxSprite //extending flxsprite just so i can ed
 			return;
 
 		var daNote = notes.members[noteData.index];
-		if (daNote.mesh == null)
-			daNote.mesh = new SustainStrip(daNote);
 
-		// daNote.scrollFactor.x = daNote.scrollFactor.x;
-		// daNote.scrollFactor.y = daNote.scrollFactor.y;
-		daNote.alpha = noteData.alpha;
-		daNote.mesh.alpha = daNote.alpha;
+        if (daNote.mesh == null)
+        {
+            daNote.alpha = 1;
+            daNote.mesh = new FlxStrip(0,0); //setup strip
+            daNote.mesh.loadGraphic(daNote.updateFramePixels());
+            daNote.mesh.shader = daNote.shader;
+            for (uv in noteUV)
+                daNote.mesh.uvtData.push(uv);
+            for (ind in noteIndices)
+                daNote.mesh.indices.push(ind);
+        }
+        daNote.mesh.scrollFactor = daNote.scrollFactor;
+        daNote.mesh.x = 0;
+        daNote.mesh.y = 0;
+        daNote.alpha = noteData.alpha;
+        daNote.mesh.alpha = daNote.alpha;
 
-		var songSpeed = getCorrectScrollSpeed();
-		var lane = noteData.lane;
-
-		// makes the sustain match the center of the parent note when at weird angles
-		var yOffsetThingy = (NoteMovement.arrowSizes[lane] / 2);
+        var songSpeed = getCorrectScrollSpeed();
+        var lane = noteData.lane;
+        
+        var yOffsetThingy = (NoteMovement.arrowSizes[lane]/2);
 
         var thisNotePos = ModchartUtil.calculatePerspective(new Vector3D(noteData.x+(daNote.width/2)+ModchartUtil.getNoteOffsetX(daNote, instance), noteData.y+(NoteMovement.arrowSizes[noteData.lane]/2), noteData.z*0.001), 
         ModchartUtil.defaultFOV*(Math.PI/180), -(daNote.width/2), yOffsetThingy-(NoteMovement.arrowSizes[noteData.lane]/2));
+        
 
-		var timeToNextSustain = ModchartUtil.getFakeCrochet() / 4;
-		if (noteData.noteDist < 0)
-			timeToNextSustain *= -1; // weird shit that fixes upscroll lol
+        var timeToNextSustain = ModchartUtil.getFakeCrochet()/4;
+        if (noteData.noteDist < 0)
+            timeToNextSustain = -ModchartUtil.getFakeCrochet()/4; //weird shit that fixes upscroll lol
 
-        var nextHalfNotePos = ModchartUtil.getDownscroll(instance) ? getSustainPoint(noteData, timeToNextSustain*0.458) : getSustainPoint(noteData, timeToNextSustain*0.548);
-        var nextNotePos = ModchartUtil.getDownscroll(instance) ? getSustainPoint(noteData, timeToNextSustain+2.2) : getSustainPoint(noteData, timeToNextSustain-2.2);
+        var nextHalfNotePos = getSustainPoint(noteData, timeToNextSustain*0.5);
+        var nextNotePos = getSustainPoint(noteData, timeToNextSustain);
+        
+        var doDraw = noteData.alpha > 0;
+        var strumData = getDataForStrum(getLane(noteData.index), noteData.playfieldIndex);  
 
-        var flipGraphic = false;
-
-        // mod/bound to 360, add 360 for negative angles, mod again just in case
-        var fixedAngY = ((noteData.incomingAngleY%360)+360)%360;
-
-        var reverseClip = (fixedAngY > 90 && fixedAngY < 270);
-
-        if (noteData.noteDist > 0) //downscroll
+        if (doDraw)
         {
-            if (!ModchartUtil.getDownscroll(instance)) //fix reverse
-                flipGraphic = true;
-        }
-        else
-        {
-            if (ModchartUtil.getDownscroll(instance))
-                flipGraphic = true;
-        }
-        //render that shit
-        daNote.mesh.constructVertices(noteData, thisNotePos, nextHalfNotePos, nextNotePos, flipGraphic, reverseClip);
+            var flipGraphic = false;
 
-        daNote.mesh.cameras = this.cameras;
-        daNote.mesh.draw();
+            var fixedAngY = ((noteData.incomingAngleY%360)+360)%360;
+
+            var reverseClip = (fixedAngY > 90 && fixedAngY < 270);
+
+            if (noteData.noteDist > 0) //downscroll
+            {
+                if (!ModchartUtil.getDownscroll(instance)) //fix reverse
+                    flipGraphic = true;
+            }
+            else
+            {
+                if (ModchartUtil.getDownscroll(instance))
+                    flipGraphic = true;
+            }
+            //render that shit
+            daNote.mesh.vertices = new DrawData();
+            var yOffset = 2; //fix small gaps
+            if (reverseClip)
+                yOffset = -yOffset;
+
+            if (flipGraphic)
+            {
+                daNote.mesh.vertices.push(nextNotePos.x);
+                daNote.mesh.vertices.push(nextNotePos.y+yOffset); //slight offset to fix small gaps
+                daNote.mesh.vertices.push(nextNotePos.x+(daNote.frameWidth*(1/-nextNotePos.z)*noteData.scaleX));
+                daNote.mesh.vertices.push(nextNotePos.y+yOffset);
+
+                daNote.mesh.vertices.push(nextHalfNotePos.x);
+                daNote.mesh.vertices.push(nextHalfNotePos.y);
+                daNote.mesh.vertices.push(nextHalfNotePos.x+(daNote.frameWidth*(1/-nextHalfNotePos.z)*noteData.scaleX));
+                daNote.mesh.vertices.push(nextHalfNotePos.y);
+
+                daNote.mesh.vertices.push(thisNotePos.x);
+                daNote.mesh.vertices.push(thisNotePos.y);
+                daNote.mesh.vertices.push(thisNotePos.x+(daNote.frameWidth*(1/-thisNotePos.z)*nextNotePos.scaleX));
+                daNote.mesh.vertices.push(thisNotePos.y);
+            }
+            else 
+            {
+                daNote.mesh.vertices.push(thisNotePos.x);
+                daNote.mesh.vertices.push(thisNotePos.y);
+                daNote.mesh.vertices.push(thisNotePos.x+(daNote.frameWidth*(1/-thisNotePos.z)*noteData.scaleX));
+                daNote.mesh.vertices.push(thisNotePos.y);
+
+                daNote.mesh.vertices.push(nextHalfNotePos.x);
+                daNote.mesh.vertices.push(nextHalfNotePos.y);
+                daNote.mesh.vertices.push(nextHalfNotePos.x+(daNote.frameWidth*(1/-nextHalfNotePos.z)*noteData.scaleX));
+                daNote.mesh.vertices.push(nextHalfNotePos.y);
+
+                daNote.mesh.vertices.push(nextNotePos.x);
+                daNote.mesh.vertices.push(nextNotePos.y+yOffset); //slight offset to fix small gaps
+                daNote.mesh.vertices.push(nextNotePos.x+(daNote.frameWidth*(1/-nextNotePos.z)*nextNotePos.scaleX));
+                daNote.mesh.vertices.push(nextNotePos.y+yOffset);
+            }
+            daNote.mesh.cameras = this.cameras;
+            daNote.mesh.draw();
+        }
     }
 
     private function drawStuff(notePositions:Array<NotePositionData>)
