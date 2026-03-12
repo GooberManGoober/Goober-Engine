@@ -27,6 +27,7 @@ class Mods
 		'sounds',
 		'songs',
 		'stages',
+		'states',
 		'videos',
 		'weeks',
 	];
