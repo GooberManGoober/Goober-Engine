@@ -10,6 +10,7 @@ import foxlite.FoxScene;
 import foxlite.extras.FoxFPSCamera;
 import foxlite.flixel.FoxFlxSprite;
 import foxlite.flixel.FoxRenderMetrics;
+import foxlite.renderer.FoxRenderer;
 
 using StringTools;
 
@@ -25,6 +26,8 @@ class MaxwellState extends MusicBeatState
     {
         super.create();
 
+        FoxRenderer.forceSyncLoading = true;
+
         // Scene
         scene = new FoxScene(FlxG.width, FlxG.height);
         scene.scrollFactor.set(0, 0);
@@ -32,8 +35,6 @@ class MaxwellState extends MusicBeatState
 
         // Camera
         cam = new FoxFPSCamera();
-        cam.setPosition(-50, 45, 40);
-        cam.setRotation(-0.260, -1, 0);
         cam.enableControls = false;
         cam.bgColor = FlxColor.GRAY;
 
@@ -66,6 +67,23 @@ class MaxwellState extends MusicBeatState
         if (FlxG.keys.justPressed.SPACE && maxwell != null) player.playing = !player.playing;
         
         if (controls.BACK) FlxG.switchState(new MainMenuState());
+
+        if(!cam.enableControls) {
+            cam.angleX = -0.260;
+            cam.angleY = -1;
+            cam.angleZ = 0;
+
+            cam.x = -50;
+            cam.y = 45;
+            cam.z = 40;
+        }
+
+        if(FlxG.keys.justPressed.BREAK) {
+            cam.enableControls = !cam.enableControls;
+            if(cam.enableControls) {
+                cam.targetAngle.copyFrom(cam.rotation);
+            }
+        }
     }
 }
 #end
