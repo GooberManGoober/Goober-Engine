@@ -1,7 +1,7 @@
 package funkin.states.editors;
 
 #if FOXLITE_ALLOWED
-import funkin.states.MainMenuState;
+import funkin.states.editors.MasterEditorMenu;
 import funkin.Mods;
 
 import foxlite.animation.FoxAnimationPlayer;
@@ -66,16 +66,11 @@ class MaxwellState extends MusicBeatState
 
         if (FlxG.keys.justPressed.SPACE && maxwell != null) player.playing = !player.playing;
         
-        if (controls.BACK) FlxG.switchState(new MainMenuState());
+        if (controls.BACK) FlxG.switchState(new MasterEditorMenu());
 
         if(!cam.enableControls) {
-            cam.angleX = -0.260;
-            cam.angleY = -1;
-            cam.angleZ = 0;
-
-            cam.x = -50;
-            cam.y = 45;
-            cam.z = 40;
+            cam.setPosition(-50, 45, 40);
+            cam.setRotation(-0.260, -1, 0);
         }
 
         if(FlxG.keys.justPressed.BREAK) {
