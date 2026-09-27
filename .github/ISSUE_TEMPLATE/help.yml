@@ -1,5 +1,5 @@
 name: Help me!
-description: If you need help using the engine.\nIf your issue is with compiling, ensure you are on haxe 4.3.6 or newer and using the haxelibs set listed in .hxpkg
+description: If you need help using the engine.
 labels: [help wanted]
 body:
   - type: textarea
@@ -12,13 +12,12 @@ body:
   - type: dropdown
     id: modding
     attributes:
-      label: "Are you modding with the source code or with a mod folder in an already compiled build?"
+      label: "Are you modding a build from source or with Lua?"
       options:
-        - Content / Mod folder
+        - Lua
         - Source
     validations:
       required: true
-
 
   - type: dropdown
     id: btarget
@@ -26,9 +25,12 @@ body:
       label: "What is your build target?"
       options:
         - "Windows x64"
+        - "Windows x86/x32"
         - "Linux"
         - "Mac"
-        - "HashLink, or other build system"
+        - "HTML5/Browser"
+        - "Flash/Air-based target"
+        - "Neko, HashLink, or other build system"
     validations:
       required: true
 

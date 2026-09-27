@@ -1,82 +1,121 @@
-helloe we hit single
+# Friday Night Funkin' - Goober Engine
+A new engine built off of Psych Engine, originally used on [Mind Games Mod](https://gamebanana.com/mods/301107). This engine was made for people who weren't happy with Psych Engine 1.0.x, and would prefer Psych 0.7.X, as this engine was built off of P.E 0.7.3.
 
-Havee fun with NightmareVision V1! (***[follow me on twitter](https://twitter.com/DuskieWhy)***)
+## Goober Engine Features:
+ * Psych 1.0 chart editor
+ * Psych 1.0 stage editor
+ * Psych 1.0 hscript support
+ * [Modchart system](https://github.com/EdwhakKB/FNF-Modcharting-Tools) by [EdwhakKB](https://github.com/EdwhakKB)
+ * Weekend 1
+ * Sustain Note Splashes
+ * V-Slice Event Triggers (Focus Camera, & Zoom Camera)
+ * Lil' Buddies from [FPS Plus](https://github.com/ThatRozebudDude/FPS-Plus-Public) (ONLY SEEN IN CHART EDITOR)
+ * New Zoom Factor Variables for sprites (accessible in the Stage Editor)
+ * New Shader seen in songs that feature Monster (NOT SEEN WHEN SHADERS ARE TURNED OFF)
+ * V-Slice Screenshot feature (Default key is F3)
+ * Scriptable Menus (Only applies to Freeplay, Story, Main, and Title menus.)
 
-![](https://github.com/NMVTeam/NightmareVision/blob/dev/assets/game/images/branding/watermarks/NMV.png)
+## Installation:
+
+Refer to [the Build Instructions](./BUILDING.md)
+
+## Customization:
+
+if you wish to disable things like *Lua Scripts* or *Video Cutscenes*, you can read over to `Project.xml`
+
+inside `Project.xml`, you will find several variables to customize Psych Engine to your liking
+
+to start you off, disabling Videos should be simple, simply Delete the line `"VIDEOS_ALLOWED"` or comment it out by wrapping the line in XML-like comments, like this `<!-- YOUR_LINE_HERE -->`
+
+same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, this and other customization options are all available within the `Project.xml` file
+
+## Credits:
+* Shadow Mario - Programmer
+* Riveren - Artist
+
+### Special Thanks
+* bbpanzu - Ex-Programmer
+* Yoshubs - Ex-Programmer
+* SqirraRNG - Crash Handler and Base code for Chart Editor's Waveform
+* KadeDev - Fixed some cool stuff on Chart Editor and other PRs
+* iFlicky - Composer of Psync and Tea Time, also made the Dialogue Sounds
+* PolybiusProxy - .MP4 Video Loader Library (hxCodec)
+* Keoiki - Note Splash Animations
+* Smokey - Sprite Atlas Support
+* Nebula the Zorua - some Lua reworks
+* superpowers04 - LUA JIT Fork
+_____________________________________
+
+# Psych Engine Features
+
+## Attractive animated dialogue boxes:
+
+![](https://user-images.githubusercontent.com/44785097/127706669-71cd5cdb-5c2a-4ecc-871b-98a276ae8070.gif)
 
 
-
-## Special thanks to...
-
-* ShadowMario and Co. for [Psych engine](https://github.com/ShadowMario/FNF-PsychEngine)
-
-* Nebula_Zorua for the [specific Psych fork](https://github.com/nebulazorua/exe-psych-fork) NMV is built off and for the Modchart backend
-
-* Rozebud for the chart editor little buddies, and the overhauled camera system ([Check out their engine too](https://github.com/ThatRozebudDude/FPS-Plus-Public))
-
-* FunkinCrew for their [Lime](https://github.com/FunkinCrew/lime), [Openfl](https://github.com/FunkinCrew/openfl), [Hxcpp](https://github.com/FunkinCrew/hxcpp) forks
-
-* MaybeMaru for [MoonChart](https://github.com/MaybeMaru/moonchart) and [Flixel-Animate](https://github.com/MaybeMaru/flixel-animate)
-
-* dwdvIl for [Foxlite](https://github.com/dwdvIl/foxlite)
-
-# How to compile NMV Engine
-
-### Quick Note
-- Haxe 4.3.6 and Haxelib 4.2.0 or newer is expected
-- This engine ENFORCES the use of local libraries with hxpkg/hmm to prevent issues in relation to `hxvlc`
-- The expected library versions are listed within the .hxpkg file. 
-
-if compilation errors arise, Ensure your Haxe version is correct and your haxelibs match what is listed in the .hxpkg file
-
-## Download the prerequisites... (skip this if you already have compiled any fnf project, or any flixel project basically lol)
-
-[Haxe](https://haxe.org/download/)
-
-[Git](https://git-scm.com/downloads)
-
-[VS Community Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
-
-within the VS Community Installer, download `Desktop development with c++`
-
-### Download the projects required libraries...
-***
-#### Recommended Method (Slower)
-In a cmd within the project directory, in order run...
-
-```sh
-haxelib git hxpkg https://github.com/ADA-Funni/hxpkg add-hmm-compatibility
-haxelib run hxpkg install
-```
+## Mod Support
+* Probably one of the main points of this engine, you can code in .lua files outside of the source code, making your own weeks without even messing with the source!
+* Comes with a Mod Organizing/Disabling Menu.
 
 
-#### Advanced Method (Faster)
-> [!IMPORTANT]
-> This requires [Rust](https://rust-lang.org/tools/install/) to be installed!
+## Atleast one change to every week:
+### Week 1:
+  * New Dad Left sing sprite
+  * Unused stage lights are now used
+  * Dad Battle has a spotlight effect for the breakdown
+### Week 2:
+  * Both BF and Skid & Pump does "Hey!" animations
+  * Thunders does a quick light flash and zooms the camera in slightly
+  * Added a quick transition/cutscene to Monster
+### Week 3:
+  * BF does "Hey!" during Philly Nice
+  * Blammed has a cool new colors flash during that sick part of the song
+### Week 4:
+  * Better hair physics for Mom/Boyfriend (Maybe even slightly better than Week 7's :eyes:)
+  * Henchmen die during all songs. Yeah :(
+### Week 5:
+  * Bottom Boppers and GF does "Hey!" animations during Cocoa and Eggnog
+  * On Winter Horrorland, GF bops her head slower in some parts of the song.
+### Week 6:
+  * On Thorns, the HUD is hidden during the cutscene
+  * Also there's the Background girls being spooky during the "Hey!" parts of the Instrumental
 
-In a cmd within the project directory, in order run...
+## Cool new Chart Editor changes and countless bug fixes
+![](https://github.com/ShadowMario/FNF-PsychEngine/blob/main/docs/img/chart.png?raw=true)
+* You can now chart "Event" notes, which are bookmarks that trigger specific actions that usually were hardcoded on the vanilla version of the game.
+* Your song's BPM can now have decimal values
+* You can manually adjust a Note's strum time if you're really going for milisecond precision
+* You can change a note's type on the Editor, it comes with five example types:
+  * Alt Animation: Forces an alt animation to play, useful for songs like Ugh/Stress
+  * Hey: Forces a "Hey" animation instead of the base Sing animation, if Boyfriend hits this note, Girlfriend will do a "Hey!" too.
+  * Hurt Notes: If Boyfriend hits this note, he plays a miss animation and loses some health.
+  * GF Sing: Rather than the character hitting the note and singing, Girlfriend sings instead.
+  * No Animation: Character just hits the note, no animation plays.
 
-```sh
-haxelib git hxpkg https://github.com/ADA-Funni/hxpkg add-hmm-compatibility
-haxelib run hxpkg to-hmm
+## Multiple editors to assist you in making your own Mod
+![Screenshot_3](https://user-images.githubusercontent.com/44785097/144629914-1fe55999-2f18-4cc1-bc70-afe616d74ae5.png)
+* Working both for Source code modding and Downloaded builds!
 
-cargo install --git https://github.com/ninjamuffin99/hmm-rs hmm-rs
-hmm-rs clean
-hmm-rs install
+## Story mode menu rework:
+![](https://i.imgur.com/UB2EKpV.png)
+* Added a different BG to every song (less Tutorial)
+* All menu characters are now in individual spritesheets, makes modding it easier.
 
-haxelib fixrepo
+## Credits menu
+![Screenshot_1](https://user-images.githubusercontent.com/44785097/144632635-f263fb22-b879-4d6b-96d6-865e9562b907.png)
+* You can add a head icon, name, description and a Redirect link for when the player presses Enter while the item is currently selected.
 
-haxelib install hmm
-haxelib remove grig.audio
-haxelib run hmm reinstall grig.audio
+## Awards/Achievements
+* The engine comes with 16 example achievements that you can mess with and learn how it works (Check Achievements.hx and search for "checkForAchievement" on PlayState.hx)
 
-haxelib fixrepo
-```
-***
+## Options menu:
+* You can change Note colors, Delay and Combo Offset, Controls and Preferences there.
+ * On Preferences you can toggle Downscroll, Middlescroll, Anti-Aliasing, Framerate, Low Quality, Note Splashes, Flashing Lights, etc.
 
-## Setup Lime
-After that is complete, run `haxelib run lime rebuild cpp -release`
-
-Then, run `haxelib run lime test windows -release` and you should be compiling
-
-If you get errors related to lime, run [limeFixer](https://github.com/DuskieWhy/NightmareVision/blob/dev/projFiles/limeFixer.bat) and try again
+## Other gameplay features:
+* When the enemy hits a note, their strum note also glows.
+* Lag doesn't impact the camera movement and player icon scaling anymore.
+* Some stuff based on Week 7's changes has been put in (Background colors on Freeplay, Note splashes)
+* You can reset your Score on Freeplay/Story Mode by pressing Reset button.
+* You can listen to a song or adjust Scroll Speed/Damage taken/etc. on Freeplay by pressing Space.
+* You can enable "Combo Stacking" in Gameplay Options. This causes the combo sprites to just be one sprite with an animation rather than sprites spawning each note hit.

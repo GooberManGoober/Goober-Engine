@@ -1,0 +1,267 @@
+package objects;
+
+import backend.animation.PsychAnimationController;
+
+import shaders.RGBPalette;
+import shaders.RGBPalette.RGBShaderReference;
+
+import flixel.addons.effects.FlxSkewedSprite;
+
+class StrumNote extends FlxSkewedSprite
+{
+	public var rgbShader:RGBShaderReference;
+	public var resetAnim:Float = 0;
+	private var noteData:Int = 0;
+	public var direction:Float = 90;
+	public var downScroll:Bool = false;
+	public var sustainReduce:Bool = true;
+	public var inEditor:Bool = false;
+	private var player:Int;
+	
+	public var texture(default, set):String = null;
+	private function set_texture(value:String):String {
+		if(texture != value) {
+			texture = value;
+			reloadNote();
+		}
+		return value;
+	}
+
+	public var sustainSplash:SustainSplash;
+
+	public var useRGBShader:Bool = true;
+	public function new(x:Float, y:Float, leData:Int, player:Int, ?inEditor:Bool = false) {
+		animation = new PsychAnimationController(this);
+
+		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
+		rgbShader.enabled = false;
+		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
+		
+		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
+		
+		if(leData <= arr.length)
+		{
+			@:bypassAccessor
+			{
+				rgbShader.r = arr[0];
+				rgbShader.g = arr[1];
+				rgbShader.b = arr[2];
+			}
+		}
+
+		noteData = leData;
+		this.player = player;
+		this.noteData = leData;
+		this.inEditor = inEditor;
+		this.ID = noteData;
+		super(x, y);
+
+		var skin:String = null;
+		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
+		else skin = Note.defaultNoteSkin;
+
+		var customSkin:String = skin + Note.getNoteSkinPostfix();
+		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
+
+		texture = skin; //Load texture and anims
+		scrollFactor.set();
+		sustainSplash = new SustainSplash(this);
+		playAnim('static');
+	}
+
+	public function reloadNote()
+	{
+		var lastAnim:String = null;
+		if(animation.curAnim != null) lastAnim = animation.curAnim.name;
+
+		if(PlayState.isPixelStage)
+		{
+			loadGraphic(Paths.image('pixelUI/' + texture));
+			width = width / 4;
+			height = height / 5;
+			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
+
+			antialiasing = false;
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+
+			animation.add('green', [6]);
+			animation.add('red', [7]);
+			animation.add('blue', [5]);
+			animation.add('purple', [4]);
+			switch (Math.abs(noteData) % 4)
+			{
+				case 0:
+					animation.add('static', [0]);
+					animation.add('pressed', [4, 8], 12, false);
+					animation.add('confirm', [12, 16], 24, false);
+				case 1:
+					animation.add('static', [1]);
+					animation.add('pressed', [5, 9], 12, false);
+					animation.add('confirm', [13, 17], 24, false);
+				case 2:
+					animation.add('static', [2]);
+					animation.add('pressed', [6, 10], 12, false);
+					animation.add('confirm', [14, 18], 12, false);
+				case 3:
+					animation.add('static', [3]);
+					animation.add('pressed', [7, 11], 12, false);
+					animation.add('confirm', [15, 19], 24, false);
+			}
+		}
+		else
+		{
+			frames = Paths.getSparrowAtlas(texture);
+			animation.addByPrefix('green', 'arrowUP');
+			animation.addByPrefix('blue', 'arrowDOWN');
+			animation.addByPrefix('purple', 'arrowLEFT');
+			animation.addByPrefix('red', 'arrowRIGHT');
+
+			antialiasing = ClientPrefs.data.antialiasing;
+			setGraphicSize(Std.int(width * 0.7));
+
+			switch (Math.abs(noteData) % 4)
+			{
+				case 0:
+					animation.addByPrefix('static', 'arrowLEFT');
+					animation.addByPrefix('pressed', 'left press', 24, false);
+					animation.addByPrefix('confirm', 'left confirm', 24, false);
+				case 1:
+					animation.addByPrefix('static', 'arrowDOWN');
+					animation.addByPrefix('pressed', 'down press', 24, false);
+					animation.addByPrefix('confirm', 'down confirm', 24, false);
+				case 2:
+					animation.addByPrefix('static', 'arrowUP');
+					animation.addByPrefix('pressed', 'up press', 24, false);
+					animation.addByPrefix('confirm', 'up confirm', 24, false);
+				case 3:
+					animation.addByPrefix('static', 'arrowRIGHT');
+					animation.addByPrefix('pressed', 'right press', 24, false);
+					animation.addByPrefix('confirm', 'right confirm', 24, false);
+			}
+		}
+		updateHitbox();
+
+		if(lastAnim != null)
+		{
+			playAnim(lastAnim, true);
+		}
+	}
+
+	public function playerPosition()
+	{
+		x += Note.swagWidth * noteData;
+		x += 50;
+		x += ((FlxG.width / 2) * player);
+	}
+
+	override function update(elapsed:Float) {
+		if(resetAnim > 0) {
+			resetAnim -= elapsed;
+			if(resetAnim <= 0) {
+				playAnim('static');
+				resetAnim = 0;
+			}
+		}
+
+		if(animation.curAnim != null && animation.curAnim.name == 'confirm' && !inEditor)
+		{
+			if(animation.curAnim.finished) 
+				playAnim('pressed');
+		}
+		
+		if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
+			centerOrigin();
+		}
+
+		super.update(elapsed);
+	}
+
+	public function playAnim(anim:String, ?force:Bool = false) {
+		animation.play(anim, force);
+		if(animation.curAnim != null)
+		{
+			centerOffsets();
+			centerOrigin();
+		}
+		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+	}
+}
+
+class SustainSplash extends FlxSprite {
+	public var rgbShader:RGBShaderReference;
+	public var strum:StrumNote;
+
+	var splashAlpha = 0.7;
+	override public function new(strum:StrumNote) {
+		super();
+		this.strum = strum;
+
+		@:privateAccess
+		if (!PlayState.isPixelStage)
+			rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(strum.noteData));
+
+		frames = Paths.getSparrowAtlas(PlayState.isPixelStage ? "pixelUI/pixelNoteHoldCover" : "noteSplashes/sustain_cover");
+		animation.addByPrefix('cover', 'holdCoverStart0', 24, false);
+		animation.addByPrefix('splash', 'holdCoverEnd0', 24, false);
+		animation.addByPrefix('loop', 'holdCover0', 24);
+		animation.play("loop");
+		updateHitbox();
+		visible = false;
+		antialiasing = PlayState.isPixelStage ? false : ClientPrefs.data.antialiasing;
+	}
+
+	public var updatedThisFrame:Bool = false;
+
+	public inline function show() {
+		updatedThisFrame = true;
+		visible = true;
+		if (animation.curAnim.name != "loop") {
+			animation.play("cover");
+			splashAlpha = 1 * strum.alpha;
+			center();
+		}
+	}
+	public inline function hide(miss:Bool = false) {
+		if (animation.curAnim.name == "splash") return;
+
+		updatedThisFrame = true;
+		if (miss) visible = false;
+		if (animation.curAnim.name != "splash") {
+			animation.play("splash");
+			splashAlpha = 0.7 * strum.alpha;
+			center();
+		}
+	}
+
+	override public function update(elapsed:Float) {
+		super.update(elapsed);
+		updatedThisFrame = false;
+
+		scale.set(strum.scale.x / 0.7, strum.scale.y / 0.7);
+		updateHitbox();
+
+		if (animation.curAnim.finished) {
+			if (animation.curAnim.name == "cover") animation.play("loop");
+			if (animation.curAnim.name == "splash") visible = false;
+		}
+
+		alpha = splashAlpha;
+		
+		center();
+	}
+
+	public function center() {
+		centerOffsets();
+		if (PlayState.isPixelStage)
+		{
+			setPosition(strum.x, strum.y);
+			offset.set(PlayState.isPixelStage ? -185 : 106.25, PlayState.isPixelStage ? -25 : 100);
+		}
+		else
+		{
+			x = strum.x + (strum.width/2) - (width/2);
+			y = strum.y + (strum.height/2) - (height/2);
+		}
+	}
+}
