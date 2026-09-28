@@ -2341,13 +2341,15 @@ class PlayState extends MusicBeatState
 				return;
 			}
 			
-			camFollow.setPosition(gf.getMidpoint().x, gf.getMidpoint().y);
-			camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
-			camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
+			var char = event.target;
+			
+			camFollow.setPosition(char.getMidpoint().x, char.getMidpoint().y);
+			camFollow.x += char.cameraPosition[0] + girlfriendCameraOffset[0];
+			camFollow.y += char.cameraPosition[1] + girlfriendCameraOffset[1];
 			
 			if (ClientPrefs.camFollowsCharacters)
 			{
-				final displacement = gf.getSingDisplacement();
+				final displacement = char.getSingDisplacement();
 				
 				camFollow.x += displacement.x;
 				camFollow.y += displacement.y;
@@ -2413,6 +2415,8 @@ class PlayState extends MusicBeatState
 		{
 			return;
 		}
+		
+		curCharacter = event.target;
 		
 		desiredPos = getCharacterCameraPos(curCharacter);
 		
