@@ -36,6 +36,8 @@ class MaxwellState extends MusicBeatState
         // Camera
         cam = new FoxFPSCamera();
         cam.enableControls = false;
+        cam.speed = 2.5;
+	    cam.smoothFactor = 0.15;
         cam.bgColor = FlxColor.GRAY;
 
         scene.foxCameras.push(cam);
