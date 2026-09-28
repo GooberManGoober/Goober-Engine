@@ -441,20 +441,17 @@ class FreeplayState extends MusicBeatState
 	
 	function loadFreeplayData()
 	{
-		var mods:Array<{folder:String, enabled:Bool}> = Mods.getListAsArray();
-		
-		for (i in mods)
+		inline function addSongsToTabs(?modFolder:String)
 		{
-			if (!i.enabled) continue;
+			var freeplayData = getFreeplayData(modFolder);
 			
-			var freeplayData = getFreeplayData(i.folder);
-			Mods.currentModDirectory = i.folder;
+			Mods.currentModDirectory = modFolder;
 			
 			var tabs = freeplayData?.tabs ?? null;
 			
 			if (tabs == null)
 			{
-				var dir = FunkinAssets.readDirectory('content/${i.folder}/data/weeks');
+				var dir = FunkinAssets.readDirectory('$modFolder/data/weeks');
 				
 				var fromWeeks = [];
 				for (week in dir)
@@ -466,8 +463,8 @@ class FreeplayState extends MusicBeatState
 				tabs = [];
 				tabs.push(
 					{
-						title: i.folder,
-						directory: i.folder,
+						title: modFolder,
+						directory: modFolder,
 						fromWeeks: fromWeeks,
 						songs: [],
 					});
@@ -475,10 +472,16 @@ class FreeplayState extends MusicBeatState
 			
 			for (tab in tabs)
 			{
-				tab.directory = i.folder;
+				tab.directory = modFolder;
 				freeplayTabs.push(tab);
 			}
 		}
+		
+		var mods:Array<{folder:String, enabled:Bool}> = Mods.getListAsArray();
+		
+		addSongsToTabs();
+		for (i in mods)
+			if (i.enabled) addSongsToTabs(i.folder);
 	}
 	
 	function getSongMeta(song:String):Null<SongMetaData>
@@ -490,9 +493,10 @@ class FreeplayState extends MusicBeatState
 		return path;
 	}
 	
-	function getFreeplayData(modFolder:String):Null<FreeplayData>
+	function getFreeplayData(?modFolder:String):Null<FreeplayData>
 	{
-		final freeplayDataPath = Paths.getPath('data/freeplay.json', modFolder, true);
+		final freeplayDataPath = Paths.getPath('data/freeplay.json', modFolder);
+		trace(freeplayDataPath);
 		
 		return FunkinAssets.exists(freeplayDataPath) ? FunkinAssets.parseJson5(FunkinAssets.getContent(freeplayDataPath)) : null;
 	}

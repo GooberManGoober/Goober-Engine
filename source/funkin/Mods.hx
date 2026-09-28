@@ -245,6 +245,10 @@ class Mods
 		if (folder == null) folder = Mods.currentModDirectory;
 		
 		var path = Paths.mods(folder + '/meta.json');
+		if (!FunkinAssets.exists(path)) path = Paths.getPath('meta.json');
+		
+		trace(path);
+		
 		if (FunkinAssets.exists(path))
 		{
 			final raw = FunkinAssets.getContent(path);
@@ -402,12 +406,22 @@ class Mods
 		
 		Paths.DEFAULT_FONT = pack.defaultFont != null && FunkinAssets.exists(Paths.font(pack.defaultFont)) ? Paths.font(pack.defaultFont) : Paths.font('vcr.ttf');
 		
-		inline function dirExists(dir:String):Bool return dir != null && FunkinAssets.isDirectory('${Paths.MODS_DIRECTORY}/${Mods.currentModDirectory}/images/$dir');
+		inline function dirExists(dir:String):Bool
+		{
+			if (dir == null) return false;
+			
+			var modPath:String = '${Paths.MODS_DIRECTORY}/${Mods.currentModDirectory}/images/$dir';
+			var assetPath:String = 'assets/images/$dir';
+			
+			return FunkinAssets.isDirectory(modPath) || FunkinAssets.isDirectory(assetPath);
+		}
 		
 		Paths.UI_PREFIX = dirExists(pack.uiPrefix) ? pack.uiPrefix : 'UI/';
 		Paths.COMBO_PREFIX = dirExists(pack.comboPrefix) ? pack.comboPrefix : 'UI/combo/';
 		Paths.RATINGS_PREFIX = dirExists(pack.ratingsPrefix) ? pack.ratingsPrefix : 'UI/ratings/';
 		Paths.COUNTDOWN_PREFIX = dirExists(pack.countdownPrefix) ? pack.countdownPrefix : 'UI/countdown/';
+		
+		trace(Paths.UI_PREFIX);
 	}
 	
 	public static function getModIcon(mod:String):String
