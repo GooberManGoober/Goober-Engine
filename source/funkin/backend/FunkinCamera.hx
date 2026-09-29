@@ -110,7 +110,7 @@ class FunkinCamera extends extensions.flixel.FlxCameraEx
 	public function new(x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0, zoom:Float = 0)
 	{
 		super(x, y, width, height, zoom);
-				
+		
 		_backgroundFrame = new FlxFrame(new FlxGraphic('', null));
 		_backgroundFrame.frame = new FlxRect();
 		
@@ -273,13 +273,38 @@ class FunkinCamera extends extensions.flixel.FlxCameraEx
 		return super.startTrianglesBatch(graphic, smoothing, isColored, blend, hasColorOffsets, shader);
 	}
 	
+	@:nullSafety(Off)
 	override function destroy():Void
 	{
 		super.destroy();
 		
-		_blendRenderTexture.destroy();
-		_backgroundRenderTexture.destroy();
+		// sigh just in case
+		if (_blendShader != null)
+		{
+			_blendShader.sourceSwag = null;
+			_blendShader.backgroundSwag = null;
+			_blendShader = null;
+		}
 		
-		_cameraTexture.dispose();
+		if (_blendRenderTexture != null)
+		{
+			_blendRenderTexture.destroy();
+			_blendRenderTexture = null;
+		}
+		
+		if (_backgroundRenderTexture != null)
+		{
+			_backgroundRenderTexture.destroy();
+			_backgroundRenderTexture = null;
+		}
+		
+		if (_cameraTexture != null)
+		{
+			_cameraTexture.dispose();
+			_cameraTexture = null;
+		}
+		
+		_backgroundFrame = null;
+		_cameraMatrix = null;
 	}
 }
