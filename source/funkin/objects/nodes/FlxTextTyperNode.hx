@@ -18,8 +18,8 @@ import flixel.util.FlxSignal;
  * var typer = new FlxTextTyperNode();
  * add(typer);
  * 
- * typer.onChange.add((text)->{
- *      mainText.text = text;
+ * typer.onChange.add(()->{
+ *      mainText.text = typer.text;
  * });
  * typer.startTyping('hello');
  * ```
