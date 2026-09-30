@@ -339,6 +339,7 @@ class Mods
 		var list:Array<String> = Mods.parseList().enabled;
 		if (list != null && list[0] != null) Mods.currentModDirectory = list[0];
 		applyModConfig();
+		funkin.data.ModOptions.init(Mods.currentModDirectory);
 		#end
 	}
 	
