@@ -149,7 +149,7 @@ class ModOptions
 		
 		validateOrder();
 		
-		trace('initialized mod [$currentMod] settings (${Lambda.count(options)} options)');
+		trace('initialized mod [$currentMod] settings');
 	}
 	
 	// in case your options, somehow, don't have an idx
@@ -186,13 +186,11 @@ class ModOptions
 		save.data.optionData = out;
 		save.flush();
 		save.close();
-		
-		trace('flushed $currentMod');
 	}
 	
-	public static function add(key:String, type:String = 'string', defaultValue:Dynamic = 'null', ?settings:OptionSettings)
+	public static function add(mod:String, key:String, type:String = 'string', defaultValue:Dynamic = 'null', ?settings:OptionSettings)
 	{
-		if (options.exists(key)) return;
+		if (options.exists(key) || (currentMod != mod && !Mods.globalMods.contains(mod))) return;
 		
 		if (defaultValue == 'null')
 		{
