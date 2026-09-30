@@ -12,10 +12,8 @@ class ModOptionsSubState extends BaseOptionsMenu
 		title = '${Mods.currentModDirectory} Options';
 		rpcTitle = 'Custom Mod Options';
 		
-		for (key in ModOptions.options.keys())
+		for (option in ModOptions.list)
 		{
-			final option = ModOptions.options.get(key);
-			
 			var obj:ModOptionObject = new ModOptionObject(option);
 			obj.options = option.settings.options;
 			addOption(obj);
