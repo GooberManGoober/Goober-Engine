@@ -76,7 +76,7 @@ class OptionsState extends MusicBeatState
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 		
-		if (funkin.data.ModOptions.length > 0) options.insert(options.indexOf('Misc'), 'Mods');
+		if (funkin.data.ModOptions.list.length > 0) options.insert(options.indexOf('Misc'), 'Mods');
 		
 		for (i in 0...options.length)
 		{

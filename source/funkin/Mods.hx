@@ -339,7 +339,6 @@ class Mods
 		var list:Array<String> = Mods.parseList().enabled;
 		if (list != null && list[0] != null) Mods.currentModDirectory = list[0];
 		applyModConfig();
-		funkin.data.ModOptions.init(Mods.currentModDirectory);
 		#end
 	}
 	
@@ -349,6 +348,7 @@ class Mods
 		if (pack == null) return;
 		
 		currentModConfig = pack;
+		funkin.data.ModOptions.init(currentModDirectory);
 		
 		WindowUtil.setTitle(pack.windowTitle ?? WindowUtil.defaultAppTitle);
 		

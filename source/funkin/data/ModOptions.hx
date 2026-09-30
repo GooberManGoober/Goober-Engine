@@ -4,6 +4,7 @@ import flixel.util.FlxSave;
 
 class ModOption implements flixel.util.FlxDestroyUtil.IFlxDestroyable
 {
+	public var idx:Int = -1;
 	public var key:String;
 	public var type:String;
 	public var value:Dynamic;
@@ -37,13 +38,17 @@ class ModOption implements flixel.util.FlxDestroyUtil.IFlxDestroyable
 		settings.decimals ??= 1;
 	}
 	
-	public function toString():String return '(key: $key, type: $type, value: $value)';
+	public function toString():String return '(key: $key, type: $type, value: $value, idx: $idx)';
 	
 	public function destroy()
 	{
 		key = '';
 		value = null;
+		defaultValue = null;
 		type = '';
+		idx = -1;
+		
+		settings = null;
 	}
 }
 
@@ -82,6 +87,7 @@ class ModOptionObject extends funkin.states.options.Option
 				this.changeValue = option.settings.stepSize;
 				this.decimals = option.settings.decimals;
 			case 'string':
+				this.options = option.settings.options; // it's already set in super() but double assigning Juuusttt in case
 				this.displayFormat = option.settings.displayFormat;
 		}
 	}
@@ -101,112 +107,144 @@ class ModOptions
 {
 	public static var currentMod:String = '';
 	public static var options:Map<String, ModOption> = new Map();
-	public static var length(get, never):Int;
 	
-	private static function get_length()
+	public static var list(get, never):Array<ModOption>;
+	
+	static function get_list()
 	{
-		var count = 0;
-		for (key in options.keys())
-			count++;
-			
-		return count;
+		var list = [for (option in options) option];
+		list.sort(funkin.utils.SortUtil.idxSort);
+		return list;
 	}
 	
-	private static function getSave(mod:String):FlxSave
+	static function getSave(mod:String):FlxSave
 	{
 		var save = new FlxSave();
 		save.bind('mods/$mod');
-		
 		return save;
 	}
 	
 	public static function init(?modName:String = 'NMV-Base-Game')
 	{
+		if (currentMod != '' && currentMod != modName) flush();
+		
 		currentMod = modName;
-		for (i in options.keys())
-		{
-			var option = options.get(i);
-			option = FlxDestroyUtil.destroy(option);
-		}
 		options.clear();
 		
 		var save = getSave(modName);
-		if (save != null && save.data.options != null) CoolUtil.copyMapValues(save.data.options, options);
+		var raw:Dynamic = save.data.optionData;
 		
-		save = FlxDestroyUtil.destroy(save);
+		if (raw != null)
+		{
+			for (key in Reflect.fields(raw))
+			{
+				var entry:Dynamic = Reflect.field(raw, key);
+				
+				var option = new ModOption(key, entry.type, entry.value, entry.settings);
+				option.idx = (entry.idx != null) ? entry.idx : -1;
+				options.set(key, option);
+			}
+		}
+		save.close();
+		
+		validateOrder();
+		
+		trace('initialized mod [$currentMod] settings');
+	}
+	
+	// in case your options, somehow, don't have an idx
+	static function validateOrder()
+	{
+		var usedIDs:Array<Int> = [];
+		var sorted = list;
+		
+		for (i in 0...sorted.length)
+		{
+			var option = sorted[i];
+			if (option.idx == -1 || usedIDs.contains(option.idx)) option.idx = i;
+			usedIDs.push(option.idx);
+		}
 	}
 	
 	public static function flush()
 	{
+		if (currentMod == '') return;
+		
+		var out:Dynamic = {};
+		for (key => option in options)
+		{
+			Reflect.setField(out, key,
+				{
+					type: option.type,
+					value: option.value,
+					idx: option.idx,
+					settings: option.settings
+				});
+		}
+		
 		var save = getSave(currentMod);
-		save.data.options = options;
+		save.data.optionData = out;
+		save.flush();
 		save.close();
 	}
 	
-	public static function add(key:String, type:String = 'string', defaultValue:Dynamic = 'null', ?settings:OptionSettings)
+	public static function add(mod:String, key:String, type:String = 'string', defaultValue:Dynamic = 'null', ?settings:OptionSettings)
 	{
-		if (!options.exists(key))
+		if (options.exists(key) || (currentMod != mod && !Mods.globalMods.contains(mod))) return;
+		
+		if (defaultValue == 'null')
 		{
-			if (defaultValue == 'null')
+			switch (type.toLowerCase())
 			{
-				switch (type.toLowerCase())
-				{
-					case 'bool':
-						defaultValue = false;
-					case 'int' | 'float':
-						defaultValue = 0;
-					case 'string':
-						defaultValue = '';
-					default:
-						type = 'null';
-				}
+				case 'bool':
+					defaultValue = false;
+				case 'int' | 'float':
+					defaultValue = 0;
+				case 'string':
+					defaultValue = '';
+				default:
+					type = 'null';
 			}
-			
-			if (type != 'null')
-			{
-				var option = new ModOption(key, type, defaultValue, settings);
-				options.set(key, option);
-				
-				trace(option);
-			}
-			else Logger.log('Unable to create custom option [$key]. Is your option type incorrect / null?', ERROR);
 		}
+		
+		if (type == 'null')
+		{
+			Logger.log('Unable to create custom option [$key]. Is your option type incorrect / null?', ERROR);
+			return;
+		}
+		
+		var option = new ModOption(key, type, defaultValue, settings);
+		option.idx = list.length;
+		options.set(key, option);
+		
+		trace('new option $key value $defaultValue');
 		flush();
 	}
 	
 	public static function get(key:String):ModOption
 	{
-		if (options.exists(key))
+		var option = options.get(key);
+		
+		if (option == null || option.type == 'null')
 		{
-			final option = options.get(key);
-			
-			if (option == null || option.type == 'null')
-			{
-				Logger.log('Custom Option [$key] returned null. Does it exist / was it created properly?', ERROR);
-				return null;
-			}
-			
-			return option;
+			Logger.log('Custom Option [$key] returned null. Does it exist / was it created properly?', ERROR);
+			return null;
 		}
 		
-		return null;
+		return option;
 	}
 	
 	public static function setValue(key:String, value:Dynamic)
 	{
-		final option = get(key);
-		// trace(key);
-		option.value = value;
+		var option = get(key);
+		if (option == null) return;
 		
-		options.set(key, option);
+		option.value = value;
 	}
 	
 	public static function getValue(key:String):Dynamic
 	{
-		final option = get(key);
-		
-		if (option != null) return option.value;
-		
-		return null;
+		var option = get(key);
+		return (option != null) ? option.value : null;
 	}
 }
