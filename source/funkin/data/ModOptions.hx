@@ -124,7 +124,7 @@ class ModOptions
 		return save;
 	}
 	
-	public static function init(?modName:String = 'NMV-Base-Game')
+	public static function init(?modName:String = 'base-game')
 	{
 		if (currentMod != '' && currentMod != modName) flush();
 		
