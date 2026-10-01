@@ -84,10 +84,10 @@ class FunkinSprite extends FlxAnimate
 		{
 			path = path.trim();
 			
-			final isAtlasSprite = FunkinAssets.exists(Paths.getPath('images/$path/Animation.json', null, true));
+			final isAtlasSprite = FunkinAssets.exists(Paths.json('$path/Animation', 'images'));
 			if (isAtlasSprite)
 			{
-				var atlas = FlxAnimateFrames.fromAnimate(Paths.getPath('images/$path', null, true), null, null, null, false, {cacheOnLoad: true});
+				var atlas = FlxAnimateFrames.fromAnimate(Paths.getPath(path, 'images'), null, null, null, false, {cacheOnLoad: true});
 				if (atlas != null)
 				{
 					// unsure if flxanimate messes with the buffer or not but if it does then drop this
@@ -169,7 +169,7 @@ class FunkinSprite extends FlxAnimate
 		
 		setOffsets(correctedAnim);
 	}
-
+	
 	public function setOffsets(anim:String = 'idle')
 	{
 		final animationOffsets = animOffsets.get(anim);

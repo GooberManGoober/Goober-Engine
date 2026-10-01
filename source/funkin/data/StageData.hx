@@ -209,8 +209,8 @@ class StageData
 	// dealing with putting ur stage in data or just in the content folder directly
 	public static function getStageFromDir(dir:String, stage:String):String
 	{
-		var path = Paths.getPath('$dir/$stage/data.json', null, true);
-		if (!FunkinAssets.exists(path, TEXT)) path = Paths.getPath('$dir/$stage.json', null, true);
+		var path = Paths.json('$stage/data', dir);
+		if (!FunkinAssets.exists(path, TEXT)) path = Paths.json('$stage', dir);
 		
 		return path;
 	}

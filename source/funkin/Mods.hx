@@ -421,8 +421,6 @@ class Mods
 		Paths.COMBO_PREFIX = dirExists(pack.comboPrefix) ? pack.comboPrefix : 'UI/combo/';
 		Paths.RATINGS_PREFIX = dirExists(pack.ratingsPrefix) ? pack.ratingsPrefix : 'UI/ratings/';
 		Paths.COUNTDOWN_PREFIX = dirExists(pack.countdownPrefix) ? pack.countdownPrefix : 'UI/countdown/';
-		
-		trace(Paths.UI_PREFIX);
 	}
 	
 	public static function getModIcon(mod:String):String

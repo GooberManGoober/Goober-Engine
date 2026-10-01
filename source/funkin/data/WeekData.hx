@@ -102,8 +102,7 @@ class WeekData
 		var originalLength:Int = directories.length;
 		#end
 		
-		var txtPath = Paths.getPath('data/weeks/weekList.txt');
-		if (!FunkinAssets.exists(txtPath)) txtPath = Paths.getPath('weeks/weekList.txt');
+		var txtPath = Paths.txt('weekList', 'data/weeks');
 		
 		final sexList:Array<String> = CoolUtil.coolTextFile(txtPath);
 		
