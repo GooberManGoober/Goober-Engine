@@ -390,7 +390,6 @@ class FunkinScript extends IrisEx implements IFlxDestroyable
 		set("FoxObjectGroup", foxlite.group.FoxObjectGroup);
 		set("FoxTypedGroup", foxlite.group.FoxTypedGroup);
 
-		set("FoxInstanceChunkData", foxlite.instancing.FoxInstanceChunkData);
 		set("FoxInstanceData", foxlite.instancing.FoxInstanceData);
 		set("FoxInstanceUpdateMode", funkin.utils.MacroUtil.buildAbstract(foxlite.instancing.FoxInstanceUpdateMode));
 
