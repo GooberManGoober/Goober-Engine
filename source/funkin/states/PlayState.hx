@@ -1697,7 +1697,7 @@ class PlayState extends MusicBeatState
 	
 	public function resyncVocals():Void
 	{
-		if (finishTimer != null) return;
+		if (finishTimer != null || !updateTime) return;
 		
 		trace('resyncing at ${Conductor.songPosition}');
 		
