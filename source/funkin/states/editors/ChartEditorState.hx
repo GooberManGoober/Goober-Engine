@@ -867,7 +867,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 		final instVolume:Float = (audio.inst?.volume ?? 1), playerVolume:Float = audio.playerVolume, opponentVolume:Float = audio.opponentVolume;
 		
 		audio.stop();
-		audio.populate(song);
+		audio.loadSong(song);
 		audio.pause();
 		
 		audio.inst.volume = instVolume;
@@ -1265,7 +1265,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 			if (FlxG.keys.pressed.SHIFT) resetSection(true);
 			else resetSection();
 		}
-
+		
 		// ARROW VORTEX SHIT NO DEADASS
 		
 		if (FlxG.keys.pressed.W || FlxG.keys.pressed.S)

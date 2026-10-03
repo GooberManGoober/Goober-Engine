@@ -656,7 +656,6 @@ class PlayState extends MusicBeatState
 		var vizLoadStart:Float = traceCheck ? Sys.time() : 0;
 		
 		stage = new Stage(SONG.stage);
-		scripts.set('stage', stage);
 		applyStageData(stage.stageData);
 		
 		stage.buildStage();
@@ -698,9 +697,6 @@ class PlayState extends MusicBeatState
 			gfGroup.addChar(gf);
 			gfGroup.parent = gf;
 			startCharacterScript(gf.curCharacter, gf);
-
-			scripts.set('gf', gf);
-			scripts.set('gfGroup', gfGroup);
 		}
 		
 		dad = new Character(SONG.player2);
@@ -712,12 +708,6 @@ class PlayState extends MusicBeatState
 		startCharacterScript(boyfriend.curCharacter, boyfriend);
 		boyfriendGroup.addChar(boyfriend);
 		boyfriendGroup.parent = boyfriend;
-
-		scripts.set('dad', dad);
-		scripts.set('dadGroup', dadGroup);
-		
-		scripts.set('boyfriend', boyfriend);
-		scripts.set('boyfriendGroup', boyfriendGroup);
 		
 		var camPos:FlxPoint = FlxPoint.get(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);
 		if (gf != null)
@@ -927,9 +917,9 @@ class PlayState extends MusicBeatState
 	public var skipArrowStartTween:Bool = false;
 	
 	var splashLayering:Array<Dynamic> = [];
-
+	
 	public var screenDim:Null<FlxSprite>; // this doesnt need to be apart of playstate
-
+	
 	public function generatePlayfields()
 	{
 		if (generatedFields) return;
@@ -958,7 +948,7 @@ class PlayState extends MusicBeatState
 			strums.onNoteHit.add((note, field) -> {
 				if (field.ID == 1 && !camZooming) camZooming = true;
 				
-				if (field.playerControls || (!audio.splitVocals && !audio.trackSwap)) audio.hit();
+				if (field.playerControls || (!audio.splitVocals && !audio.trackSwap)) audio.setTrackVolumeState();
 				
 				if (field.playerControls && field.showRatings && !note.isSustainNote)
 				{
@@ -972,7 +962,7 @@ class PlayState extends MusicBeatState
 			{
 				if (combo > 5 && gf != null && gf.animOffsets.exists('sad')) gf.playAnimForDuration('sad', 1, true);
 				combo = 0;
-				audio.miss();
+				audio.setTrackVolumeState(true);
 				
 				if (instakillOnMiss) doDeathCheck(true);
 				
@@ -996,11 +986,13 @@ class PlayState extends MusicBeatState
 			final splashGrp = strums.splashLayer;
 			splashGrp.camera = camHUD;
 			splashLayering.push(splashGrp);
+			
+			if (lane == 1)
+			{
+				if (!ClientPrefs.opponentStrums) strums.baseAlpha = 0;
+				else if (ClientPrefs.middleScroll) strums.baseAlpha = 0.35;
+			}
 		}
-
-		// this broke a lot so im adding it back sorry data
-		scripts.set('playerStrums', playerStrums);
-		scripts.set('opponentStrums', opponentStrums);
 		
 		modManager.receptors = [for (i in playFields) i.members];
 		
@@ -1161,7 +1153,7 @@ class PlayState extends MusicBeatState
 		#if FLX_PITCH audio.pitch = playbackRate; #end
 		audio.play();
 		
-		audio.hit();
+		audio.setTrackVolumeState();
 		
 		Conductor.songPosition = time;
 		songTime = time;
@@ -1192,7 +1184,6 @@ class PlayState extends MusicBeatState
 		// Updating Discord Rich Presence (with Time Left)
 		if (automatedDiscord) DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength);
 		
-		scripts.set('songLength', songLength);
 		scripts.call('onSongStart', []);
 		callHUDFunc(hud -> hud.onSongStart());
 	}
@@ -1287,10 +1278,10 @@ class PlayState extends MusicBeatState
 		audio = new PlayableSong();
 		
 		var start = traceCheck ? Sys.time() : 0;
-		audio.populate(SONG);
+		audio.loadSong(SONG);
 		if (traceCheck) trace('loading song took ${Sys.time() - start} seconds');
 		
-		audio.hit();
+		audio.setTrackVolumeState();
 		add(audio);
 		
 		#if FLX_PITCH
@@ -1301,11 +1292,10 @@ class PlayState extends MusicBeatState
 		
 		scripts.set('vocals', audio);
 		scripts.set('inst', audio.inst);
-
+		
 		add(playFields);
 		add(notes);
 		
-		// layering for notesplash stuff
 		for (i in splashLayering)
 			add(i);
 			
@@ -1695,14 +1685,14 @@ class PlayState extends MusicBeatState
 		else DiscordClient.changePresence(rpcDescription, rpcSongName + ' ' + rpcDifficulty, null, true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
 	}
 	
-	function checkResync():Void
+	inline function checkResync():Void
 	{
-		final maxToleratedOffset:Float = 35 * playbackRate;
-
+		final MAX_OFFSET:Float = 35 * playbackRate;
+		
 		final correctTime = Math.abs(Conductor.songPosition - Conductor.offset);
-		final songSync = audio.syncVoiceStatus() ? audio.getDesyncDifference(correctTime) : correctTime - audio.inst.time;
-
-		if (songSync > maxToleratedOffset) resyncVocals();
+		final delta = audio.getDesyncDifference(correctTime);
+		
+		if (delta > MAX_OFFSET) resyncVocals();
 	}
 	
 	public function resyncVocals():Void
@@ -1714,7 +1704,7 @@ class PlayState extends MusicBeatState
 		audio.pitch = playbackRate;
 		audio.volume = 1 * volumeMult;
 		audio.resync(Conductor.songPosition);
-		audio.hit();
+		audio.setTrackVolumeState();
 		#if FLX_PITCH audio.pitch = playbackRate; #end
 	}
 	
@@ -1959,7 +1949,7 @@ class PlayState extends MusicBeatState
 				botplayTxt.visible = !botplayTxt.visible;
 			}
 		}
-
+		
 		if (ClientPrefs.underlayType == 'Screen Dim' && screenDim != null)
 		{
 			screenDim.scale.set(screenDim.camera.width / screenDim.camera.zoom, screenDim.camera.height / screenDim.camera.zoom);
@@ -2164,15 +2154,6 @@ class PlayState extends MusicBeatState
 				gf = gfGroup.change(name);
 				gf.danceEveryNumBeats *= gfSpeed;
 		}
-
-		scripts.set('boyfriend', boyfriend);
-		scripts.set('boyfriendGroup', boyfriendGroup);
-		
-		scripts.set('dad', dad);
-		scripts.set('dadGroup', dadGroup);
-		
-		scripts.set('gf', gf);
-		scripts.set('gfGroup', gfGroup);
 		
 		callHUDFunc(hud -> hud.onCharacterChange());
 	}
@@ -2244,7 +2225,6 @@ class PlayState extends MusicBeatState
 					
 					camChangeZoom(targetZoom, duration, FlxEase.circOut);
 				}
-				scripts.set('defaultCamZoom', defaultCamZoom);
 				
 			case 'HUD Fade':
 				FlxTween.cancelTweensOf(camHUD, ['alpha']);
@@ -2789,7 +2769,6 @@ class PlayState extends MusicBeatState
 		
 		audio.volume = 0;
 		audio.stop();
-		audio.stopInst();
 		
 		if (songEndCallback == null)
 		{
@@ -2910,7 +2889,6 @@ class PlayState extends MusicBeatState
 		}
 		
 		audio.stop();
-		audio.stopInst();
 	}
 	
 	public function KillNotes():Void
@@ -3171,12 +3149,11 @@ class PlayState extends MusicBeatState
 	{
 		super.stepHit();
 		
-		if (audio.inst != null && !endingSong) checkResync();
+		if (!startingSong && !endingSong) checkResync();
 		
 		if (curStep == lastStepHit) return;
 		
 		lastStepHit = curStep;
-		scripts.set('curStep', curStep);
 		
 		scripts.call('onStepHit');
 		
@@ -3201,7 +3178,6 @@ class PlayState extends MusicBeatState
 
 		lastBeatHit = curBeat;
 		
-		scripts.set('curBeat', curBeat);
 		scripts.call('onBeatHit');
 		callHUDFunc(hud -> hud.beatHit());
 	}
@@ -3232,7 +3208,6 @@ class PlayState extends MusicBeatState
 		
 		super.sectionHit();
 		
-		scripts.set('curSection', curSection);
 		scripts.call('onSectionHit');
 		callHUDFunc(hud -> hud.sectionHit());
 	}
