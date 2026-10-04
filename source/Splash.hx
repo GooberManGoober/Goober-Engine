@@ -135,6 +135,8 @@ class Splash extends FlxState
 	
 	function complete()
 	{
+        if (FlxG.save.data.volume == null) FlxG.save.data.volume = 1;
+        
 		FlxG.sound.muted = FlxG.save.data.mute;
 		FlxG.sound.volume = FlxG.save.data.volume;
 		

@@ -1,7 +1,5 @@
 package funkin.states.options;
 
-import funkin.states.options.Option;
-
 import flixel.FlxG;
 
 class VisualsUISubState extends BaseOptionsMenu
