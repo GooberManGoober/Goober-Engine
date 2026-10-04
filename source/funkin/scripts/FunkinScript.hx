@@ -254,11 +254,6 @@ class FunkinScript extends IrisEx implements IFlxDestroyable
 		set('Function_Halt', funkin.scripting.ScriptConstants.HALT_FUNC);
 		set('Function_Stop', funkin.scripting.ScriptConstants.STOP_FUNC);
 		set('Function_Continue', funkin.scripting.ScriptConstants.CONTINUE_FUNC);
-		set('curBeat', 0);
-		set('curStep', 0);
-		set('curSection', 0);
-		set('curDecBeat', 0);
-		set('curDecStep', 0);
 		set('version', Main.NMV_VERSION.trim());
 		set('asset_redirect', #if ASSET_REDIRECT true #else false #end);
 		set('foxlite_allowed', #if FOXLITE_ALLOWED true #else false #end);
