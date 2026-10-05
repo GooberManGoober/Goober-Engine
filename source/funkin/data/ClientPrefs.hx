@@ -93,7 +93,7 @@ class ClientPrefs
 	
 	@saveVar public static var downScroll:Bool = false;
 	
-	@saveVar public static var middleScroll:Bool = false;
+	// @saveVar public static var middleScroll:Bool = false;
 	
 	@saveVar public static var opponentStrums:Bool = true;
 	
@@ -226,6 +226,15 @@ class ClientPrefs
 		'hard_reload' => [F6, NONE],
 		'switch_debug_display' => [F3, NONE]
 	];
+
+	// unavailable var  ------------------------------------------------------------------------//
+	public static var middleScroll(get, never):Bool;
+
+	static function get_middleScroll():Bool
+	{
+		Logger.log("`Middlescroll` is deprecated and not available in this engine!", WARN, false);
+		return false;
+	}
 	
 	public static var defaultKeys:Map<Action, Array<FlxKey>> = null;
 	
