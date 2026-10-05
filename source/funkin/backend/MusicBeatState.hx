@@ -73,6 +73,8 @@ class MusicBeatState extends FlxUIState
 				return;
 			}
 			
+			stateScripts.parent = this;
+			
 			Logger.log('script [$scriptName] initialized', NOTICE);
 		}
 		

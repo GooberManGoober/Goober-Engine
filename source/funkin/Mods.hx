@@ -247,8 +247,6 @@ class Mods
 		var path = Paths.mods(folder + '/meta.json');
 		if (!FunkinAssets.exists(path)) path = Paths.getPath('meta.json');
 		
-		trace(path);
-		
 		if (FunkinAssets.exists(path))
 		{
 			final raw = FunkinAssets.getContent(path);
@@ -281,6 +279,7 @@ class Mods
 		return list;
 	}
 	
+	#if MODS_ALLOWED
 	public static function getListAsArray(?top:String = ''):Array<{folder:String, enabled:Bool}>
 	{
 		var list:Array<{folder:String, enabled:Bool}> = [];
@@ -324,6 +323,7 @@ class Mods
 		
 		return list;
 	}
+	#end
 	
 	public static function updateModList(top:String = '')
 	{

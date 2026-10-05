@@ -477,11 +477,15 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 		
+		#if MODS_ENABLED
 		var mods:Array<{folder:String, enabled:Bool}> = Mods.getListAsArray();
+		#end
 		
 		addSongsToTabs();
+		#if MODS_ENABLED
 		for (i in mods)
 			if (i.enabled) addSongsToTabs(i.folder);
+		#end
 	}
 	
 	function getSongMeta(song:String):Null<SongMetaData>
@@ -496,7 +500,6 @@ class FreeplayState extends MusicBeatState
 	function getFreeplayData(?modFolder:String):Null<FreeplayData>
 	{
 		final freeplayDataPath = Paths.getPath('data/freeplay.json', modFolder);
-		trace(freeplayDataPath);
 		
 		return FunkinAssets.exists(freeplayDataPath) ? FunkinAssets.parseJson5(FunkinAssets.getContent(freeplayDataPath)) : null;
 	}
