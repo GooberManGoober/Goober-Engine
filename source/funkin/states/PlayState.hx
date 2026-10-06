@@ -2149,6 +2149,7 @@ class PlayState extends MusicBeatState
 				gf.danceEveryNumBeats *= gfSpeed;
 		}
 		
+		scripts.call('onChangeCharacter', [name, charType]);
 		callHUDFunc(hud -> hud.onCharacterChange());
 	}
 	
