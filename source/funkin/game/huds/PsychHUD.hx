@@ -59,7 +59,7 @@ class PsychHUD extends BaseHUD
 		ratingPrefix = Paths.RATINGS_PREFIX;
 		comboPrefix = Paths.COMBO_PREFIX;
 		
-		final healthGraphic = FunkinAssets.exists(Paths.mods('images/${Paths.UI_PREFIX}healthBar')) ? '${Paths.UI_PREFIX}healthBar' : 'UI/healthBar';
+		final healthGraphic = FunkinAssets.exists(Paths.getPath('images/${Paths.UI_PREFIX}healthBar.png')) ? '${Paths.UI_PREFIX}healthBar' : 'UI/healthBar';
 		
 		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.downScroll ? 0.89 : 0.11), healthGraphic, function() return healthLerp, FunkinConstants.HEALTH_MIN, FunkinConstants.HEALTH_MAX);
 		healthBar.screenCenter(X);
@@ -102,7 +102,7 @@ class PsychHUD extends BaseHUD
 		if (ClientPrefs.downScroll) timeTxt.y = FlxG.height - 44;
 		if (ClientPrefs.timeBarType == 'Song Name') timeTxt.text = PlayState.SONG.song;
 		
-		final timeGraphic = FunkinAssets.exists(Paths.mods('images/${Paths.UI_PREFIX}timeBar')) ? '${Paths.UI_PREFIX}timeBar' : 'UI/timeBar';
+		final timeGraphic = FunkinAssets.exists(Paths.getPath('images/${Paths.UI_PREFIX}timeBar.png')) ? '${Paths.UI_PREFIX}timeBar' : 'UI/timeBar';
 		
 		timeBar = new Bar(0, timeTxt.y + (timeTxt.height / 4), timeGraphic, function() return parent.songPercent, 0, 1);
 		timeBar.scrollFactor.set();

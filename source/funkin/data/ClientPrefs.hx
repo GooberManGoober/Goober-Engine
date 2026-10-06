@@ -315,6 +315,8 @@ class ClientPrefs
 		save.data.customControls = keyBinds;
 		save.data.customGamepadControls = gamepadBinds;
 		save.close();
+		
+		ModOptions.flush();
 	}
 	
 	public static function tryBindingSave(name:String = 'funkin')

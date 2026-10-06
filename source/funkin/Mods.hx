@@ -247,8 +247,6 @@ class Mods
 		var path = Paths.mods(folder + '/meta.json');
 		if (!FunkinAssets.exists(path)) path = Paths.getPath('meta.json');
 		
-		trace(path);
-		
 		if (FunkinAssets.exists(path))
 		{
 			final raw = FunkinAssets.getContent(path);
@@ -281,6 +279,7 @@ class Mods
 		return list;
 	}
 	
+	#if MODS_ALLOWED
 	public static function getListAsArray(?top:String = ''):Array<{folder:String, enabled:Bool}>
 	{
 		var list:Array<{folder:String, enabled:Bool}> = [];
@@ -324,6 +323,7 @@ class Mods
 		
 		return list;
 	}
+	#end
 	
 	public static function updateModList(top:String = '')
 	{
@@ -360,6 +360,7 @@ class Mods
 		if (pack == null) return;
 		
 		currentModConfig = pack;
+		funkin.data.ModOptions.init(currentModDirectory);
 		
 		WindowUtil.setTitle(pack.windowTitle ?? WindowUtil.defaultAppTitle);
 		
@@ -420,8 +421,6 @@ class Mods
 		Paths.COMBO_PREFIX = dirExists(pack.comboPrefix) ? pack.comboPrefix : 'UI/combo/';
 		Paths.RATINGS_PREFIX = dirExists(pack.ratingsPrefix) ? pack.ratingsPrefix : 'UI/ratings/';
 		Paths.COUNTDOWN_PREFIX = dirExists(pack.countdownPrefix) ? pack.countdownPrefix : 'UI/countdown/';
-		
-		trace(Paths.UI_PREFIX);
 	}
 	
 	public static function getModIcon(mod:String):String
