@@ -80,7 +80,7 @@ class ClientPrefs
 	
 	@saveVar public static var healthBarAlpha:Float = 1;
 	
-	@saveVar public static var camFollowsCharacters:Bool = true;
+	@saveVar public static var noteCamIntensity:Float = 1.0;
 	
 	@saveVar public static var underlayType:String = 'Lane Underlay';
 	
@@ -197,6 +197,47 @@ class ClientPrefs
 		[-120, -70, -35], // 96th
 		[-120, -70, -35] // 192nd
 	];
+
+	// unavailable / deprecated variables  ------------------------------------------------------------------------//
+	public static var middleScroll(get, never):Bool;
+
+	static function get_middleScroll():Bool
+	{
+		Logger.log("middlescroll is deprecated and no longer available", WARN, false);
+		return false;
+	}
+
+	public static var noteSplashes(get, never):Bool;
+
+	static function get_noteSplashes():Bool
+	{
+		Logger.log("noteSplashes is deprecated, use noteSplashType instead", WARN, false);
+		return false;
+	}
+
+	public static var pauseMusic(get, never):String;
+
+	static function get_pauseMusic():String
+	{
+		Logger.log("pauseMusic is deprecated and no longer available", WARN, false);
+		return null;
+	}
+
+	public static var comboStacking(get, never):Bool;
+
+	static function get_comboStacking():Bool
+	{
+		Logger.log("comboStacking is deprecated and no longer available", WARN, false);
+		return false;
+	}
+
+	public static var camFollowsCharacters(get, never):Bool;
+
+	static function get_camFollowsCharacters():Bool
+	{
+		Logger.log("camFollowsCharacters is deprecated, use noteCamIntensity instead", WARN, false);
+		return noteCamIntensity > 0;
+	}
 	
 	// keybinds ------------------------------------------------------------------------//
 	// Every key has two binds, add your key bind down here and then add your control on options/ControlsSubState.hx and Controls.hx
@@ -226,15 +267,6 @@ class ClientPrefs
 		'hard_reload' => [F6, NONE],
 		'switch_debug_display' => [F3, NONE]
 	];
-
-	// unavailable var  ------------------------------------------------------------------------//
-	public static var middleScroll(get, never):Bool;
-
-	static function get_middleScroll():Bool
-	{
-		Logger.log("`Middlescroll` is deprecated and not available in this engine!", WARN, false);
-		return false;
-	}
 	
 	public static var defaultKeys:Map<Action, Array<FlxKey>> = null;
 	
