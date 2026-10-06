@@ -5,6 +5,7 @@ import flixel.util.typeLimit.NextState;
 import haxe.Exception;
 
 import moonchart.formats.fnf.legacy.FNFPsych;
+import moonchart.formats.fnf.legacy.FNFNmv;
 import moonchart.formats.BasicFormat.DynamicFormat;
 import moonchart.backend.Util.OneOfArray;
 import moonchart.formats.fnf.legacy.FNFLegacy;
@@ -275,7 +276,7 @@ class ChartConverterState extends MusicBeatState
 	
 	function saveFromFormat(path:String, format:OneOfArray<DynamicFormat>, ?diff:FormatDifficulty)
 	{
-		final nmvChart = new FNFPsych().fromFormat(format, diff);
+		final nmvChart = new FNFNmv().fromFormat(format, diff);
 		nmvChart.beautify = true;
 		final saveResult = nmvChart.save(path.replace('.json', '-converted.json'));
 		if (saveResult == null) throw "failed to save.";

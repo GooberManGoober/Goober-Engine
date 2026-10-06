@@ -1,7 +1,7 @@
 package funkin.states.editors;
 
 #if FOXLITE_ALLOWED
-import funkin.states.MainMenuState;
+import funkin.states.editors.MasterEditorMenu;
 import funkin.Mods;
 
 import foxlite.animation.FoxAnimationPlayer;
@@ -10,6 +10,7 @@ import foxlite.FoxScene;
 import foxlite.extras.FoxFPSCamera;
 import foxlite.flixel.FoxFlxSprite;
 import foxlite.flixel.FoxRenderMetrics;
+import foxlite.renderer.FoxRenderer;
 
 using StringTools;
 
@@ -25,6 +26,8 @@ class MaxwellState extends MusicBeatState
     {
         super.create();
 
+        FoxRenderer.forceSyncLoading = true;
+
         // Scene
         scene = new FoxScene(FlxG.width, FlxG.height);
         scene.scrollFactor.set(0, 0);
@@ -32,9 +35,9 @@ class MaxwellState extends MusicBeatState
 
         // Camera
         cam = new FoxFPSCamera();
-        cam.setPosition(-50, 45, 40);
-        cam.setRotation(-0.260, -1, 0);
         cam.enableControls = false;
+        cam.speed = 2.5;
+	    cam.smoothFactor = 0.15;
         cam.bgColor = FlxColor.GRAY;
 
         scene.foxCameras.push(cam);
@@ -65,7 +68,19 @@ class MaxwellState extends MusicBeatState
 
         if (FlxG.keys.justPressed.SPACE && maxwell != null) player.playing = !player.playing;
         
-        if (controls.BACK) FlxG.switchState(new MainMenuState());
+        if (controls.BACK) FlxG.switchState(new MasterEditorMenu());
+
+        if(!cam.enableControls) {
+            cam.setPosition(-50, 45, 40);
+            cam.setRotation(-0.260, -1, 0);
+        }
+
+        if(FlxG.keys.justPressed.BREAK) {
+            cam.enableControls = !cam.enableControls;
+            if(cam.enableControls) {
+                cam.targetAngle.copyFrom(cam.rotation);
+            }
+        }
     }
 }
 #end

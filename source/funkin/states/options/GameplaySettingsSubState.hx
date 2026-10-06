@@ -23,12 +23,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			false); // Default value
 		addOption(option);
 		
-		var option:Option = new Option('Middlescroll',
+		/* var option:Option = new Option('Middlescroll',
 			'If checked, your notes get centered.' + (ClientPrefs.inDevMode ? ' (You will need to script this in for it to work!!!)' : ''),
 			'middleScroll',
 			'bool',
 			false);
-		addOption(option);
+		addOption(option); */
 		
 		var option:Option = new Option('Ghost Tapping', "If checked, you won't get misses from pressing keys\nwhile there are no notes able to be hit.", 'ghostTapping', BOOL, true);
 		addOption(option);

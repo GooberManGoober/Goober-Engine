@@ -1,7 +1,5 @@
 package funkin.states.options;
 
-import funkin.states.options.Option;
-
 import flixel.FlxG;
 
 class VisualsUISubState extends BaseOptionsMenu
@@ -24,7 +22,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
-		
+
 		var option:Option = new Option('Underlay Type:', "What should the lane underlay do?", 'underlayType', STRING, 'Lane Underlay', UnderlayType.toArray());
 		addOption(option);
 		
@@ -35,7 +33,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
-		
+
 		var option:Option = new Option('Time Bar:', "What should the Time Bar display?", 'timeBarType', STRING, 'Time Left', ['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 		
@@ -48,7 +46,16 @@ class VisualsUISubState extends BaseOptionsMenu
 		var option:Option = new Option('Flashing Lights', "Uncheck this if you're sensitive to flashing lights!", 'flashing', BOOL, true);
 		addOption(option);
 		
-		var option:Option = new Option('Camera Note Follow', "If unchecked, hitting notes will no longer have the camera follow in its direction.", 'camFollowsCharacters', BOOL, true);
+		var option:Option = new Option('Note Follow Intensity',
+			"How intense should the camera moving upon hitting a note be.\n[MAY BE BUGGY IN SOME STAGES!!!]",
+			'noteCamIntensity',
+			PERCENT,
+			1);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1.5;
+		option.changeValue = 0.1;
+		option.decimals = 1;
 		addOption(option);
 		
 		super();

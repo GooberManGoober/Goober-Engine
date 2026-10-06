@@ -10,6 +10,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.util.FlxStringUtil;
 import flixel.graphics.FlxGraphic;
+import flixel.util.FlxStringUtil;
 
 import funkin.data.WeekData;
 import funkin.data.*;
@@ -188,7 +189,7 @@ class StoryMenuState extends MusicBeatState
 		changeDifficulty();
 		
 		super.create();
-		stateScripts.call('onCreatePost');
+		scriptGroup.call('onCreatePost', []);
 	}
 	
 	override function closeSubState()
@@ -202,6 +203,8 @@ class StoryMenuState extends MusicBeatState
 	override function update(elapsed:Float)
 	{
 		if (WeekData.weeksList.length == 0) return;
+		
+		scriptGroup.call('onUpdate', [elapsed]);
 		
 		// scoreText.setFormat('VCR OSD Mono', 32);
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(elapsed * 30, 0, 1)));
@@ -238,7 +241,7 @@ class StoryMenuState extends MusicBeatState
 			if (FlxG.keys.justPressed.CONTROL)
 			{
 				persistentUpdate = false;
-				openSubState(new GameplayChangersSubState());
+				openSubState(new GameplayChangersSubstate());
 			}
 			else if (controls.RESET)
 			{
@@ -265,7 +268,7 @@ class StoryMenuState extends MusicBeatState
 			lock.visible = (lock.y > FlxG.height / 2);
 		});
 		
-		dispatchEvent('onUpdatePost', EventCache.get(UpdateEvent).recycle(elapsed), true);
+		scriptGroup.call('onUpdatePost', [elapsed]);
 	}
 	
 	var movedBack:Bool = false;
@@ -319,6 +322,7 @@ class StoryMenuState extends MusicBeatState
 					FlxG.sound.music.stop();
 				}
 				
+				PlayState.chartingMode = false;
 				FlxG.switchState(PlayState.new);
 				FreeplayState.destroyFreeplayVocals();
 			});
@@ -328,7 +332,7 @@ class StoryMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 		
-		stateScripts.call('onSelectWeek', [weekIsLocked(loadedWeeks[curWeek].fileName)]);
+		scriptGroup.call('onSelectWeek', [weekIsLocked(loadedWeeks[curWeek].fileName)]);
 	}
 	
 	var tweenDifficulty:FlxTween;
@@ -368,7 +372,7 @@ class StoryMenuState extends MusicBeatState
 		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
 		#end
 		
-		stateScripts.call('onChangeDifficulty', [change]);
+		scriptGroup.call('onChangeDifficulty', [change]);
 	}
 	
 	var lerpScore:Int = 0;
@@ -437,7 +441,7 @@ class StoryMenuState extends MusicBeatState
 		}
 		updateText();
 		
-		stateScripts.call('onChangeWeek', [change]);
+		scriptGroup.call('onChangeWeek', [change]);
 	}
 	
 	function weekIsLocked(name:String):Bool

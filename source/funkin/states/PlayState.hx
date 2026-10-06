@@ -913,7 +913,7 @@ class PlayState extends MusicBeatState
 			playFields.add(strums);
 			
 			strums.onNoteHit.add((note, field) -> {
-				if (field.ID == 1) camZooming = true;
+				if (field.ID == 1 && !camZooming) camZooming = true;
 				
 				if (field.playerControls || (!audio.splitVocals && !audio.trackSwap)) audio.hit();
 				
@@ -1582,7 +1582,7 @@ class PlayState extends MusicBeatState
 	
 	public function resyncVocals():Void
 	{
-		if (finishTimer != null) return;
+		if (finishTimer != null || !updateTime) return;
 		
 		trace('resyncing at ${Conductor.songPosition}');
 		
@@ -2411,6 +2411,8 @@ class PlayState extends MusicBeatState
 
 		updateCamOffsets = (target.toLowerCase() != "position");
 
+		scripts.call('onFocusCamera', [target, updateCamOffsets]);
+
 		if(onComplete == null){
 			onComplete = function(tween:FlxTween){};
 		}
@@ -2470,6 +2472,8 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+
+		scripts.call('onFocusCameraPost', [target, updateCamOffsets]);
 	}
 	
 	function moveCameraSection():Void
@@ -2556,9 +2560,9 @@ class PlayState extends MusicBeatState
 	
 	function updateCameraOffsets(char:Character)
 	{
-		if (ClientPrefs.camFollowsCharacters)
+		if (ClientPrefs.noteCamIntensity > 0)
 		{
-			final displacement = char.getSingDisplacement();
+			final displacement = (char.getSingDisplacement() * ClientPrefs.noteCamIntensity);
 			
 			if (camFollowOffsetTween != null)
 				camFollowOffsetTween.cancel();
