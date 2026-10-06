@@ -1,5 +1,6 @@
 package funkin.states;
 
+import funkin.scripting.events.BasicEvent;
 import funkin.backend.macro.GitMacro;
 
 import flixel.FlxCamera;
@@ -111,7 +112,7 @@ class MainMenuState extends MusicBeatState
 		
 		super.create();
 		
-		scriptGroup.call('onCreate', []);
+		stateScripts.call('onCreate');
 	}
 	
 	override function update(elapsed:Float)
@@ -142,36 +143,42 @@ class MainMenuState extends MusicBeatState
 				FlxG.switchState(TitleState.new);
 			}
 			
-			scriptGroup.set('curSelected', curSelected);
+			stateScripts.set('curSelected', curSelected);
 			
 			if (controls.ACCEPT)
 			{
-				if (scriptGroup.call('onSelect', [optionShit[curSelected]]) != ScriptConstants.STOP_FUNC)
+				if (dispatchEvent("onSelect", EventCache.get(BasicEvent).basicRecycle()).cancelled)
 				{
-					canInteract = true;
-					FunkinSound.play(Paths.sound('confirmMenu'));
+					super.update(elapsed);
 					
-					if (ClientPrefs.flashing && magenta != null) FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+					dispatchEvent('onUpdatePost', EventCache.get(UpdateEvent).recycle(elapsed), true);
 					
-					final selectedObj = menuItems.members[curSelected];
-					
-					FlxFlicker.flicker(selectedObj, 1, 0.06, false, false, (s) -> {
-						switch (optionShit[curSelected])
-						{
-							case 'story_mode':
-								CoolUtil.switchState(StoryMenuState.new, NONE);
-							case 'freeplay':
-								CoolUtil.switchState(FreeplayState.new, SWIPE);
-							case 'credits':
-								FlxG.switchState(CreditsState.new);
-							case 'options':
-								FlxG.switchState(funkin.states.options.OptionsState.new);
-								OptionsState.onPlayState = false;
-						}
-					});
-					
-					menuItems.forEachAlive(item -> if (item != selectedObj) FlxTween.tween(item, {alpha: 0}, 0.4, {ease: FlxEase.quadOut}));
+					return;
 				}
+				
+				canInteract = true;
+				FunkinSound.play(Paths.sound('confirmMenu'));
+				
+				if (ClientPrefs.flashing && magenta != null) FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+				
+				final selectedObj = menuItems.members[curSelected];
+				
+				FlxFlicker.flicker(selectedObj, 1, 0.06, false, false, (s) -> {
+					switch (optionShit[curSelected])
+					{
+						case 'story_mode':
+							CoolUtil.switchState(StoryMenuState.new, NONE);
+						case 'freeplay':
+							CoolUtil.switchState(FreeplayState.new, SWIPE);
+						case 'credits':
+							FlxG.switchState(CreditsState.new);
+						case 'options':
+							FlxG.switchState(funkin.states.options.OptionsState.new);
+							OptionsState.onPlayState = false;
+					}
+				});
+				
+				menuItems.forEachAlive(item -> if (item != selectedObj) FlxTween.tween(item, {alpha: 0}, 0.4, {ease: FlxEase.quadOut}));
 			}
 			else if (FlxG.keys.anyJustPressed(debugKeys))
 			{
@@ -182,7 +189,7 @@ class MainMenuState extends MusicBeatState
 		
 		super.update(elapsed);
 		
-		scriptGroup.call('onUpdatePost', [elapsed]);
+		dispatchEvent('onUpdatePost', EventCache.get(UpdateEvent).recycle(elapsed), true);
 	}
 	
 	function changeSelection(diff:Int = 0)
@@ -190,7 +197,10 @@ class MainMenuState extends MusicBeatState
 		final lastCurSel = curSelected;
 		curSelected = FlxMath.wrap(curSelected + diff, 0, menuItems.length - 1);
 		
-		if (scriptGroup.call('onChangeSelection', [curSelected]) == ScriptConstants.STOP_FUNC) return;
+		if (dispatchEvent("onChangeSelection", EventCache.get(BasicEvent).basicRecycle()).cancelled)
+		{
+			return;
+		}
 		
 		final prevObj = menuItems.members[lastCurSel];
 		prevObj.animation.play('idle');

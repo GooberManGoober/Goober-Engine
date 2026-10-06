@@ -1,5 +1,7 @@
 package funkin.states.options;
 
+import funkin.states.options.Option;
+
 import flixel.FlxG;
 
 class VisualsUISubState extends BaseOptionsMenu
@@ -22,7 +24,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
-
+		
 		var option:Option = new Option('Underlay Type:', "What should the lane underlay do?", 'underlayType', STRING, 'Lane Underlay', UnderlayType.toArray());
 		addOption(option);
 		
@@ -33,7 +35,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
-
+		
 		var option:Option = new Option('Time Bar:', "What should the Time Bar display?", 'timeBarType', STRING, 'Time Left', ['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 		
