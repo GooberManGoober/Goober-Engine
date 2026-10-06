@@ -424,6 +424,7 @@ class PlayState extends MusicBeatState
 	public var defaultHudZoom:Float = 1;
 	
 	public var beatsPerZoom:Int = 4;
+	public var beatOffset:Int = 0;
 	
 	public var inCutscene:Bool = false;
 	public var ingameCutscene:Bool = false;
@@ -3173,7 +3174,7 @@ class PlayState extends MusicBeatState
 		
 		if (beatsPerZoom == 0) beatsPerZoom = 4;
 		
-		if(camZooming && curBeat % beatsPerZoom == 0) uiBop(0.015 * camZoomingMult, 0.03 * camZoomingMult, 0.8);
+		if(camZooming && curBeat % beatsPerZoom == beatOffset) uiBop(0.015 * camZoomingMult, 0.03 * camZoomingMult, 0.8);
 
 		lastBeatHit = curBeat;
 		
