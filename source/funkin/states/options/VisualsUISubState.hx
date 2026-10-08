@@ -46,16 +46,17 @@ class VisualsUISubState extends BaseOptionsMenu
 		var option:Option = new Option('Flashing Lights', "Uncheck this if you're sensitive to flashing lights!", 'flashing', BOOL, true);
 		addOption(option);
 		
-		var option:Option = new Option('Note Follow Intensity',
-			"How intense should the camera moving upon hitting a note be.\n[MAY BE BUGGY IN SOME STAGES!!!]",
+		var option:Option = new Option('Note Follow Intensity:',
+			"How intense should the camera moving upon hitting a note be.\n[STILL EXPERIMENTAL AND PRONE TO ISSUES]",
 			'noteCamIntensity',
-			PERCENT,
+			FLOAT,
 			1);
 		option.scrollSpeed = 1.6;
 		option.minValue = 0.0;
 		option.maxValue = 1.5;
 		option.changeValue = 0.1;
 		option.decimals = 1;
+		option.displayFormat = '%vx';
 		addOption(option);
 		
 		super();

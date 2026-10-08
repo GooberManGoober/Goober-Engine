@@ -941,6 +941,11 @@ class PlayState extends MusicBeatState
 			// strums.scale = NoteUtil.getSkinFromID(lane).scale;
 			scripts.call('preReceptorGeneration', [strums, lane]);
 			strums.generateReceptors();
+			if (lane == 1)
+			{
+				if (!ClientPrefs.opponentStrums) strums.baseAlpha = 0;
+				// else if (ClientPrefs.middleScroll) strums.baseAlpha = 0.35;
+			}
 			strums.fadeIn(isStoryMode || skipArrowStartTween);
 			strums.ID = lane;
 			

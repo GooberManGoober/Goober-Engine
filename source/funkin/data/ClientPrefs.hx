@@ -93,8 +93,6 @@ class ClientPrefs
 	
 	@saveVar public static var downScroll:Bool = false;
 	
-	// @saveVar public static var middleScroll:Bool = false;
-	
 	@saveVar public static var opponentStrums:Bool = true;
 	
 	@saveVar public static var ghostTapping:Bool = true;
@@ -220,7 +218,7 @@ class ClientPrefs
 	static function get_pauseMusic():String
 	{
 		Logger.log("pauseMusic is deprecated and no longer available", WARN, false);
-		return null;
+		return "breakfast";
 	}
 
 	public static var comboStacking(get, never):Bool;
