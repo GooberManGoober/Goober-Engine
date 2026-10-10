@@ -359,7 +359,7 @@ class WeekEditorState extends MusicBeatState
 		{
 			weekThing.visible = false;
 			missingFileText.visible = true;
-			missingFileText.text = 'MISSING FILE: images/menus/story/' + assetName + '.png';
+			missingFileText.text = 'MISSING FILE: images/menus/story/weeks/' + assetName + '.png';
 		}
 		recalculateStuffPosition();
 		
