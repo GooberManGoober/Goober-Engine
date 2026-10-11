@@ -32,6 +32,8 @@ class ModManager implements IFlxDestroyable
 			FlipModifier,
 			InvertModifier,
 			DrunkModifier,
+			SpiralModifier,
+			TornadoModifier,
 			BeatModifier,
 			AlphaModifier,
 			ReceptorScrollModifier,
