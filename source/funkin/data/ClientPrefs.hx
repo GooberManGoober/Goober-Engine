@@ -255,6 +255,7 @@ class ClientPrefs
 				tempKeys.push(NONE);
 				
 			customKeys.set(name, tempKeys);
+			defaultKeys.set(name, tempKeys);
 		}
 		
 		for (key in customKeys.keys())
@@ -262,6 +263,26 @@ class ClientPrefs
 			final binds = customKeys.get(key);
 			
 			if (binds != null && binds.length >= 2 && !keyBinds.exists(key)) keyBinds.set(key, binds);
+		}
+	}
+	
+	public static function addCustomGamepad(name:String, pads:Array<FlxGamepadInputID>)
+	{
+		if (name.length >= 1 && pads != null)
+		{
+			var tempPads = pads;
+			while (tempPads.length < 2)
+				tempPads.push(NONE);
+				
+			customPad.set(name, tempPads);
+			defaultGamepadBinds.set(name, tempPads);
+		}
+		
+		for (key in customPad.keys())
+		{
+			final binds = customPad.get(key);
+			
+			if (binds != null && binds.length >= 2 && !gamepadBinds.exists(key)) gamepadBinds.set(key, binds);
 		}
 	}
 	
