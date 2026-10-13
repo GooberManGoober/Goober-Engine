@@ -174,7 +174,7 @@ class ControlsSubState extends MusicBeatSubstate
 		optionsList = [];
 		for (group in controlsGroup)
 		{
-			if (device == Keys || group.label.text == "NOTES")
+			if (device == Keys || group.label.text == "NOTES" || group.label.text == "UI")
 			{
 				group.visible = true;
 				for (option in group.options)
