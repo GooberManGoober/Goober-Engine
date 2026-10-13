@@ -124,12 +124,12 @@ class ControlsSubState extends MusicBeatSubstate
 		final group = new ControlsGroup("NOTES", NOTES_GROUP, 0);
 		controlsGroup.add(group);
 		
+		final group = new ControlsGroup("UI", UI_GROUP, group.groupLastIndex);
+		controlsGroup.add(group);
+		
 		resetGamepadLabel = new Alphabet(0, 80 * group.groupLastIndex, "Reset to Default Buttons", true);
 		resetGamepadLabel.screenCenter(X);
 		add(resetGamepadLabel);
-		
-		final group = new ControlsGroup("UI", UI_GROUP, group.groupLastIndex);
-		controlsGroup.add(group);
 		
 		final group = new ControlsGroup("WINDOW", WINDOW_GROUP, group.groupLastIndex);
 		controlsGroup.add(group);

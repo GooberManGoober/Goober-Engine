@@ -227,7 +227,17 @@ class ClientPrefs
 		'note_down' => [DPAD_DOWN, A],
 		'note_left' => [DPAD_LEFT, X],
 		'note_right' => [DPAD_RIGHT, B],
-		'note_dodge' => [GUIDE]
+		'note_dodge' => [GUIDE],
+		//
+		'ui_left' => [LEFT_STICK_DIGITAL_LEFT, DPAD_LEFT],
+		'ui_down' => [LEFT_STICK_DIGITAL_DOWN, DPAD_DOWN],
+		'ui_up' => [LEFT_STICK_DIGITAL_UP, DPAD_UP],
+		'ui_right' => [LEFT_STICK_DIGITAL_RIGHT, DPAD_RIGHT],
+		//
+		'accept' => [A, START],
+		'back' => [B, BACK],
+		'pause' => [START, NONE],
+		'reset' => [LEFT_STICK_CLICK, NONE]
 	];
 	
 	// using a separate map for custom binds to ensure the engine doesnt get confused on what binds are real and temporary
