@@ -53,6 +53,11 @@ typedef ModMeta =
 	 * Optional path to a transition state to be used by default
 	 */
 	var ?defaultTransition:String; // 50 / 50 on this idunno
+
+	/**
+	 * Optional custom HUD
+	 */
+	var ?defaultHUDClass:String;
 	
 	/**
 	 * Optional map of state overrides.

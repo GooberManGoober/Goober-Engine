@@ -745,10 +745,8 @@ class PlayState extends MusicBeatState
 			screenDim.camera = camHUD;
 			add(screenDim);
 		}
-		
-		playHUD = new funkin.game.huds.PsychHUD(this);
-		add(playHUD);
-		playHUD.cameras = [camHUD];
+
+		initHUD();
 		
 		meta = SongMeta.getFromSong();
 		
@@ -888,6 +886,15 @@ class PlayState extends MusicBeatState
 			
 			script.set('parent', char);
 		}
+	}
+
+	function initHUD()
+	{
+		playHUD = new funkin.game.huds.ScriptedHUD(this, Mods.currentModConfig.defaultHUDClass);
+		
+		if (Mods.currentModConfig.defaultHUDClass == null) playHUD = new funkin.game.huds.PsychHUD(this);
+		playHUD.cameras = [camHUD];
+		add(playHUD);
 	}
 	
 	/**

@@ -30,3 +30,4 @@ dump/*
 !.vscode/extensions.json
 /content
 desktop.ini
+.build_time

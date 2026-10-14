@@ -38,9 +38,6 @@ class FoxFunkinSpriteEx extends FoxFunkinSprite
 			_matrix.translate(-srcX/aspect, srcY*aspect);
 		}
 		_matrix.translate(-sprite.origin.x, -sprite.origin.y);
-		#if cne
-		_matrix.translate(-sprite.frameOffset.x, -sprite.frameOffset.y);
-		#end
         
 		if (funkinSprite != null) _matrix.translate(-funkinSprite?._transformedAnimOffset.x, -funkinSprite?._transformedAnimOffset.y); // shi man idk
 	}

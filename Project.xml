@@ -9,6 +9,10 @@
 
     <window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false"/>
 
+    <!-- Run a script before and after building. -->
+	<prebuild haxe="building/Prebuild.hx"/>
+	<postbuild haxe="building/Postbuild.hx"/>
+
     <!-- ENGINE CONFIGS -->
 
     <define name="MODS_ALLOWED" if="desktop"/>

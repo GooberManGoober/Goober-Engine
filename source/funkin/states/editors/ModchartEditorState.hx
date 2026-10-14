@@ -16,8 +16,6 @@ class ModchartEditorState extends UIState
     {
         super.create();
 
-        Lib.application.window.onClose.removeAll();
-
         var joobi:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image("editors/joobiLaugh"));
         joobi.screenCenter();
         add(joobi);
@@ -27,37 +25,8 @@ class ModchartEditorState extends UIState
         text.borderSize = 1.25;
         add(text);
 
-        new FlxTimer().start(2, (t:FlxTimer) -> {
-            addPolyester();
-        });
-
-        new FlxTimer().start(600, (t:FlxTimer) -> {
+        new FlxTimer().start(5, (t:FlxTimer) -> {
             FlxG.switchState(new MainMenuState());
-        });
-    }
-
-    function addPolyester()
-    {
-        new FlxTimer().start(3, (t:FlxTimer) -> {
-            var polyester:FunkinVideoSprite = new FunkinVideoSprite(FlxG.random.int(10, 900), FlxG.random.int(10, 500));
-            polyester.load(Paths.video('polyesterMan'));
-            polyester.onFormat(() -> {
-                polyester.setGraphicSize(0, FlxG.height / 3.5);
-                polyester.updateHitbox();
-            });
-            polyester.play();
-            polyester.onStart(() -> {
-                addPolyester();
-            });
-            polyester.onEnd(() -> {
-                polyester.stop();
-                polyester.destroy();
-                polyester = null;
-            });
-            polyester.zIndex = FlxG.random.int(1, 10);
-            add(polyester);
-
-            refreshZ();
         });
     }
 }
