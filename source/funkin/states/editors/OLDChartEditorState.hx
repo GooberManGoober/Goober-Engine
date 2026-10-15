@@ -124,6 +124,10 @@ class OLDChartEditorState extends MusicBeatState
 			'Change Character',
 			"Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"
 		],
+		[
+			"Change HUD",
+			"Value 1: Name of HUD Script\n\nWILL LAG, NEED TO FIND A WAY TO FIX"
+		],
 		// my auto formatter is forcing it to be liek this. i will fix it later
 		[
 			'Change Noteskin', 

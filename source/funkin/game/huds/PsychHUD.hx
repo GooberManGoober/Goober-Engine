@@ -13,9 +13,6 @@ import funkin.objects.HealthIcon;
 @:access(funkin.states.PlayState)
 class PsychHUD extends BaseHUD
 {
-	var ratingGraphic:FlxSprite;
-	var ratingNumGroup:FlxTypedGroup<FlxSprite>;
-	
 	var healthBar:Bar;
 	var iconP1:HealthIcon;
 	var iconP2:HealthIcon;
@@ -23,33 +20,9 @@ class PsychHUD extends BaseHUD
 
 	var healthLerp:Float = 1;
 	
-	var markupEnabled:Bool = true;
-	var rankColors:Map<String, FlxColor> = [
-		"KFC" => 0xFF54ff7c,
-		"SFC" => 0xffffee56,
-		"GFC" => 0xffffc156,
-		"FC" => 0xfff16439,
-		"SDCB" => 0xffff5959,
-		"Clear" => 0xFFabfff4,
-	];
-	
 	var timeTxt:FlxText;
 	var timeBar:Bar;
 	var pixelZoom:Float = 6; // idgaf
-	
-	var ratingPrefix:String = "";
-	var ratingSuffix:String = '';
-	var comboPrefix:String = "";
-	
-	var comboTween:Bool = true;
-	
-	var textDivider = '•';
-	var showRating:Bool = ClientPrefs.showRatings;
-	var showRatingNum:Bool = ClientPrefs.showRatings;
-	var showCombo:Bool = ClientPrefs.showRatings;
-	var updateIconPos:Bool = true;
-	var updateIconScale:Bool = true;
-	var comboOffsets:Null<Array<Int>> = null; // So u can overwrite the users combo offset if needed without messing with clientprefs
 	
 	// TODO: Make combo shit change for week 6, the ground work is already there so incase someone else wants to come on in and mess w it.
 	override function init()
@@ -127,15 +100,8 @@ class PsychHUD extends BaseHUD
 		parent.scripts.set('scoreTxt', scoreTxt);
 		parent.scripts.set('timeBar', timeBar);
 		parent.scripts.set('timeTxt', timeTxt);
-		parent.scripts.set('ratingPrefix', ratingPrefix);
-		parent.scripts.set('ratingSuffix', ratingSuffix);
-		parent.scripts.set('comboPrefix', comboPrefix);
-		parent.scripts.set('comboOffsets', comboOffsets);
 		
-		if (comboOffsets == null)
-		{
-			comboOffsets = ClientPrefs.comboOffset;
-		}
+		if (comboOffsets == null) comboOffsets = ClientPrefs.comboOffset;
 	}
 	
 	override function onSongStart()
@@ -247,14 +213,8 @@ class PsychHUD extends BaseHUD
 	{
 		var dad = parent.dad;
 		var boyfriend = parent.boyfriend;
-		if (!healthBar.leftToRight)
-		{
-			healthBar.setColors(dad.healthColour, boyfriend.healthColour);
-		}
-		else
-		{
-			healthBar.setColors(boyfriend.healthColour, dad.healthColour);
-		}
+		if (!healthBar.leftToRight) healthBar.setColors(dad.healthColour, boyfriend.healthColour);
+		else healthBar.setColors(boyfriend.healthColour, dad.healthColour);
 	}
 	
 	public function flipBar()
@@ -402,14 +362,8 @@ class PsychHUD extends BaseHUD
 		var ratings = ["sick", "good", "bad", "shit"];
 		if (ClientPrefs.useEpicRankings) ratings.push('epic');
 		
-		for (rating in ratings)
-		{
-			ratingGraphic.loadGraphic(Paths.image('$ratingPrefix$rating$ratingSuffix'));
-		}
+		for (rating in ratings) ratingGraphic.loadGraphic(Paths.image('$ratingPrefix$rating$ratingSuffix'));
 		
-		for (i in 0...10)
-		{
-			Paths.image('${comboPrefix}num$i$ratingSuffix');
-		}
+		for (i in 0...10) Paths.image('${comboPrefix}num$i$ratingSuffix');
 	}
 }

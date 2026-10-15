@@ -6,15 +6,13 @@ class ScriptedHUD extends BaseHUD
 {
     public var script:Null<FunkinScript> = null;
 
-    public function new(parent:PlayState, name:String = '')
+    public function new(parent:PlayState, name:String = '', hscriptPath:String)
 	{
-		final scriptPath:String = FunkinScript.getPath('scripts/huds/$name');
-		
-		if (FunkinAssets.exists(scriptPath)) script = FunkinScript.fromFile(scriptPath, name, PlayState.instance?.scripts?.scriptShareables);
+		script = FunkinScript.fromFile(hscriptPath, name, PlayState.instance?.scripts?.scriptShareables);
 		
 		if (script == null || script.parsingFailed())
 		{
-			Logger.log('HUD script "$scriptPath" could not be loaded', WARN);
+			Logger.log('HUD script "$hscriptPath" could not be loaded', WARN);
 			
 			script = FlxDestroyUtil.destroy(script);
 		}
@@ -24,16 +22,30 @@ class ScriptedHUD extends BaseHUD
 
 		super(parent);
 
-		if (script.exists('onLoad')) script.call('onLoad');
-
 		init();
+
+		if (script.exists('onLoad')) script.call('onLoad');
 	}
 
     override function init()
     {
-        if (script.exists('onCreate')) script.call('onCreate');
+        name = 'SCRIPTED';
 
-        if (script.exists('onCreatePost')) script.call('onCreatePost');
+		script.set('ratingPrefix', ratingPrefix);
+		script.set('ratingSuffix', ratingSuffix);
+		script.set('comboPrefix', comboPrefix);
+		script.set('comboOffsets', comboOffsets);
+		script.set('showRating', showRating);
+		script.set('showRatingNum', showRatingNum);
+		script.set('showCombo', showCombo);
+		script.set('updateIconPos', updateIconPos);
+		script.set('updateIconScale', updateIconScale);
+		script.set('comboTween', comboTween);
+		script.set('textDivider', textDivider);
+		script.set('rankColors', rankColors);
+		script.set('markupEnabled', markupEnabled);
+		script.set('ratingGraphic', ratingGraphic);
+		script.set('ratingNumGroup', ratingNumGroup);
     }
 
     override function onSongStart()
@@ -43,16 +55,16 @@ class ScriptedHUD extends BaseHUD
 
     override function update(elapsed:Float)
 	{
-		if (script.exists('update')) script.call('update', [elapsed]);
+		if (script.exists('onUpdate')) script.call('onUpdate', [elapsed]);
         
         super.update(elapsed);
 
-        if (script.exists('updatePost')) script.call('updatePost', [elapsed]);
+        if (script.exists('onUpdatePost')) script.call('onUpdatePost', [elapsed]);
 	}
 	
 	override function beatHit()
 	{
-		if (script.exists('beatHit')) script.call('beatHit');
+		if (script.exists('onBeatHit')) script.call('onBeatHit');
 	}
 	
 	override function onCharacterChange()
@@ -72,9 +84,9 @@ class ScriptedHUD extends BaseHUD
 	
 	override function popUpScore(daRating:funkin.game.Rating, combo:Int, note:funkin.objects.note.Note)
 	{
-		if (script.exists('popUpScore')) script.call('popUpScore', [daRating, combo, note]);
+		if (script.exists('onPopUpScore')) script.call('onPopUpScore', [daRating, combo, note]);
 		
-		if (script.exists('popUpScorePost')) script.call('popUpScorePost', [daRating, combo, note]);
+		if (script.exists('onPopUpScorePost')) script.call('onPopUpScorePost', [daRating, combo, note]);
 	}
 	
 	override function cachePopUpScore()

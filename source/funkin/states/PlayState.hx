@@ -576,7 +576,7 @@ class PlayState extends MusicBeatState
 	}
 	
 	// null checking
-	inline function callHUDFunc(hud:BaseHUD->Void):Void if (playHUD != null) hud(playHUD);
+	function callHUDFunc(hud:BaseHUD->Void):Void if (playHUD != null) hud(playHUD);
 	
 	var input:InputSystem;
 	
@@ -746,7 +746,7 @@ class PlayState extends MusicBeatState
 			add(screenDim);
 		}
 
-		initHUD();
+		initHUD(Mods.currentModConfig.defaultHUDClass ?? "psych");
 		
 		meta = SongMeta.getFromSong();
 		
@@ -888,13 +888,39 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	function initHUD()
+	public function initHUD(name:String, ?changeEvent:Bool = false)
 	{
-		playHUD = new funkin.game.huds.ScriptedHUD(this, Mods.currentModConfig.defaultHUDClass);
+		if (changeEvent)
+		{
+			remove(playHUD);
+			playHUD.destroy();
+			playHUD = null;
+		}
+
+		switch(name.toLowerCase())
+		{
+			case 'psych': playHUD = new funkin.game.huds.PsychHUD(this);
+			default: {
+				var hscriptPath = FunkinScript.getPath('scripts/huds/$name');
+	
+				if (FunkinAssets.exists(hscriptPath, TEXT))
+				{
+					Logger.log('HUD script: ' + hscriptPath + ' intialized');
+					playHUD = new funkin.game.huds.ScriptedHUD(this, name, hscriptPath);
+				}
+				else
+				{
+					Logger.log('HUD script: "$hscriptPath" could not be found. Defaulting to Psych HUD', WARN);
+					playHUD = new funkin.game.huds.PsychHUD(this);
+				}
+			}
+		}
+
+		callHUDFunc(hud -> hud.cachePopUpScore());
 		
-		if (Mods.currentModConfig.defaultHUDClass == null) playHUD = new funkin.game.huds.PsychHUD(this);
 		playHUD.cameras = [camHUD];
-		add(playHUD);
+		if (changeEvent) insert(members.indexOf(botplayTxt), playHUD);
+		else add(playHUD);
 	}
 	
 	/**
@@ -2460,6 +2486,9 @@ class PlayState extends MusicBeatState
 				{
 					Logger.log('Event [Set Property] failed Exception: ${e.toString()}', ERROR);
 				}
+
+			case 'Change HUD':
+				initHUD(value1 ?? "psych", true);
 
 			// New Stuff
 			case 'Focus Camera':	

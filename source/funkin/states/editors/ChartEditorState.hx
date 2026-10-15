@@ -190,6 +190,10 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 			"Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"
 		],
 		[
+			"Change HUD",
+			"Value 1: Name of HUD Script\n\nWILL LAG, NEED TO FIND A WAY TO FIX"
+		],
+		[
 			'Change Noteskin',
 			'Value 1: name of the noteskin json to change to.\nValue 2: ID of strum to change. (0 -> player, 1 -> opponent, etc)'
 		],

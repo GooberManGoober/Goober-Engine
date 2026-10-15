@@ -1,5 +1,7 @@
 package funkin.game.huds;
 
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.FlxObject;
 import flixel.group.FlxContainer.FlxTypedContainer;
 import flixel.FlxBasic;
 
@@ -10,6 +12,29 @@ class BaseHUD extends FlxTypedContainer<FlxBasic>
 	public var name:String = 'BASE';
 	
 	public var parent:PlayState;
+	
+	public var ratingGraphic:FlxSprite;
+	public var ratingNumGroup:FlxTypedGroup<FlxSprite>;
+	
+	public var markupEnabled:Bool = true;
+	public var rankColors:Map<String, FlxColor> = [];
+	
+	public var showRating:Bool = ClientPrefs.showRatings;
+	public var showRatingNum:Bool = ClientPrefs.showRatings;
+	public var showCombo:Bool = ClientPrefs.showRatings;
+	
+	public var updateIconPos:Bool = true;
+	public var updateIconScale:Bool = true;
+	
+	public var comboOffsets:Null<Array<Int>> = null; // So u can overwrite the users combo offset if needed without messing with clientprefs
+	
+	public var ratingPrefix:String = "";
+	public var ratingSuffix:String = '';
+	public var comboPrefix:String = "";
+	
+	public var comboTween:Bool = true;
+	
+	public var textDivider = '•';
 	
 	public var curStep(get, never):Int;
 	
@@ -31,7 +56,24 @@ class BaseHUD extends FlxTypedContainer<FlxBasic>
 		init();
 	}
 	
-	public function init():Void {}
+	public function init():Void
+	{
+		parent.scripts.set('ratingPrefix', ratingPrefix);
+		parent.scripts.set('ratingSuffix', ratingSuffix);
+		parent.scripts.set('comboPrefix', comboPrefix);
+		parent.scripts.set('comboOffsets', comboOffsets);
+		parent.scripts.set('showRating', showRating);
+		parent.scripts.set('showRatingNum', showRatingNum);
+		parent.scripts.set('showCombo', showCombo);
+		parent.scripts.set('updateIconPos', updateIconPos);
+		parent.scripts.set('updateIconScale', updateIconScale);
+		parent.scripts.set('comboTween', comboTween);
+		parent.scripts.set('textDivider', textDivider);
+		parent.scripts.set('rankColors', rankColors);
+		parent.scripts.set('markupEnabled', markupEnabled);
+		parent.scripts.set('ratingGraphic', ratingGraphic);
+		parent.scripts.set('ratingNumGroup', ratingNumGroup);
+	}
 	
 	public function onSongStart():Void {}
 	
