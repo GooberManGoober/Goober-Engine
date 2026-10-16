@@ -29,9 +29,6 @@ class PsychHUD extends BaseHUD
 	{
 		name = 'PSYCH';
 		
-		ratingPrefix = Paths.RATINGS_PREFIX;
-		comboPrefix = Paths.COMBO_PREFIX;
-		
 		final healthGraphic = #if MODS_ALLOWED FunkinAssets.exists(Paths.mods('images/${Paths.UI_PREFIX}healthBar')) ? '${Paths.UI_PREFIX}healthBar' : #end 'UI/healthBar';
 		
 		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.downScroll ? 0.89 : 0.11), healthGraphic, function() return healthLerp, parent.healthBounds.min, parent.healthBounds.max);

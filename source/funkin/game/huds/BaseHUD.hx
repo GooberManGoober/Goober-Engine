@@ -28,9 +28,9 @@ class BaseHUD extends FlxTypedContainer<FlxBasic>
 	
 	public var comboOffsets:Null<Array<Int>> = null; // So u can overwrite the users combo offset if needed without messing with clientprefs
 	
-	public var ratingPrefix:String = "";
+	public var ratingPrefix:String = Paths.RATINGS_PREFIX;
 	public var ratingSuffix:String = '';
-	public var comboPrefix:String = "";
+	public var comboPrefix:String = Paths.COMBO_PREFIX;
 	
 	public var comboTween:Bool = true;
 	

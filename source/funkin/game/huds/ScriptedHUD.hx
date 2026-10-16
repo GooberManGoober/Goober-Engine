@@ -8,7 +8,9 @@ class ScriptedHUD extends BaseHUD
 
     public function new(parent:PlayState, name:String = '', hscriptPath:String)
 	{
-		script = FunkinScript.fromFile(hscriptPath, name, PlayState.instance?.scripts?.scriptShareables);
+		this.parent = parent;
+		
+		script = FunkinScript.fromFile(hscriptPath, name, true, PlayState.instance?.scripts?.scriptShareables);
 		
 		if (script == null || script.parsingFailed())
 		{
@@ -26,27 +28,6 @@ class ScriptedHUD extends BaseHUD
 
 		if (script.exists('onLoad')) script.call('onLoad');
 	}
-
-    override function init()
-    {
-        name = 'SCRIPTED';
-
-		script.set('ratingPrefix', ratingPrefix);
-		script.set('ratingSuffix', ratingSuffix);
-		script.set('comboPrefix', comboPrefix);
-		script.set('comboOffsets', comboOffsets);
-		script.set('showRating', showRating);
-		script.set('showRatingNum', showRatingNum);
-		script.set('showCombo', showCombo);
-		script.set('updateIconPos', updateIconPos);
-		script.set('updateIconScale', updateIconScale);
-		script.set('comboTween', comboTween);
-		script.set('textDivider', textDivider);
-		script.set('rankColors', rankColors);
-		script.set('markupEnabled', markupEnabled);
-		script.set('ratingGraphic', ratingGraphic);
-		script.set('ratingNumGroup', ratingNumGroup);
-    }
 
     override function onSongStart()
     {
