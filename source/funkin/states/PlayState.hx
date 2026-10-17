@@ -1605,6 +1605,8 @@ class PlayState extends MusicBeatState
 				callEventScript(event.event, 'onPush', [event]);
 		}
 		scripts.call('onEventPush', [event]);
+
+		callHUDFunc(hud -> hud.onEventPush(event));
 	}
 	
 	function firstEventPush(event:EventNote):Void
@@ -2533,6 +2535,8 @@ class PlayState extends MusicBeatState
 		scripts.call('onEvent', [eventName, value1, value2]);
 		
 		callEventScript(eventName, 'onTrigger', [value1, value2]);
+
+		callHUDFunc(hud -> hud.onEvent(eventName, value1, value2));
 	}
 
 	public function focusCamera(target:String = 'boyfriend', X:Float = 0, Y:Float = 0, Time:Float = 1, ease:String = 'linear', lockPos:Bool = true, ?onComplete:Null<TweenCallback> = null)

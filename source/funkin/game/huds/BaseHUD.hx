@@ -5,6 +5,9 @@ import flixel.FlxObject;
 import flixel.group.FlxContainer.FlxTypedContainer;
 import flixel.FlxBasic;
 
+import funkin.game.Rating;
+import funkin.objects.note.Note;
+
 @:access(funkin.states.PlayState)
 class BaseHUD extends FlxTypedContainer<FlxBasic>
 {
@@ -85,9 +88,11 @@ class BaseHUD extends FlxTypedContainer<FlxBasic>
 	
 	public function onUpdateScore(score:Int = 0, accuracy:Float = 0, misses:Int = 0, missed:Bool = false):Void {}
 	
-	public function popUpScore(daRating:funkin.game.Rating, combo:Int, note:funkin.objects.note.Note):Void {}
+	public function popUpScore(daRating:Rating, combo:Int, note:Note):Void {}
 	
-	public function onEvent(ev:String, v1:String, v2:String, strumTime:Float):Void {}
+	public function onEvent(ev:String, v1:String, v2:String):Void {}
+
+	public function onEventPush(event:EventNote):Void {}
 	
 	public function onCharacterChange() {}
 	

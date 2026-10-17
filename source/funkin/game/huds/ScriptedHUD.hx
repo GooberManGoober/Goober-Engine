@@ -2,6 +2,9 @@ package funkin.game.huds;
 
 import funkin.scripts.FunkinScript;
 
+import funkin.game.Rating;
+import funkin.objects.note.Note;
+
 class ScriptedHUD extends BaseHUD
 {
     public var script:Null<FunkinScript> = null;
@@ -63,11 +66,21 @@ class ScriptedHUD extends BaseHUD
         if (script.exists('onUpdateScore')) script.call('onUpdateScore', [score, accuracy, misses, missed]);
     }
 	
-	override function popUpScore(daRating:funkin.game.Rating, combo:Int, note:funkin.objects.note.Note)
+	override function popUpScore(daRating:Rating, combo:Int, note:Note)
 	{
 		if (script.exists('onPopUpScore')) script.call('onPopUpScore', [daRating, combo, note]);
 		
 		if (script.exists('onPopUpScorePost')) script.call('onPopUpScorePost', [daRating, combo, note]);
+	}
+
+	override function onEvent(ev:String, v1:String, v2:String):Void
+	{
+		if (script.exists('onEvent')) script.call('onEvent', [ev, v1, v2]);
+	}
+
+	override function onEventPush(event:EventNote):Void
+	{
+		if (script.exists('onEventPush')) script.call('onEventPush', [event]);
 	}
 	
 	override function cachePopUpScore()
