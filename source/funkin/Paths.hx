@@ -188,7 +188,7 @@ class Paths
 		
 		songKey = findFileWithExts('songs/$songKey', ['ogg', 'wav'], null, checkMods);
 		
-		trace(songKey);
+		Logger.log('Song Key: $songKey');
 		
 		if (ClientPrefs.streamedMusic) return FunkinAssets.getVorbisSound(songKey);
 		
@@ -251,7 +251,7 @@ class Paths
 		if (returnBitmap == null)
 		{
 			final err:String->Void = (msg) -> {
-				trace('Error reading URL image: $msg');
+				Logger.log('Error reading URL image: $msg', ERROR);
 			};
 			
 			var http = new Http(url);
@@ -521,7 +521,7 @@ class Paths
 		if (Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
 		{
 			final fileToCheck:String = mods(Mods.currentModDirectory + '/' + key);
-			// trace(fileToCheck);
+			// Logger.log('File to check: $fileToCheck');
 			if (FileSystem.exists(fileToCheck))
 			{
 				return fileToCheck;

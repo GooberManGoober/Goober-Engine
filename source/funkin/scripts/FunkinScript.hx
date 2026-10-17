@@ -95,7 +95,7 @@ class FunkinScript extends IrisEx implements IFlxDestroyable
 		Iris.print = (x, ?pos) -> {
 			final output:String = formatFileLoc(pos.fileName, pos.lineNumber, x);
 			
-			DebugTextPlugin.instance.addText(Std.string(output), Logger.getHexColourFromSeverity(INFO));
+			DebugTextPlugin.instance.addText(Std.string(output), Logger.getHexColourFromSeverity(PRINT));
 			
 			Iris.logLevel(NONE, x, pos);
 		}

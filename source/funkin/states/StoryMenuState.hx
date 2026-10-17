@@ -347,7 +347,7 @@ class StoryMenuState extends MusicBeatState
 		
 		var diff:String = Difficulty.difficulties[curDifficulty];
 		var newImage:FlxGraphic = Paths.image('menus/story/difficulties/' + Paths.sanitize(diff));
-		// trace(Mods.currentModDirectory + ', menudifficulties/' + Paths.sanitize(diff));
+		// Logger.log(Mods.currentModDirectory + ', menudifficulties/' + Paths.sanitize(diff));
 		
 		if (sprDifficulty.graphic != newImage)
 		{
@@ -433,7 +433,7 @@ class StoryMenuState extends MusicBeatState
 		}
 		
 		var newPos:Int = Difficulty.difficulties.indexOf(lastDifficultyName);
-		// trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
+		// Logger.log('Pos of ' + lastDifficultyName + ' is ' + newPos);
 		if (newPos > -1)
 		{
 			curDifficulty = newPos;

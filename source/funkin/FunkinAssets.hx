@@ -270,7 +270,7 @@ class FunkinAssets
 		if (key.extension() != 'ogg') return null;
 		
 		#if !lime_vorbis
-		// trace('gulp');
+		// Logger.log('gulp');
 		return null;
 		#else
 		final vorbisFile = lime.media.vorbis.VorbisFile.fromFile(key);

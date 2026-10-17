@@ -149,7 +149,7 @@ class ModOptions
 		
 		validateOrder();
 		
-		trace('initialized mod [$currentMod] settings');
+		Logger.log('initialized mod [$currentMod] settings', NOTICE);
 	}
 	
 	// in case your options, somehow, don't have an idx
@@ -217,7 +217,7 @@ class ModOptions
 		option.idx = list.length;
 		options.set(key, option);
 		
-		trace('new option $key value $defaultValue');
+		Logger.log('new option $key value $defaultValue');
 		flush();
 	}
 	

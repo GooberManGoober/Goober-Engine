@@ -378,7 +378,7 @@ class MenuCharacterEditorState extends MusicBeatState
 				if (loadedChar.idle_anim != null && loadedChar.confirm_anim != null) // Make sure it's really a character
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
-					trace("Successfully loaded file: " + cutName);
+					Logger.log("Successfully loaded file: " + cutName, NOTICE);
 					characterFile = loadedChar;
 					reloadSelectedCharacter();
 					imageInputText.text = characterFile.image;
@@ -393,7 +393,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		}
 		_file = null;
 		#else
-		trace("File couldn't be loaded! You aren't on Desktop, are you?");
+		Logger.log("File couldn't be loaded! You aren't on Desktop, are you?", ERROR);
 		#end
 	}
 	
@@ -406,7 +406,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
-		trace("Cancelled file loading.");
+		Logger.log("Cancelled file loading.");
 	}
 	
 	/**
@@ -418,7 +418,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
-		trace("Problem loading file");
+		Logger.log("Problem loading file", ERROR);
 	}
 	
 	function saveCharacter()

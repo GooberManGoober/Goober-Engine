@@ -53,7 +53,7 @@ class CustomEmitter extends FlxEmitter
 			onEmit.destroy();
 			onEmit = null;
 		}
-		else trace('onEmit call is null?');
+		else Logger.log('onEmit call is null?', ERROR);
 
 		scrollFactorMin = FlxDestroyUtil.put(scrollFactorMin);
 		scrollFactorMax = FlxDestroyUtil.put(scrollFactorMax);

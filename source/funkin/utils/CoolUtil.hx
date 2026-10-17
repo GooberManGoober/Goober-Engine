@@ -134,7 +134,7 @@ class CoolUtil
 		var command:String = 'explorer.exe';
 		#end
 		Sys.command(command, [folder]);
-		trace('$command $folder');
+		Logger.log('Command: $command, Folder: $folder');
 		#else
 		FlxG.error("Platform is not supported for CoolUtil.openFolder");
 		#end
@@ -155,7 +155,7 @@ class CoolUtil
 	public static function doPopUp(title:String, description:String = '')
 	{
 		FlxG.stage.window.alert(description, title);
-		trace(description);
+		Logger.log('Description: $description');
 	}
 	
 	/**

@@ -212,7 +212,7 @@ class ToolKitUtils
 	public static function isHaxeUIHovered(camera:FlxCamera)
 	{
 		// ok just dont fucking work sure
-		// trace(FocusManager.instance.focus);
+		// Logger.log(Is Focus: ${FocusManager.instance.focus});
 		_hitTest = FlxG.mouse.getViewPosition(camera, _hitTest);
 		return Screen.instance.hasSolidComponentUnderPoint(_hitTest.x, _hitTest.y);
 	}

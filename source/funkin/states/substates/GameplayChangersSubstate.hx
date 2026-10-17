@@ -253,7 +253,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											updateTextFrom(oOption);
 										}
 									}
-									// trace(curOption.options[num]);
+									// Logger.log('Current Selected Value: ${curOption.options[num]}');
 							}
 							updateTextFrom(curOption);
 							curOption.change();

@@ -403,7 +403,7 @@ class ClientPrefs
 					final corruptedPath = path.withoutExtension() + ' (corrupted) ${Date.now().toString().replace(':', '_')}.sol';
 					FileSystem.rename(path, corruptedPath);
 					
-					trace('Save was corrupted. corrupted save was placed at $corruptedPath');
+					Logger.log('Save was corrupted. corrupted save was placed at $corruptedPath');
 				}
 			}
 			

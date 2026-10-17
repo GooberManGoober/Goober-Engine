@@ -130,7 +130,7 @@ class ScreenshotPlugin extends FlxBasic
 				{
 					if (screenshotBuffer != [])
 					{
-						trace("finished processing screenshot buffer");
+						Logger.log("finished processing screenshot buffer");
 						screenshotBuffer = [];
 						screenshotNameBuffer = [];
 					}
@@ -425,7 +425,7 @@ class ScreenshotPlugin extends FlxBasic
 				
 				if (pngData == null)
 				{
-					trace('[WARN] Failed to encode PNG data');
+					Logger.log('Failed to encode PNG data', WARN);
 					previousScreenshotName = null;
 					// Just in case
 					unsavedScreenshotBuffer.shift();
@@ -434,7 +434,7 @@ class ScreenshotPlugin extends FlxBasic
 				}
 				else
 				{
-					trace('Saving screenshot to: ' + targetPath);
+					Logger.log('Saving screenshot to: ' + targetPath);
 					FileUtil.writeBytesToPath(targetPath, pngData);
 					// Remove the screenshot from the unsaved buffer because we literally just saved it
 					unsavedScreenshotBuffer.shift();
@@ -449,13 +449,13 @@ class ScreenshotPlugin extends FlxBasic
 			
 			if (pngData == null)
 			{
-				trace('[WARN] Failed to encode PNG data');
+				Logger.log('Failed to encode PNG data', WARN);
 				previousScreenshotName = null;
 				return;
 			}
 			else
 			{
-				trace('Saving screenshot to: ' + targetPath);
+				Logger.log('Saving screenshot to: ' + targetPath);
 				FileUtil.writeBytesToPath(targetPath, pngData);
 				if (ClientPrefs.previewOnSave) showFancyPreview(bitmap); // Only show the preview after a screenshot is saved
 			}
@@ -465,7 +465,7 @@ class ScreenshotPlugin extends FlxBasic
 	// I' m very happy with this code, all of it just works
 	function saveBufferedScreenshots(screenshots:Array<Bitmap>, screenshotNames:Array<String>):Void
 	{
-		trace('Saving screenshot buffer');
+		Logger.log('Saving screenshot buffer');
 		var i:Int = 0;
 		
 		asyncLoop = new FlxAsyncLoop(screenshots.length, () -> {
@@ -507,7 +507,7 @@ class ScreenshotPlugin extends FlxBasic
 		if (unsavedScreenshotBuffer[0] == null) return;
 		// There's unsaved screenshots, let's save them! (haha, get it?)
 		
-		trace('Saving unsaved screenshots in buffer!');
+		Logger.log('Saving unsaved screenshots in buffer!');
 		
 		for (i in 0...unsavedScreenshotBuffer.length)
 			if (unsavedScreenshotBuffer[i] != null) saveScreenshot(unsavedScreenshotBuffer[i], unsavedScreenshotNameBuffer[i], i, false);

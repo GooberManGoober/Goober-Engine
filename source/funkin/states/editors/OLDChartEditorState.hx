@@ -595,7 +595,7 @@ class OLDChartEditorState extends MusicBeatState
 		// _song.needsVoices = check_voices.checked;
 		check_voices.callback = function() {
 			_song.needsVoices = check_voices.checked;
-			// trace('CHECKED!');
+			// Logger.log('CHECKED!');
 		};
 		
 		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function() {
@@ -831,7 +831,7 @@ class OLDChartEditorState extends MusicBeatState
 		// var reloadNotesButton:FlxButton = new FlxButton(noteSplashesInputText.x + 5, noteSplashesInputText.y, 'Change Notes', function() {
 		// _song.arrowSkin = noteSkinInputText.text;
 		
-		// trace('noteskin file: "${_song.arrowSkin}"');
+		// Logger.log('Noteskin file: "${_song.arrowSkin}"');
 		
 		// updateGrid();
 		// });
@@ -1018,7 +1018,7 @@ class OLDChartEditorState extends MusicBeatState
 			
 			prsList.setData(FlxUIDropDownMenu.makeStrIdLabelArray(ClientPrefs.chartPresetList));
 			
-			trace('New Preset! [${newPrsName.text}]\nValue: ${ClientPrefs.chartPresets.get(newPrsName.text)}');
+			Logger.log('New Preset! [${newPrsName.text}]\nValue: ${ClientPrefs.chartPresets.get(newPrsName.text)}');
 		});
 		blockPressWhileTypingOn.push(newPrsName);
 		
@@ -1138,7 +1138,7 @@ class OLDChartEditorState extends MusicBeatState
 			}
 			
 			var addToTime:Float = Conductor.stepCrotchet * (getSectionBeats() * 4 * (curSec - sectionToCopy));
-			// trace('Time to add: ' + addToTime);
+			// Logger.log('Time to add: ' + addToTime);
 			
 			for (note in notesCopied)
 			{
@@ -1833,7 +1833,7 @@ class OLDChartEditorState extends MusicBeatState
 		final playerVocalsSnd:Null<Sound> = Paths.voices(currentSongName, 'player') ?? Paths.voices(currentSongName, null);
 		
 		if (playerVocalsSnd != null) vocals.loadEmbedded(playerVocalsSnd);
-		else trace('failed to load vocals for current song');
+		else Logger.log('failed to load vocals for current song', ERROR);
 		
 		FlxG.sound.list.add(vocals);
 		
@@ -2539,7 +2539,7 @@ class OLDChartEditorState extends MusicBeatState
 			if (metroStep != lastMetroStep)
 			{
 				FlxG.sound.play(Paths.sound('Metronome_Tick'));
-				// trace('Ticked');
+				// Logger.log('Ticked');
 			}
 		}
 		
@@ -2587,7 +2587,7 @@ class OLDChartEditorState extends MusicBeatState
 	{
 		if (holdingNotes == null)
 		{
-			return trace('what');
+			return Logger.log('what');
 		}
 		
 		var changed:Bool = false;
@@ -2632,13 +2632,13 @@ class OLDChartEditorState extends MusicBeatState
 			#if MODS_ALLOWED
 			if(FunkinAssets.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'))) {
 				audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'));
-				//trace('Custom vocals found');
+				//Logger.log('Custom vocals found', NOTICE);
 			}
 			else { #end
 				var leVocals:String = Paths.getPath(currentSongName + '/Inst.' + Paths.SOUND_EXT, SOUND, 'songs');
 				if (OpenFlAssets.exists(leVocals)) { //Vanilla inst
 					audioBuffers[0] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-					//trace('Inst found');
+					//Logger.log('Inst found', NOTICE);
 				}
 			#if MODS_ALLOWED
 			}
@@ -2651,12 +2651,12 @@ class OLDChartEditorState extends MusicBeatState
 			#if MODS_ALLOWED
 			if(FunkinAssets.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'))) {
 				audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'));
-				//trace('Custom vocals found');
+				//Logger.log('Custom vocals found', NOTICE);
 			} else { #end
 				var leVocals:String = Paths.getPath(currentSongName + '/Voices.' + Paths.SOUND_EXT, SOUND, 'songs');
 				if (OpenFlAssets.exists(leVocals)) { //Vanilla voices
 					audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-					//trace('Voices found, LETS FUCKING GOOOO');
+					//Logger.log('Voices found, LETS FUCKING GOOOO', NOTICE);
 				}
 			#if MODS_ALLOWED
 			}
@@ -2830,7 +2830,7 @@ class OLDChartEditorState extends MusicBeatState
 		
 		if (!FlxG.save.data.chart_waveformInst && !FlxG.save.data.chart_waveformVoices && !FlxG.save.data.chart_waveformOpponentVoices)
 		{
-			// trace('Epic fail on the waveform lol');
+			// Logger.log('Epic fail on the waveform lol', WARN);
 			return;
 		}
 		
@@ -3164,7 +3164,7 @@ class OLDChartEditorState extends MusicBeatState
 					while (_song.notes.length <= curSec)
 						addSection();
 						
-					trace('populated ${_song.notes.length - old} sections');
+					Logger.log('populated ${_song.notes.length - old} sections');
 				}
 			}
 			else
@@ -3394,7 +3394,7 @@ class OLDChartEditorState extends MusicBeatState
 				if (note.eventLength > 1) daText.yAdd += 8;
 				curRenderedNoteType.add(daText);
 				daText.sprTracker = note;
-				// trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
+				// Logger.log('Test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
 			}
 		}
 		
@@ -3473,7 +3473,7 @@ class OLDChartEditorState extends MusicBeatState
 				{
 					_song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.indexOf(p)][1] = intendedData;
 					_song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.indexOf(p)][4] = true;
-					trace('previous data: $daNoteInfo | new data: $intendedData | _song.notes data: ${_song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.indexOf(p)][1]} | youre not gonna shift again..? ${_song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.indexOf(p)][4]}');
+					Logger.log('previous data: $daNoteInfo | new data: $intendedData | _song.notes data: ${_song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.indexOf(p)][1]} | youre not gonna shift again..? ${_song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.indexOf(p)][4]}');
 				}
 			}
 		}
@@ -3523,7 +3523,6 @@ class OLDChartEditorState extends MusicBeatState
 		if (isPrevSection) num = -1;
 		var beats:Float = getSectionBeats(curSec + num);
 		note.y = getYfromStrumNotes(daStrumTime - sectionStartTime(), beats);
-		// trace
 		// if(note.y < -150) note.y = -150;
 		return note;
 	}
@@ -3672,7 +3671,7 @@ class OLDChartEditorState extends MusicBeatState
 		
 		changeEventSelected();
 		
-		// trace(noteData + ', ' + noteStrum + ', ' + curSec);
+		//  Logger.log('Note Data: $noteData, Note Strum: $noteStrum, Current Section: $curSec');
 		if (curSelectedNotes.length == 1) strumTimeInputText.text = '' + newNote[0];
 		
 		updateGrid();
@@ -3727,7 +3726,7 @@ class OLDChartEditorState extends MusicBeatState
 		// redos.push(_song);
 		undos.pop();
 		// _song.notes = undos[undos.length - 1];
-		///trace(_song.notes);
+		///Logger.log('Notes: ${_song.notes});
 		// updateGrid();
 	}
 	
@@ -4072,7 +4071,7 @@ class ChartingOptionsSubmenuOLD extends MusicBeatSubstate
 				// 	PlayState.instance.botplayTxt.visible = PlayState.instance.cpuControlled;
 				// 	PlayState.instance.botplayTxt.alpha = 1;
 				// 	PlayState.instance.botplaySine = 0;
-				// 	trace(PlayState.instance.cpuControlled);
+				// 	Logger.log('Botplay: ${PlayState.instance.cpuControlled}');
 				// 	if(PlayState.instance.cpuControlled)
 				// 		grpMenuShit.members[curSelected].color = FlxColor.GREEN;
 				// 	else
@@ -4110,6 +4109,6 @@ class ChartingOptionsSubmenuOLD extends MusicBeatSubstate
 				// item.setGraphicSize(Std.int(item.width));
 			}
 		}
-		trace(menuItems[curSelected]);
+		Logger.log('Current Selected Item: ${menuItems[curSelected]}');
 	}
 }

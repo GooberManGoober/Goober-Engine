@@ -3,6 +3,7 @@ package;
 import flixel.FlxState;
 
 import funkin.FunkinAssets;
+import funkin.backend.Logger;
 import funkin.states.TitleState;
 #if VIDEOS_ALLOWED
 import funkin.video.FunkinVideoSprite;
@@ -74,7 +75,7 @@ class Splash extends FlxState
 		
 		final imgPath:String = Path.withoutDirectory(Path.withoutExtension(FlxG.random.getObject(files)));
 		
-		trace(files);
+		Logger.log('Files: $files');
 		
 		logo = new FlxSprite().loadGraphic(Paths.image('branding/watermarks/$imgPath'));
 		logo.screenCenter();

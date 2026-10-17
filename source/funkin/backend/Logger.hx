@@ -8,7 +8,7 @@ using funkin.utils.AnsiUtil;
 
 enum abstract Severity(Int) to Int
 {
-	var INFO;
+	var PRINT;
 	var WARN;
 	var ERROR;
 	var NOTICE;
@@ -17,7 +17,7 @@ enum abstract Severity(Int) to Int
 	{
 		return switch (this)
 		{
-			default: ' INFO '.info();
+			default: ' LOG '.log();
 			case WARN: ' WARN '.warning();
 			case ERROR: ' ERROR '.error();
 			case NOTICE: ' NOTICE '.notice();
@@ -38,7 +38,7 @@ class Logger
 	 * @param severity provides ansi colour coding to better highlight specific messages
 	 * @param showInGame whether to have it display in game
 	 */
-	public static function log(data:Dynamic, severity:Severity = INFO, showInGame:Bool = false, ?pos:PosInfos)
+	public static function log(data:Dynamic, severity:Severity = PRINT, showInGame:Bool = false, ?pos:PosInfos)
 	{
 		#if FLX_DEBUG
 		switch (severity)
@@ -51,7 +51,7 @@ class Logger
 			case NOTICE:
 				FlxG.log.notice(data, pos);
 				
-			case INFO:
+			case PRINT:
 		}
 		#end
 		

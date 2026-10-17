@@ -170,7 +170,7 @@ class WIPNoteSkinEditor extends UIState
 			if (ui.data.isDropDownItem())
 			{
 				loadingSkin(ui.data.id);
-				trace(skin.noteTexture);
+				Logger.log('Note Texture: ${skin.noteTexture}');
 				
 				uiElements.toolBar.skinName.value = ui.data.id;
 				refreshUIValues();
@@ -243,7 +243,7 @@ class WIPNoteSkinEditor extends UIState
 		
 		uiElements.settingsBox.animationsDropdown.onChange = (ui) -> {
 			refreshAnimFields(uiElements.settingsBox.animationsDropdown.selectedIndex);
-			// trace(ui.value);
+			// Logger.log('Current Value: ${ui.value});
 		}
 		
 		uiElements.settingsBox.addAnimationButton.onClick = (ui) -> {
@@ -317,7 +317,7 @@ class WIPNoteSkinEditor extends UIState
 		uiElements.settingsBox.shaderColoringBox.onClick = (ui) -> {
 			skin.inEngineColoring = skin.data.inGameColoring = ui.value.toBool();
 			buildNotes(true);
-			trace(ui.value.toBool());
+			Logger.log('Settings Value: ${ui.value.toBool()}');
 		}
 		uiElements.settingsBox.splashBox.onChange = (ui) -> {
 			// do more shit here abt not going to splashes mode if theyre disabled. or smth. idk
@@ -378,12 +378,12 @@ class WIPNoteSkinEditor extends UIState
 	
 	function resetColorValues(type:String = 'Default')
 	{
-		trace(type);
+		Logger.log('Type: $type');
 		switch (type)
 		{
 			case 'File':
 				var json = helperLoading(curName);
-				trace(json.data.arrowRGB.copy());
+				Logger.log('Arrow RGB Data: ${json.data.arrowRGB.copy()}');
 				skin.data.arrowRGB = json.data.arrowRGB.copy();
 			default:
 				skin.data.arrowRGB = NoteUtil.defaultColors.copy();
@@ -635,7 +635,7 @@ class WIPNoteSkinEditor extends UIState
 			final baseOffset = getOffsetFromAnim(animName, curSelectedNote.noteData);
 			final bounds = fieldBounds[curSelectedNote.noteData];
 			
-			trace(bounds);
+			Logger.log('Bounds of current note: $bounds');
 			// moving offsets with ur mouse
 			if (FlxG.mouse.overlaps(bounds.middle) && FlxG.mouse.pressedRight)
 			{

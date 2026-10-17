@@ -729,7 +729,7 @@ class PlayState extends MusicBeatState
 			if (gf != null) gf.visible = false;
 		}
 		
-		if (traceCheck) trace('loading create took ${Sys.time() - vizLoadStart}');
+		if (traceCheck) Logger.log('loading create took ${Sys.time() - vizLoadStart}');
 		
 		Conductor.songPosition = -5000;
 		
@@ -849,7 +849,7 @@ class PlayState extends MusicBeatState
 		
 		FunkinAssets.cache.clearUnusedMemory();
 		
-		if (traceCheck) trace('FULL SONG [${Paths.sanitize(SONG.song)}] LOAD TIME: ${Sys.time() - loadStart}');
+		if (traceCheck) Logger.log('FULL SONG [${Paths.sanitize(SONG.song)}] LOAD TIME: ${Sys.time() - loadStart}');
 		
 		refreshZ(stage);
 	}
@@ -1312,7 +1312,7 @@ class PlayState extends MusicBeatState
 		
 		var start = traceCheck ? Sys.time() : 0;
 		audio.loadSong(SONG);
-		if (traceCheck) trace('loading song took ${Sys.time() - start} seconds');
+		if (traceCheck) Logger.log('loading song took ${Sys.time() - start} seconds');
 		
 		audio.setTrackVolumeState();
 		add(audio);
@@ -1422,7 +1422,7 @@ class PlayState extends MusicBeatState
 				noteData[trueSection].sectionNotes.push(note);
 			}
 			
-			if (fixed > 0 || dupes > 0) trace('corrected $fixed notes / removed $dupes duplicates');
+			if (fixed > 0 || dupes > 0) Logger.log('corrected $fixed notes / removed $dupes duplicates');
 		}
 		
 		var holdCrotchet:Float = Math.max(Conductor.stepCrotchet / holdSubdivisions, 10);
@@ -1511,7 +1511,7 @@ class PlayState extends MusicBeatState
 		
 		speedChanges.sort(SortUtil.svSort);
 		
-		if (traceCheck) trace('loading chart took: ' + (Sys.time() - cpuTime));
+		if (traceCheck) Logger.log('loading chart took: ' + (Sys.time() - cpuTime));
 		
 		checkEventNote();
 		generatedMusic = true;
@@ -1734,7 +1734,7 @@ class PlayState extends MusicBeatState
 	{
 		if (finishTimer != null || !updateTime) return;
 		
-		trace('resyncing at ${Conductor.songPosition}');
+		Logger.log('resyncing at ${Conductor.songPosition}');
 		
 		audio.pitch = playbackRate;
 		audio.volume = 1 * volumeMult;
@@ -2910,7 +2910,7 @@ class PlayState extends MusicBeatState
 					final difficulty:String = Difficulty.getDifficultyFilePath();
 					final songLowercase = Paths.sanitize(storyMeta.playlist[0].toLowerCase());
 					
-					trace('LOADING: ' + Paths.sanitize(storyMeta.playlist[0]) + difficulty);
+					Logger.log('LOADING: ' + Paths.sanitize(storyMeta.playlist[0]) + difficulty);
 					
 					PlayState.SONG = Chart.fromSong(songLowercase, PlayState.storyMeta.difficulty);
 					

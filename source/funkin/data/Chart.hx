@@ -167,7 +167,7 @@ class Chart
 				}
 			}
 			
-			trace('transformed the notes #awesome');
+			Logger.log('transformed the notes #awesome', NOTICE);
 		}
 		
 		for (section in sectionsData)

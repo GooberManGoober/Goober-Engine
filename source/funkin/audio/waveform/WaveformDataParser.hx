@@ -25,17 +25,17 @@ class WaveformDataParser
 			
 			if (soundBuffer == null)
 			{
-				trace('[WAVEFORM] Failed to interpret FlxSound: ${sound}');
+				Logger.log('[WAVEFORM] Failed to interpret FlxSound: ${sound}', ERROR);
 				return null;
 			}
 			else
 			{
-				// trace('[WAVEFORM] Method 2 worked.');
+				// Logger.log('[WAVEFORM] Method 2 worked.');
 			}
 		}
 		else
 		{
-			// trace('[WAVEFORM] Method 1 worked.');
+			// Logger.log('[WAVEFORM] Method 1 worked.');
 		}
 		
 		return interpretAudioBuffer(soundBuffer);

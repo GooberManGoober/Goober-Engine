@@ -51,7 +51,7 @@ class PerspectiveModifier extends NoteModifier
 			var a = (near + far) / (near - far);
 			var b = 2 * near * far / (near - far);
 			var z = (a * shit + b);
-			// trace(shit, curZ, z, x/z, y/z);
+			// Logger.log([shit, curZ, z, x/z, y/z]);
 			var returnedVector = Vector3.get(x / z, y / z, z);
 			returnedVector.add(halfOffset, returnedVector);
 			

@@ -182,7 +182,7 @@ class AdvancedDropShadowShader extends flixel.system.FlxAssets.FlxShader
 		
 		if (rimlight == null)
 		{
-			trace('we outta rimlight\'s');
+			Logger.log('we outta rimlight\'s', WARN);
 			return null;
 		}
 		

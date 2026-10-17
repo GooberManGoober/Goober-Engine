@@ -1408,7 +1408,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 	{
 		if (holdingNotes == null)
 		{
-			return trace('what');
+			return Logger.log('what');
 		}
 		
 		var changed:Bool = false;
@@ -1898,7 +1898,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 					while (song.notes.length <= curSec)
 						addSection();
 						
-					trace('populated ${song.notes.length - old} sections');
+					Logger.log('populated ${song.notes.length - old} sections');
 				}
 			}
 			else
@@ -2061,7 +2061,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 				if (note.eventLength > 1) daText.yAdd += 8;
 				curRenderedNoteType.add(daText);
 				daText.sprTracker = note;
-				// trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
+				// Logger.log('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
 			}
 		}
 		
@@ -2140,7 +2140,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 				{
 					song.notes[curSec].sectionNotes[song.notes[curSec].sectionNotes.indexOf(p)][1] = intendedData;
 					song.notes[curSec].sectionNotes[song.notes[curSec].sectionNotes.indexOf(p)][4] = true;
-					trace('previous data: $daNoteInfo | new data: $intendedData | song.notes data: ${song.notes[curSec].sectionNotes[song.notes[curSec].sectionNotes.indexOf(p)][1]} | youre not gonna shift again..? ${song.notes[curSec].sectionNotes[song.notes[curSec].sectionNotes.indexOf(p)][4]}');
+					Logger.log('previous data: $daNoteInfo | new data: $intendedData | song.notes data: ${song.notes[curSec].sectionNotes[song.notes[curSec].sectionNotes.indexOf(p)][1]} | youre not gonna shift again..? ${song.notes[curSec].sectionNotes[song.notes[curSec].sectionNotes.indexOf(p)][4]}');
 				}
 			}
 		}
@@ -2190,7 +2190,6 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 		if (isPrevSection) num = -1;
 		var beats:Float = getSectionBeats(curSec + num);
 		note.y = getYfromStrumNotes(daStrumTime - sectionStartTime(), beats);
-		// trace
 		// if(note.y < -150) note.y = -150;
 		return note;
 	}
@@ -2479,7 +2478,7 @@ class ChartEditorState extends haxe.ui.backend.flixel.UIState
 		// redos.push(song);
 		undos.pop();
 		// song.notes = undos[undos.length - 1];
-		///trace(song.notes);
+		///Logger.log('Notes: ${song.notes}');
 		// updateGrid();
 	}
 	

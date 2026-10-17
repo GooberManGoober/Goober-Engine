@@ -16,7 +16,7 @@ class EaseEvent extends ModEvent
 		this.endStep = endStep;
 		this.easeFunc = easeFunc;
 		this.startVal = startVal;
-		if (mod == null) trace(modName + " is null!");
+		if (mod == null) Logger.log(modName + " is null!", ERROR);
 		
 		length = endStep - step;
 	}
