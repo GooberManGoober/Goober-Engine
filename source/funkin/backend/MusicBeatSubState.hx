@@ -57,7 +57,7 @@ class MusicBeatSubState extends FlxSubState
 				newScript = FlxDestroyUtil.destroy(newScript);
 				return;
 			}
-			
+			stateScripts.parent = this;
 			Logger.log('script [$scriptName] initialized', NOTICE);
 			
 			stateScripts.addScript(newScript);
