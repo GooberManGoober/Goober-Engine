@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
     <!-- APP SETTINGS -->
-    <app title="Friday Night Funkin" file="Friday Night Funkin" packageName="com.nmvTeam.nightmareEngine" package="com.nmvTeam.nightmareEngine" main="Main" version="0.2.7" company="nmvTeam"/>
+    <app title="Friday Night Funkin: Goober Engine" file="Friday Night Funkin" packageName="com.goober.gooberEngine" package="com.goober.gooberEngine" main="Main" version="0.2.7" company="goober"/>
 
     <window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false"/>
     <window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
@@ -19,6 +19,8 @@
     <define name="VIDEOS_ALLOWED" if="cpp"/>
     <define name="DISCORD_ALLOWED" if="cpp" unless="android || ios"/>
     <define name="FOXLITE_ALLOWED"/>
+
+    <haxedef name="nmv"/>
 
     <!-- PATH SETTINGS -->
 
