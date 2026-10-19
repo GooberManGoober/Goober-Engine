@@ -105,7 +105,7 @@ class FunkinAssets
 		
 		if (text.length > 0) return text;
 		
-		Logger.log('text ($key) was not found. Returning empty string instead');
+		Logger.log('text ($key) was not found. Returning empty string instead', WARN);
 		
 		return '';
 	}
@@ -206,7 +206,7 @@ class FunkinAssets
 			return graphic;
 		}
 		
-		Logger.log('graphic ($key) was not found. Returning flixel-logo instead');
+		Logger.log('graphic ($key) was not found. Returning flixel-logo instead', WARN);
 		
 		return FlxG.bitmap.add('flixel/images/logo/default.png');
 	}
@@ -227,7 +227,7 @@ class FunkinAssets
 			return sound;
 		}
 		
-		Logger.log('sound ($key) was not found. Returning beep instead');
+		Logger.log('sound ($key) was not found. Returning beep instead', WARN);
 		
 		return FlxAssets.getSoundAddExtension('flixel/sounds/beep');
 	}

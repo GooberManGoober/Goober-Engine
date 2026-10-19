@@ -60,13 +60,28 @@ class Logger
 			DebugTextPlugin.instance.addText(Std.string(data), getHexColourFromSeverity(severity));
 		}
 		
-		var output:String = '${severity.toString()} ${haxe.Log.formatOutput(data, pos)}';
+		var log:String = '${haxe.Log.formatOutput(data, pos)}'.fg(getAnsiColourFromSeverity(severity)).reset();
+		var output:String = '${severity.toString()} $log';
 		
 		#if sys
 		Sys.println(output);
 		#else
 		trace(output); // idk others lol!
 		#end
+	}
+
+	static function getAnsiColourFromSeverity(severity:Severity)
+	{
+		return switch (severity)
+		{
+			case ERROR: AnsiCode.RED;
+			
+			case WARN: AnsiCode.YELLOW;
+			
+			case NOTICE: AnsiCode.GREEN;
+			
+			default: AnsiCode.WHITE;
+		}
 	}
 	
 	public static function getHexColourFromSeverity(severity:Severity)

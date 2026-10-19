@@ -362,15 +362,11 @@ class Mods
 		if (pack.iconFile != null)
 		{
 			var path = Paths.getPath('images/${pack.iconFile}.png', null, true);
-			if (!FunkinAssets.exists(path))
-			{
-				Logger.log('Could not find Icon ${pack.iconFile}', ERROR);
-			}
-			else
-			{
-				iconPath = path;
-			}
+			if (!FunkinAssets.exists(path)) Logger.log('Could not find Icon ${pack.iconFile}. Returning engine icon instead', WARN);
+			else iconPath = path;
 		}
+
+		Logger.log('Current Mod Icon: $iconPath.');
 		
 		WindowUtil.setIconFromPath(iconPath);
 		

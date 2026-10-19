@@ -173,6 +173,42 @@ class AnsiUtil
 	public static inline function bg_bright_cyan(str:String):String return apply(str, AnsiCode.BG_BRIGHT_CYAN);
 	public static inline function bg_bright_white(str:String):String return apply(str, AnsiCode.BG_BRIGHT_WHITE);
 
+	// Custom Funcs
+	
+	/**
+	 * ANSI escape sequence header
+	 */
+	public static inline final ESC = "\x1B[";
+	
+	public static inline function reset(str:String):String return str + ESC + "0m";
+	
+	/**
+	 * sets the given text attribute
+	 */
+	public static inline function attr(str:String, attr:AnsiCode):String return ESC + (attr) + str;
+	
+	/**
+	 * set the text background color
+	 *
+	 */
+	public static inline function bg(str:String, color:AnsiCode):String return ESC + "4" + color + str;
+	
+	/**
+	 * Clears the screen and moves the cursor to the home position
+	 */
+	public static inline function clearScreen():String return ESC + "2Jm";
+	
+	/**
+	 * Clear all characters from current position to the end of the line including the character at the current position
+	 */
+	public static inline function clearLine():String return ESC + "Km";
+	
+	/**
+	 * set the text foreground color
+	 *
+	 */
+	public static inline function fg(str:String, color:AnsiCode):String return ESC + "38;5;" + color + str;
+
 	/**
 	 * Applies the specified ANSI codes to the input string.
 	 *

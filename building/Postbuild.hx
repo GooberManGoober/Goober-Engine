@@ -4,6 +4,7 @@ import sys.FileSystem;
 import sys.io.File;
 
 using StringTools;
+using building.utils.AnsiUtil;
 
 /**
 * A script which executes after the game is built.
@@ -26,7 +27,7 @@ class Postbuild
 
 			sys.FileSystem.deleteFile(BUILD_TIME_FILE);
 
-			Sys.println('Build took: ${format(end - start)}');
+			Sys.println(' LOG '.log() + ' Build took: ${format(end - start)}');
 		}
 	}
 
