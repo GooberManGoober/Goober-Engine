@@ -511,11 +511,11 @@ class Controls extends FlxActionSet
 	{
 		final name = _name.toLowerCase();
 		
-		var keys = _keys.copy();
+		var keys = ClientPrefs.keyBinds.exists(_name) ? ClientPrefs.keyBinds.get(_name).copy() : _keys.copy();
 		while (keys.length < 2)
 			keys.push(FlxKey.NONE);
 			
-		var pads = _pads.copy();
+		var pads = ClientPrefs.gamepadBinds.exists(_name) ? ClientPrefs.gamepadBinds.get(_name).copy() : _pads.copy();
 		while (pads.length < 2)
 			pads.push(FlxGamepadInputID.NONE);
 			
