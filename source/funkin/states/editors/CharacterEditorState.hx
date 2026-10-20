@@ -1487,6 +1487,16 @@ class CharacterEditorState extends UIState // MUST EXTEND UI STATE needed for ac
 				function onFileSave(path:String)
 				{
 					final char = path.withoutDirectory().withoutExtension();
+					
+					// sets current dropdown/selected character to the newly saved file
+					// but ONLY if its within ur mod directory, that way it doesnt mess up dropdown stuff
+					if (path.contains(Mods.currentModDirectory))
+					{
+						characterId = char;
+						characterPath = CharacterParser.findCharacterPath(char);
+						uiElements.toolBar.characterDropdown.id = uiElements.toolBar.characterDropdown.text = char;
+					}
+					
 					ToolKitUtils.makeNotification('Character File Saving', 'Character ($char) was successfully saved.', Success);
 					FlxG.sound.play(Paths.sound('ui/success'));
 				}
