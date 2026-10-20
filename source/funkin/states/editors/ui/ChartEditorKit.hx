@@ -105,6 +105,11 @@ class ChartEditorUI extends flixel.group.FlxSpriteContainer
 			charter.gfIcon = CharacterParser.fetchInfo(song.gfVersion = event.data.id).healthicon;
 			charter.updateHeads();
 		}
+
+		songDialog.hudField.value = song.hudClass;
+		songDialog.hudField.onChange = function(event) {
+			song.hudClass = songDialog.hudField.value;
+		}
 		
 		songDialog.p1NoteSkinDropdown.onChange = function(event) {
 			if (!event.data.isDropDownItem()) return;

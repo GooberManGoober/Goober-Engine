@@ -287,12 +287,19 @@
 			<rule/>
 			<spacer height="5"/>
 			
-			<grid width="100%" columns="2">
-				<label text="Stage:" width="80" verticalAlign="center"/>
-				<dropdown width="100%" searchable="true" searchPrompt="stage" id="stageDropdown">
-					<data> <item text="stage"/> </data>
-				</dropdown>
-			</grid>
+			<hbox width="100%" style="spacing: 10px;">
+				<vbox width="100%">
+					<label text="Stage:" horizontalAlign="center"/>
+					<dropdown width="100%" searchable="true" searchPrompt="stage" id="stageDropdown">
+						<data> <item text="stage"/> </data>
+					</dropdown>
+				</vbox>
+
+				<vbox width="100%">
+					<label text="HUD:" horizontalAlign="center"/>
+					<textfield width="100%" id="hudField" horizontalAlign="right" placeholder="Psych"/>
+				</vbox>
+			</hbox>
 
 			<spacer height="5"/>
 			<rule/>
