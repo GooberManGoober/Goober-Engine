@@ -9,11 +9,13 @@ class ScriptedHUD extends BaseHUD
 {
     public var script:Null<FunkinScript> = null;
 
-    public function new(parent:PlayState, name:String = '', hscriptPath:String)
+    public function new(parent:PlayState, scriptName:String = '', hscriptPath:String)
 	{
 		this.parent = parent;
+
+		this.name = "SCRIPTED";
 		
-		script = FunkinScript.fromFile(hscriptPath, name, true, PlayState.instance?.scripts?.scriptShareables);
+		script = FunkinScript.fromFile(hscriptPath, scriptName, true, PlayState.instance?.scripts?.scriptShareables);
 		
 		if (script == null || script.parsingFailed())
 		{
@@ -23,7 +25,7 @@ class ScriptedHUD extends BaseHUD
 		}
 		else @:privateAccess (cast script.interp : extensions.hscript.InterpEx).parent = this;
 
-        this.parent = parent;
+        // this.parent = parent;
 
 		super(parent);
 

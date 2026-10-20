@@ -746,7 +746,7 @@ class PlayState extends MusicBeatState
 			add(screenDim);
 		}
 
-		initHUD(Mods.currentModConfig.defaultHUDClass ?? (SONG.hudClass ?? "psych"));
+		initHUD(SONG.hudClass ?? (Mods.currentModConfig.defaultHUDClass ?? "psych"));
 		
 		meta = SongMeta.getFromSong();
 		
@@ -899,7 +899,7 @@ class PlayState extends MusicBeatState
 
 		switch(name.toLowerCase())
 		{
-			case 'psych': playHUD = new funkin.game.huds.PsychHUD(this);
+			case 'psych', 'base': playHUD = new funkin.game.huds.PsychHUD(this);
 			default: {
 				var hscriptPath = FunkinScript.getPath('scripts/huds/$name');
 	
