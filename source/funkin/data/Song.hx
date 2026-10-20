@@ -29,6 +29,7 @@ typedef Song =
 	var player2:String;
 	var gfVersion:String;
 	var stage:String;
+	var ?hudClass:String;
 	
 	var arrowSkins:Array<String>;
 	

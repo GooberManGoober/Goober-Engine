@@ -746,7 +746,7 @@ class PlayState extends MusicBeatState
 			add(screenDim);
 		}
 
-		initHUD(Mods.currentModConfig.defaultHUDClass ?? "psych");
+		initHUD(Mods.currentModConfig.defaultHUDClass ?? (SONG.hudClass ?? "psych"));
 		
 		meta = SongMeta.getFromSong();
 		
@@ -921,6 +921,8 @@ class PlayState extends MusicBeatState
 		playHUD.cameras = [camHUD];
 		if (changeEvent) insert(members.indexOf(botplayTxt), playHUD);
 		else add(playHUD);
+
+		Logger.log('Current HUD: ${playHUD.toString()}');
 	}
 	
 	/**

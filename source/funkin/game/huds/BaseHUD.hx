@@ -111,4 +111,6 @@ class BaseHUD extends FlxTypedContainer<FlxBasic>
 		}
 		return alpha = v;
 	}
+
+	override public function toString():String return name;
 }
