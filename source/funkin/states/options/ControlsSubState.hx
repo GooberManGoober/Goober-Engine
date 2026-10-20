@@ -288,6 +288,7 @@ class ControlsSubState extends MusicBeatSubstate
 				
 				if (bindingTime > 5)
 				{
+					currentOption.change(device, -1);
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					state = SELECT;
 					bindingTime = 0;
@@ -495,7 +496,12 @@ class ControlsOption extends FlxSpriteContainer
 		binds.members[index].changeText(switch device
 		{
 			case Keys: InputFormatter.getKeyName(inputID);
-			case Gamepad(id): FlxG.gamepads.getByID(id).getInputLabel(inputID).toUpperCase();
+			case Gamepad(id):
+				if (inputID == -1) '---'; else
+				{
+					var gamepad = FlxG.gamepads.getByID(id);
+					gamepad != null ? gamepad.getInputLabel(inputID).toUpperCase() : '---';
+				}
 		});
 		
 		binds.members[index].alpha = alpha;

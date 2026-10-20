@@ -300,7 +300,7 @@ class ClientPrefs
 			while (tempKeys.length < 2)
 				tempKeys.push(NONE);
 				
-			customKeys.set(name, tempKeys);
+			customKeys.set(name, keyBinds.exists(name) ? keyBinds.get(name) : tempKeys);
 			defaultKeys.set(name, tempKeys);
 		}
 		
@@ -320,7 +320,7 @@ class ClientPrefs
 			while (tempPads.length < 2)
 				tempPads.push(NONE);
 				
-			customPad.set(name, tempPads);
+			customPad.set(name, gamepadBinds.exists(name) ? gamepadBinds.get(name) : tempPads);
 			defaultGamepadBinds.set(name, tempPads);
 		}
 		
