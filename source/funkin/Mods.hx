@@ -130,13 +130,13 @@ class Mods
 	];
 	
 	/**
-	 * makes `modsList.txt` in the case it doesnt exist
+	 * makes `content/modsList.txt` in the case it doesnt exist
 	 */
 	static function ensureModsListExists()
 	{
-		if (!FunkinAssets.exists('modsList.txt'))
+		if (!FunkinAssets.exists('content/modsList.txt'))
 		{
-			File.saveContent('modsList.txt', '');
+			File.saveContent('content/modsList.txt', '');
 		}
 	}
 	
@@ -258,7 +258,7 @@ class Mods
 		var list:ModsList = {enabled: [], disabled: [], all: []};
 		
 		#if MODS_ALLOWED
-		for (mod in CoolUtil.coolTextFile('modsList.txt'))
+		for (mod in CoolUtil.coolTextFile('content/modsList.txt'))
 		{
 			if (mod.trim().length < 1) continue;
 			
@@ -287,7 +287,7 @@ class Mods
 				list.push({folder: top, enabled: true});
 			}
 		}
-		for (mod in CoolUtil.coolTextFile('modsList.txt'))
+		for (mod in CoolUtil.coolTextFile('content/modsList.txt'))
 		{
 			var dat:Array<String> = mod.split("|");
 			var folder:String = dat[0];
@@ -300,7 +300,7 @@ class Mods
 				list.push({folder: folder, enabled: (dat[1] == "1")});
 			}
 		}
-		// Scan for folders that aren't on modsList.txt yet
+		// Scan for folders that aren't on content/modsList.txt yet
 		for (folder in getModDirectories())
 		{
 			if (folder.trim().length > 0
@@ -333,7 +333,7 @@ class Mods
 			if (fileStr.length > 0) fileStr += '\n';
 			fileStr += values.folder + '|' + (values.enabled ? '1' : '0');
 		}
-		File.saveContent('modsList.txt', fileStr);
+		File.saveContent('content/modsList.txt', fileStr);
 		#end
 	}
 	
