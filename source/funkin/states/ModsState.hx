@@ -37,10 +37,10 @@ class ModsState extends MusicBeatState
 		modList = [];
 		FunkinSound.playMusic(Paths.music("freakyMenu"));
 		
-		for (i in CoolUtil.coolTextFile('content/modsList.txt'))
+		for (i in CoolUtil.coolTextFile('modsList.txt'))
 		{
-			var name = StringTools.replace(StringTools.replace(i, '|1', ''), '|0', '');
-			var e = StringTools.contains(i, '|1');
+			var name = StringTools.replace(StringTools.replace(i, '=true', ''), '=false', '');
+			var e = StringTools.contains(i, '=true');
 			
 			var type = {folder: name, enabled: e};
 			modList.push(type);
@@ -204,11 +204,11 @@ class ModsState extends MusicBeatState
 		for (values in modList)
 		{
 			if (fileStr.length > 0) fileStr += '\n';
-			fileStr += values.folder + '|' + (values.enabled ? '1' : '0');
+			fileStr += values.folder + '=' + (values.enabled ? 'true' : 'false');
 		}
 		
 		FlxG.sound.play(Paths.sound("cancelMenu"));
-		File.saveContent('content/modsList.txt', fileStr);
+		File.saveContent('modsList.txt', fileStr);
 		handleListTxt();
 	}
 	
@@ -233,13 +233,13 @@ class ModsState extends MusicBeatState
 	
 	function isModEnabled(mod:String = '')
 	{
-		var list = CoolUtil.coolTextFile('content/modsList.txt');
+		var list = CoolUtil.coolTextFile('modsList.txt');
 		
 		for (i in list)
 		{
 			if (StringTools.contains(i, mod))
 			{
-				var e = StringTools.contains(i, '|1');
+				var e = StringTools.contains(i, '=true');
 				return e;
 			}
 		}

@@ -12,6 +12,7 @@ import foxlite.loaders.FoxLoaderUtil;
 #end
 
 import funkin.backend.math.Vector3;
+import funkin.backend.Logger;
 
 /**
  * Initiation state that prepares backend classes and returns to menus when finished
@@ -39,6 +40,7 @@ class Init extends FlxState
 		#if MODS_ALLOWED
 		funkin.Mods.pushGlobalMods();
 		funkin.Mods.loadTopMod();
+		Logger.log('TOP MOD: ${funkin.Mods.currentModDirectory}');
 		#end
 		
 		// set some flixel settings

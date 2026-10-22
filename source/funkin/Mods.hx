@@ -130,13 +130,13 @@ class Mods
 	];
 	
 	/**
-	 * makes `content/modsList.txt` in the case it doesnt exist
+	 * makes `modsList.txt` in the case it doesnt exist
 	 */
 	static function ensureModsListExists()
 	{
-		if (!FunkinAssets.exists('content/modsList.txt'))
+		if (!FunkinAssets.exists('modsList.txt'))
 		{
-			File.saveContent('content/modsList.txt', '');
+			File.saveContent('modsList.txt', '');
 		}
 	}
 	
@@ -258,13 +258,13 @@ class Mods
 		var list:ModsList = {enabled: [], disabled: [], all: []};
 		
 		#if MODS_ALLOWED
-		for (mod in CoolUtil.coolTextFile('content/modsList.txt'))
+		for (mod in CoolUtil.coolTextFile('modsList.txt'))
 		{
 			if (mod.trim().length < 1) continue;
 			
-			var dat = mod.split("|");
+			var dat = mod.split("=");
 			list.all.push(dat[0]);
-			if (dat[1] == "1") list.enabled.push(dat[0]);
+			if (dat[1] == "true") list.enabled.push(dat[0]);
 			else list.disabled.push(dat[0]);
 		}
 		#end
@@ -287,9 +287,9 @@ class Mods
 				list.push({folder: top, enabled: true});
 			}
 		}
-		for (mod in CoolUtil.coolTextFile('content/modsList.txt'))
+		for (mod in CoolUtil.coolTextFile('modsList.txt'))
 		{
-			var dat:Array<String> = mod.split("|");
+			var dat:Array<String> = mod.split("=");
 			var folder:String = dat[0];
 			if (folder.trim().length > 0
 				&& FileSystem.exists(Paths.mods(folder))
@@ -297,10 +297,10 @@ class Mods
 				&& !added.contains(folder) && folder != top)
 			{
 				added.push(folder);
-				list.push({folder: folder, enabled: (dat[1] == "1")});
+				list.push({folder: folder, enabled: (dat[1] == "true")});
 			}
 		}
-		// Scan for folders that aren't on content/modsList.txt yet
+		// Scan for folders that aren't on modsList.txt yet
 		for (folder in getModDirectories())
 		{
 			if (folder.trim().length > 0
@@ -331,9 +331,9 @@ class Mods
 		for (values in list)
 		{
 			if (fileStr.length > 0) fileStr += '\n';
-			fileStr += values.folder + '|' + (values.enabled ? '1' : '0');
+			fileStr += values.folder + '=' + (values.enabled ? 'true' : 'false');
 		}
-		File.saveContent('content/modsList.txt', fileStr);
+		File.saveContent('modsList.txt', fileStr);
 		#end
 	}
 	
@@ -365,8 +365,6 @@ class Mods
 			if (!FunkinAssets.exists(path)) Logger.log('Could not find Icon ${pack.iconFile}. Returning engine icon instead', WARN);
 			else iconPath = path;
 		}
-
-		Logger.log('Current Mod Icon: $iconPath.');
 		
 		WindowUtil.setIconFromPath(iconPath);
 		
