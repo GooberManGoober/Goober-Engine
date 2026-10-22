@@ -1,4 +1,4 @@
-package funkin.states;
+package funkin.states.menus;
 
 import flixel.text.FlxText;
 
@@ -172,7 +172,7 @@ class ModsState extends MusicBeatState
 		name.text = (pack == null ? modList[curDir].folder : pack.name) + ' [' + (curDir + 1) + '/' + modList.length + ']';
 		name.setPosition(icon.x + icon.width + 10, icon.y + (icon.height - name.height) / 2);
 		
-		var text = (pack == null || pack.description == null) ? "No description provided." : pack.description;
+		var text = (pack == null || (pack.description == null || pack.description == "")) ? "No description provided." : pack.description;
 		
 		description.text = text;
 		description.setPosition(box.x + 10, box.y + 65);

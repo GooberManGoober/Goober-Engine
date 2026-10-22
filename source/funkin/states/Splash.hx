@@ -1,10 +1,10 @@
-package;
+package funkin.states;
 
 import flixel.FlxState;
 
 import funkin.FunkinAssets;
 import funkin.backend.Logger;
-import funkin.states.TitleState;
+import funkin.states.menus.TitleState;
 #if VIDEOS_ALLOWED
 import funkin.video.FunkinVideoSprite;
 #end

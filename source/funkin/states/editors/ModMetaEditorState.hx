@@ -120,7 +120,7 @@ class ModMetaEditorState extends UIState
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.switchState(() -> {
-				new funkin.states.ModsState();
+				new funkin.states.menus.ModsState();
 			});
 		}
 	}

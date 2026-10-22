@@ -1,4 +1,4 @@
-package;
+package funkin.states;
 
 import funkin.FunkinAssets;
 
@@ -31,7 +31,7 @@ class Init extends FlxState
 		
 		funkin.data.Highscore.load();
 		
-		if (FlxG.save.data.weekCompleted != null) funkin.states.StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
+		if (FlxG.save.data.weekCompleted != null) funkin.states.menus.StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 		
 		FlxSprite.defaultAntialiasing = ClientPrefs.globalAntialiasing;
 		
