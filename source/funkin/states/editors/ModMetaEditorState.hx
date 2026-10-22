@@ -188,6 +188,9 @@ class ModMetaEditorState extends UIState
 			"description": dialog.descTextField.value,
 		};
 
+		if (dialog.iconFileTextField.value != null && dialog.iconFileTextField.value != "")
+			Reflect.setField(json, "iconFile", dialog.iconFileTextField.value);
+		if (dialog.windowTitleTextField.value != null && dialog.windowTitleTextField.value != "")
 			Reflect.setField(json, "windowTitle", dialog.windowTitleTextField.value);
 		if (dialog.defaultTransitionTextField.value != null && dialog.defaultTransitionTextField.value != "")
 			Reflect.setField(json, "defaultTransition", dialog.defaultTransitionTextField.value);
@@ -200,33 +203,59 @@ class ModMetaEditorState extends UIState
 			Reflect.setField(redirects, "TitleState", dialog.titleStateTextField.value);
 		if (dialog.storyMenuStateTextField.value != null && dialog.storyMenuStateTextField.value != "")
 			Reflect.setField(redirects, "StoryMenuState", dialog.storyMenuStateTextField.value);
+		if (dialog.mainMenuStateTextField.value != null && dialog.mainMenuStateTextField.value != "")
+			Reflect.setField(redirects, "MainMenuState", dialog.mainMenuStateTextField.value);
+		if (dialog.freeplayStateTextField.value != null && dialog.freeplayStateTextField.value != "")
+			Reflect.setField(redirects, "FreeplayState", dialog.freeplayStateTextField.value);
+		if (dialog.creditsStateTextField.value != null && dialog.creditsStateTextField.value != "")
+			Reflect.setField(redirects, "CreditsState", dialog.creditsStateTextField.value);
+		if (dialog.optionsStateTextField.value != null && dialog.optionsStateTextField.value != "")
+			Reflect.setField(redirects, "OptionsState", dialog.optionsStateTextField.value);
 
 		if (redirects != { }) Reflect.setField(json, "stateRedirects", redirects);
 
-		if (dialog.defaultFontTextField.value != null && dialog.defaultFontTextField.value != "") Reflect.setField(json, "defaultFont", dialog.defaultFontTextField.value);
-		if (dialog.uiPrefixTextField.value != null && dialog.uiPrefixTextField.value != "") Reflect.setField(json, "uiPrefix", dialog.uiPrefixTextField.value);
-		if (dialog.comboPrefixTextField.value != null && dialog.comboPrefixTextField.value != "") Reflect.setField(json, "comboPrefix", dialog.comboPrefixTextField.value);
-		if (dialog.ratingsPrefixTextField.value != null && dialog.ratingsPrefixTextField.value != "") Reflect.setField(json, "ratingsPrefix", dialog.ratingsPrefixTextField.value);
-		if (dialog.countdownPrefixTextField.value != null && dialog.countdownPrefixTextField.value != "") Reflect.setField(json, "countdownPrefix", dialog.countdownPrefixTextField.value);
+		if (dialog.defaultFontTextField.value != null && dialog.defaultFontTextField.value != "")
+			Reflect.setField(json, "defaultFont", dialog.defaultFontTextField.value);
+		if (dialog.uiPrefixTextField.value != null && dialog.uiPrefixTextField.value != "")
+			Reflect.setField(json, "uiPrefix", dialog.uiPrefixTextField.value);
+		if (dialog.comboPrefixTextField.value != null && dialog.comboPrefixTextField.value != "")
+			Reflect.setField(json, "comboPrefix", dialog.comboPrefixTextField.value);
+		if (dialog.ratingsPrefixTextField.value != null && dialog.ratingsPrefixTextField.value != "")
+			Reflect.setField(json, "ratingsPrefix", dialog.ratingsPrefixTextField.value);
+		if (dialog.countdownPrefixTextField.value != null && dialog.countdownPrefixTextField.value != "")
+			Reflect.setField(json, "countdownPrefix", dialog.countdownPrefixTextField.value);
+
+		if (dialog.defaultHUDTextField.value != null && dialog.defaultHUDTextField.value != "")
+			Reflect.setField(json, "defaultHUDClass", dialog.defaultHUDTextField.value);
 
 		final dataToSave:String = Json.stringify(json, "\t");
 		
 		if (dataToSave.length > 0)
 		{
-			function onFileSave(path:String)
+			if (dialog)
 			{
-				final char = path.withoutDirectory().withoutExtension();
+				function onFileSave(path:String)
+				{
+					final char = path.withoutDirectory().withoutExtension();
+					ToolKitUtils.makeNotification('Metadata File Saving', 'Successfully saved.', Success);
+					FlxG.sound.play(Paths.sound('ui/success'));
+				}
+				
+				function onFileCancel()
+				{
+					ToolKitUtils.makeNotification('Metadata File Saving', 'Saving was canceled.', Info);
+					FlxG.sound.play(Paths.sound('ui/warn'));
+				}
+				
+				FileUtil.saveFile(dataToSave, 'meta.json', onFileSave, onFileCancel);
+			}
+			else
+			{
 				ToolKitUtils.makeNotification('Metadata File Saving', 'Successfully saved.', Success);
 				FlxG.sound.play(Paths.sound('ui/success'));
+				
+				FileUtil.saveFileToPath(dataToSave, 'meta.json');
 			}
-			
-			function onFileCancel()
-			{
-				ToolKitUtils.makeNotification('Metadata File Saving', 'Saving was canceled.', Info);
-				FlxG.sound.play(Paths.sound('ui/warn'));
-			}
-			
-			FileUtil.saveFile(dataToSave, 'meta.json', onFileSave, onFileCancel);
 		}
 	}
 }
