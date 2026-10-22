@@ -27,6 +27,8 @@ class ModMetaEditorState extends UIState
 
 	var modPack:ModMeta;
 
+	var isTextFieldFocused:Bool = false;
+
 	public function new(shitFuck:String)
 	{
 		super();
@@ -111,11 +113,24 @@ class ModMetaEditorState extends UIState
 		{
 			if (FlxG.keys.pressed.CONTROL)
 			{
-				if (FlxG.keys.justPressed.S) saveCharToFile(FlxG.keys.pressed.SHIFT);
+				if (FlxG.keys.justPressed.S) saveMetaToFile(FlxG.keys.pressed.SHIFT);
 			}
 		}
 		
 		if (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight) FlxG.sound.play(Paths.sound('ui/mouseClick'));
+
+		if (!isTextFieldFocused)
+		{
+			FlxG.sound.muteKeys = ClientPrefs.muteKeys;
+			FlxG.sound.volumeDownKeys = ClientPrefs.volumeDownKeys;
+			FlxG.sound.volumeUpKeys = ClientPrefs.volumeUpKeys;
+		}
+		else
+		{
+			FlxG.sound.muteKeys = [];
+			FlxG.sound.volumeDownKeys = [];
+			FlxG.sound.volumeUpKeys = [];
+		}
 		
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
@@ -180,7 +195,7 @@ class ModMetaEditorState extends UIState
 		dialog.saveButton.onClick = (ev) -> saveMetaToFile(true);
 	}
 
-	function saveMetaToFile(dialog:Bool = true)
+	function saveMetaToFile(showDialog:Bool = true)
 	{
 		final json = {
 			"name": dialog.modNameTextField.value,
@@ -232,11 +247,10 @@ class ModMetaEditorState extends UIState
 		
 		if (dataToSave.length > 0)
 		{
-			if (dialog)
+			if (showDialog)
 			{
 				function onFileSave(path:String)
 				{
-					final char = path.withoutDirectory().withoutExtension();
 					ToolKitUtils.makeNotification('Metadata File Saving', 'Successfully saved.', Success);
 					FlxG.sound.play(Paths.sound('ui/success'));
 				}
