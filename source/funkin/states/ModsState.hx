@@ -1,4 +1,4 @@
-package funkin.states.menus;
+package funkin.states;
 
 import flixel.text.FlxText;
 

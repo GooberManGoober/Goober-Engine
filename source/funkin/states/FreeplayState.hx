@@ -1,4 +1,4 @@
-package funkin.states.menus;
+package funkin.states;
 
 import funkin.input.TurboControl;
 import funkin.input.TurboControl.TurboControlGroup;

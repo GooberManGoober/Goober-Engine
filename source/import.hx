@@ -27,7 +27,7 @@ import funkin.api.DiscordClient;
 import hxvlc.flixel.*;
 #end
 
-import funkin.states.Init;
+import Init;
 
 import funkin.Paths;
 import funkin.data.ClientPrefs;
@@ -35,7 +35,6 @@ import funkin.backend.Conductor;
 import funkin.utils.CoolUtil;
 import funkin.data.Highscore;
 import funkin.states.*;
-import funkin.states.menus.*;
 import funkin.objects.BGSprite;
 import funkin.backend.MusicBeatState;
 

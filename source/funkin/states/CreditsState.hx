@@ -1,4 +1,4 @@
-package funkin.states.menus;
+package funkin.states;
 
 import funkin.objects.nodes.AttachedNode;
 
