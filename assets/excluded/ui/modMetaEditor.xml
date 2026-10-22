@@ -5,10 +5,10 @@
         <box text="Mod Data">
             <grid columns="2">
                 <vbox>
-                    <label text="Mod Name (REQUIRED)" verticalAlign="left" />
+                    <label text="Mod Name (*)" verticalAlign="left" />
                     <textfield placeholder="Template Mod" width="150" id="modNameTextField"/>
 
-                    <label text="Description (REQUIRED)" verticalAlign="center" />
+                    <label text="Description (*)" verticalAlign="center" />
                     <textfield placeholder="Placeholder Desc" width="150" id="descTextField"/>
 
                     <label text="Icon File" verticalAlign="center" />
@@ -23,10 +23,10 @@
                     <label text="Discord RPC ID" verticalAlign="left" />
                     <textfield placeholder="Discord RPC" width="150" id="discordClientIDTextField" tooltip="Type in the ID of the Discord Application you want the engine to use."/>
 
-                    <checkbox text="Apply Globally? (REQUIRED)" id="globalCheckbox" verticalAlign="center" tooltip="If enabled, this mod will apply to all the other mods you have enabled."/>
+                    <checkbox text="Apply Globally? (*)" id="globalCheckbox" verticalAlign="center" tooltip="If enabled, this mod will apply to all the other mods you have enabled."/>
 
                     <hbox verticalAlign="bottom">
-                        <button text="Save" id="saveButton" style="background-color: #156015;" />
+                        <button text="Save Data" id="saveButton" style="background-color: #156015;" />
                     </hbox>
                 </vbox>
             </grid>
@@ -56,7 +56,7 @@
             </grid>
         </box>
 
-        <box text="Path Prefixes">
+        <box text="Misc.">
             <grid columns="2">
                 <vbox>
                     <label text="Default Font" verticalAlign="left" />
@@ -73,6 +73,9 @@
 
                     <label text="Countdown Prefix" verticalAlign="left" />
                     <textfield placeholder="UI/countdown/" width="150" id="countdownPrefixTextField" tooltip="Type the prefix path to your countdown sprites"/>
+
+                    <label text="Default HUD Class" verticalAlign="left" />
+                    <textfield placeholder="Psych" width="150" id="defaultHUDTextField"/>
                 </vbox>
             </grid>
         </box>

@@ -104,6 +104,18 @@ class ModMetaEditorState extends UIState
 		super.update(elapsed);
 		
 		ToolKitUtils.update();
+
+		isTextFieldFocused = (ToolKitUtils.currentFocus != null);
+		
+		if (!isTextFieldFocused)
+		{
+			if (FlxG.keys.pressed.CONTROL)
+			{
+				if (FlxG.keys.justPressed.S) saveCharToFile(FlxG.keys.pressed.SHIFT);
+			}
+		}
+		
+		if (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight) FlxG.sound.play(Paths.sound('ui/mouseClick'));
 		
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
@@ -140,6 +152,7 @@ class ModMetaEditorState extends UIState
 		dialog.comboPrefixTextField.value = modPack.comboPrefix;
 		dialog.ratingsPrefixTextField.value = modPack.ratingsPrefix;
 		dialog.countdownPrefixTextField.value = modPack.countdownPrefix;
+		dialog.defaultHUDTextField.value = modPack.defaultHUDClass;
 		
 		dialog.modNameTextField.onChange = function(event) {
 			name.text = dialog.modNameTextField.value;
@@ -164,10 +177,10 @@ class ModMetaEditorState extends UIState
 			directoryTxt.font = name.font = description.font = dialog.defaultFontTextField.value;
 		}
 
-		dialog.saveButton.onClick = (ev) -> saveMetaToFile();
+		dialog.saveButton.onClick = (ev) -> saveMetaToFile(true);
 	}
 
-	function saveMetaToFile()
+	function saveMetaToFile(dialog:Bool = true)
 	{
 		final json = {
 			"name": dialog.modNameTextField.value,
@@ -175,19 +188,18 @@ class ModMetaEditorState extends UIState
 			"description": dialog.descTextField.value,
 		};
 
-		if (dialog.iconFileTextField.value != null && dialog.iconFileTextField.value != "") Reflect.setField(json, "iconFile", dialog.iconFileTextField.value);
-		if (dialog.windowTitleTextField.value != null && dialog.windowTitleTextField.value != "") Reflect.setField(json, "windowTitle", dialog.windowTitleTextField.value);
-		if (dialog.defaultTransitionTextField.value != null && dialog.defaultTransitionTextField.value != "") Reflect.setField(json, "defaultTransition", dialog.defaultTransitionTextField.value);
-		if (dialog.discordClientIDTextField.value != null && dialog.discordClientIDTextField.value != "") Reflect.setField(json, "discordClientID", dialog.discordClientIDTextField.value);
+			Reflect.setField(json, "windowTitle", dialog.windowTitleTextField.value);
+		if (dialog.defaultTransitionTextField.value != null && dialog.defaultTransitionTextField.value != "")
+			Reflect.setField(json, "defaultTransition", dialog.defaultTransitionTextField.value);
+		if (dialog.discordClientIDTextField.value != null && dialog.discordClientIDTextField.value != "")
+			Reflect.setField(json, "discordClientID", dialog.discordClientIDTextField.value);
 
 		var redirects = {};
 
-		if (dialog.titleStateTextField.value != null && dialog.titleStateTextField.value != "") Reflect.setField(redirects, "TitleState", dialog.titleStateTextField.value);
-		if (dialog.storyMenuStateTextField.value != null && dialog.storyMenuStateTextField.value != "") Reflect.setField(redirects, "StoryMenuState", dialog.storyMenuStateTextField.value);
-		if (dialog.mainMenuStateTextField.value != null && dialog.mainMenuStateTextField.value != "") Reflect.setField(redirects, "MainMenuState", dialog.mainMenuStateTextField.value);
-		if (dialog.freeplayStateTextField.value != null && dialog.freeplayStateTextField.value != "") Reflect.setField(redirects, "FreeplayState", dialog.freeplayStateTextField.value);
-		if (dialog.creditsStateTextField.value != null && dialog.creditsStateTextField.value != "") Reflect.setField(redirects, "CreditsState", dialog.creditsStateTextField.value);
-		if (dialog.optionsStateTextField.value != null && dialog.optionsStateTextField.value != "") Reflect.setField(redirects, "OptionsState", dialog.optionsStateTextField.value);
+		if (dialog.titleStateTextField.value != null && dialog.titleStateTextField.value != "")
+			Reflect.setField(redirects, "TitleState", dialog.titleStateTextField.value);
+		if (dialog.storyMenuStateTextField.value != null && dialog.storyMenuStateTextField.value != "")
+			Reflect.setField(redirects, "StoryMenuState", dialog.storyMenuStateTextField.value);
 
 		if (redirects != { }) Reflect.setField(json, "stateRedirects", redirects);
 
