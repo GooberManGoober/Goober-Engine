@@ -26,6 +26,7 @@ class ModMetaEditorState extends UIState
 	var directoryTxt:FlxText;
 
 	var modPack:ModMeta;
+	var modPackName:String;
 
 	var isTextFieldFocused:Bool = false;
 
@@ -33,6 +34,7 @@ class ModMetaEditorState extends UIState
 	{
 		super();
 		
+		modPackName = shitFuck;
 		modPack = Mods.getPack(shitFuck);
 	}
 	
@@ -175,6 +177,8 @@ class ModMetaEditorState extends UIState
 
 		dialog.descTextField.onChange = function(event) {
 			description.text = dialog.descTextField.value;
+			if (dialog.descTextField.value == null || dialog.descTextField.value.description == null) description.text = "No description provided.";
+			else description.text = dialog.descTextField.value;
 		}
 
 		dialog.iconFileTextField.onChange = function(event) {
@@ -190,6 +194,8 @@ class ModMetaEditorState extends UIState
 
 		dialog.defaultFontTextField.onChange = function(event) {
 			directoryTxt.font = name.font = description.font = dialog.defaultFontTextField.value;
+			if (dialog.defaultFontTextField.value == "" || dialog.defaultFontTextField.value == null) directoryTxt.font = name.font = description.font = Paths.DEFAULT_FONT;
+			else directoryTxt.font = name.font = description.font = dialog.defaultFontTextField.value;
 		}
 
 		dialog.saveButton.onClick = (ev) -> saveMetaToFile(true);
@@ -266,9 +272,13 @@ class ModMetaEditorState extends UIState
 			else
 			{
 				ToolKitUtils.makeNotification('Metadata File Saving', 'Successfully saved.', Success);
+				var path:String = 'content/$modPackName/meta.json';
+				
+				ToolKitUtils.makeNotification('Metadata File Saving', 'Successfully saved to $path.', Success);
 				FlxG.sound.play(Paths.sound('ui/success'));
 				
 				FileUtil.saveFileToPath(dataToSave, 'meta.json');
+				FileUtil.saveFileToPath(dataToSave, path);
 			}
 		}
 	}
